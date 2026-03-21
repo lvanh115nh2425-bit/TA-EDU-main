@@ -1,0 +1,858 @@
+
+/* -------- Biến màu & nền cơ bản -------- */
+:root {
+  --bg: #f7fdfb;
+  --text: #0f172a;
+  --muted: #475569;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --shadow: 0 8px 24px rgba(2, 6, 23, 0.08);
+  --primary: #1ab293;       /* màu nhận diện TA Edu */
+  --primary-600: #149278;
+  --accent: #22c55e;
+  --note-bg: #eafdf5;
+  --warn-bg: #fff7ed;
+  --warn-border: #f59e0b;
+  --tip-bg: #eef6ff;
+  --tip-border: #3b82f6;
+  --code-bg: #0b1220;
+  --code-text: #e5e7eb;
+}
+
+/* Reset nhỏ cho tính nhất quán */
+* { box-sizing: border-box; }
+img { max-width: 100%; height: auto; }
+
+/* Container kế thừa từ site, chỉ tinh chỉnh spacing cho bài học */
+.container { width: min(1100px, 92%); margin: 0 auto; }
+
+/* -------- Hero cho trang BÀI HỌC (không ảnh hưởng trang chủ) -------- */
+.hero .container h1 {
+  margin: 0 0 10px;
+  font-weight: 800;
+  letter-spacing: .2px;
+}
+.hero .container p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+/* -------- Khối nội dung chính của BÀI HỌC -------- */
+.lesson-content {
+  background: var(--card);
+  color: var(--text);
+  max-width: 900px;
+  margin: 24px auto 88px;
+  padding: 28px 22px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  line-height: 1.8;
+}
+
+/* Tiêu đề cấp 2/3/4 trong bài học */
+.lesson-content h2 {
+  color: var(--primary-600);
+  font-size: 1.6rem;
+  margin: 28px 0 12px;
+  padding-left: 12px;
+  border-left: 5px solid var(--primary);
+  line-height: 1.35;
+}
+.lesson-content h3 {
+  font-size: 1.25rem;
+  margin: 22px 0 8px;
+  color: var(--text);
+}
+.lesson-content h4 {
+  font-size: 1.05rem;
+  margin: 16px 0 6px;
+  color: var(--text);
+}
+
+/* Đoạn văn, danh sách */
+.lesson-content p { margin: 12px 0; font-size: 1.05rem; }
+.lesson-content ul, .lesson-content ol { margin: 12px 0 18px 22px; }
+.lesson-content li { margin: 6px 0; }
+.lesson-content li::marker { color: var(--accent); }
+
+/* Liên kết trong nội dung */
+.lesson-content a { color: var(--primary-600); text-decoration: none; }
+.lesson-content a:hover { text-decoration: underline; }
+
+/* Hộp ghi chú/chú ý/mẹo */
+.note, .warning, .tip {
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  box-shadow: 0 3px 10px rgba(2,6,23,.05);
+}
+.note { background: var(--note-bg); border-left: 5px solid var(--primary); color: #155e4d; font-weight: 500; }
+.warning { background: var(--warn-bg); border-left: 5px solid var(--warn-border); color: #7c4a03; }
+.tip { background: var(--tip-bg); border-left: 5px solid var(--tip-border); color: #0f3f91; }
+
+/* Định nghĩa/thuật ngữ, ví dụ, trích dẫn */
+.definition, .example, blockquote {
+  background: #f8fafc;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+blockquote { font-style: italic; color: var(--muted); border-left: 5px solid var(--border); }
+
+.term { font-weight: 700; color: var(--primary-600); }
+
+/* Hình minh hoạ & phụ đề */
+.figure { margin: 18px 0; }
+.figure img {
+  display: block;
+  margin: 10px auto;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(2,6,23,.12);
+}
+.caption {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #666;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* Bảng dữ liệu */
+.lesson-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0 18px;
+  font-size: 0.98rem;
+}
+.lesson-content th, .lesson-content td {
+  border: 1px solid var(--border);
+  padding: 10px 12px;
+}
+.lesson-content thead th {
+  background: #f1f5f9;
+  text-align: left;
+}
+.lesson-content tbody tr:nth-child(odd) { background: #fafafa; }
+
+/* Danh sách thẻ bài (nếu trang có card bài học) */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(2,6,23,.12);
+}
+.card .title { font-weight: 800; margin: 2px 0 8px; }
+.card .desc  { color: var(--muted); font-size: .95rem; margin: 0; }
+.card .btn {
+  margin-top: 12px;
+  display: inline-block; text-decoration: none;
+  background: var(--primary); color: #fff;
+  padding: 8px 14px; border-radius: 999px; font-weight: 700; font-size: 14px;
+}
+.card .btn:hover { background: var(--primary-600); }
+
+/* Code/monospace nhỏ (nếu cần) */
+code, pre {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+pre {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 14px 16px;
+  border-radius: 12px;
+  overflow: auto;
+}
+
+/* -------- Responsive -------- */
+@media (max-width: 768px) {
+  .lesson-content { padding: 18px 16px; margin: 18px auto 72px; }
+  .lesson-content h2 { font-size: 1.35rem; }
+  .card-grid { grid-template-columns: 1fr; }
+}
+
+/* -------- Dark Mode -------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b1220;
+    --text: #e5e7eb;
+    --muted: #cbd5e1;
+    --card: #0f172a;
+    --border: #1e293b;
+    --shadow: 0 10px 28px rgba(0,0,0,.35);
+  }
+  .lesson-content tbody tr:nth-child(odd) { background: #0f172a; }
+  .definition, .example, blockquote { background: #0c1426; }
+}
+
+/* -------- In ấn (print) -------- */
+@media print {
+  body { background: #fff; }
+  .lesson-content {
+    box-shadow: none;
+    border: 1px solid #ddd;
+    margin: 0;
+    max-width: 100%;
+  }
+  .card-grid, .card, .btn { display: none !important; } /* Ẩn các phần không cần in */
+}
+
+/* (Không có bất kỳ CSS nào cho Earth 3D hoặc #earthCanvas ở đây) */
+
+/* ====== ĐỀ BÀI (box nổi bật) ====== */
+.de-bai {
+  background: var(--note-bg);
+  border: 1px solid var(--border);
+  border-left: 6px solid var(--primary);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 6px 18px rgba(2,6,23,.06);
+  margin: 18px 0 22px;
+}
+.de-bai__title{
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin: 0 0 6px;
+  color: var(--primary-600);
+}
+.de-bai p{ margin: 6px 0; }
+
+/* ====== TỰ ĐÁNH SỐ I, II, III… CHO H2; 1,2,3… cho H3 ====== */
+.lesson-content { counter-reset: sec; }
+.lesson-content h2 {
+  position: relative;
+  padding-left: 54px;          /* chừa chỗ cho nhãn La Mã */
+  scroll-margin-top: 90px;
+}
+.lesson-content h2::before{
+  counter-increment: sec;
+  content: counter(sec, upper-roman) ".";
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--text);
+  background: linear-gradient(180deg, #a7f3d0, #6ee7b7);
+  border: 1px solid var(--border);
+  width: 34px; height: 34px; line-height: 34px;
+  text-align: center;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(2,6,23,.10);
+}
+
+.lesson-content h2 { counter-reset: sub; }
+.lesson-content h3{
+  position: relative;
+  padding-left: 42px;
+  margin-top: 18px;
+}
+.lesson-content h3::before{
+  counter-increment: sub;
+  content: counter(sub) ".";
+  position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%);
+  font-weight: 800;
+  width: 26px; height: 26px; line-height: 26px;
+  text-align: center;
+  border-radius: 8px;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+@media (max-width: 768px){
+  .lesson-content h2{ padding-left: 48px; }
+  .lesson-content h2::before{ left: 10px; }
+  .lesson-content h3{ padding-left: 38px; }
+  .lesson-content h3::before{ left: 8px; }
+}
+
+
+/* ===== Centered lesson title + optional background pill ===== */
+.hero.hero-small .container { text-align: center; }
+.hero.hero-small h1 { margin: 0 auto 8px; }
+
+/* Use on the H1: class="lesson-title" (base) + add "lesson-title--pill" to fill background */
+.lesson-title {
+  display: inline-block;
+  font-weight: 800;
+  line-height: 1.25;
+  border-radius: 16px;
+  padding: 8px 16px;
+}
+.lesson-title--pill {
+  background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%); /* soft mint */
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 24px rgba(16,185,129, .25);
+}
+
+@media (prefers-color-scheme: dark) {
+  .lesson-title--pill {
+    background: linear-gradient(180deg, #064e3b 0%, #065f46 100%);
+    border-color: #064e3b;
+  }
+}
+
+
+/* ==== Override: tăng khoảng cách TRƯỚC FOOTER cho trang bài ==== */
+:root { --content-bottom: 140px; }           /* desktop */
+@media (max-width: 768px){ :root { --content-bottom: 120px; } }  /* mobile */
+
+
+/* === Overrides 2025-10-23: UX tweaks per request === */
+
+/* 1) Bỏ nền "Đề bài" */
+.de-bai{
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.de-bai__title{
+  background: transparent !important;
+}
+
+/* 2) Thêm khoảng cách giữa menu cố định và phần tiêu đề/nội dung */
+#menu-placeholder + .hero{
+  margin-top: clamp(64px, 7vw, 96px);
+}
+/* Nếu không dùng .hero, đẩy nhẹ phần nội dung đầu tiên */
+#menu-placeholder + main,
+#menu-placeholder + .container{
+  margin-top: clamp(40px, 5vw, 72px);
+}
+
+/* Khi cuộn tới tiêu đề có anchor, tránh bị che bởi menu cố định */
+.lesson-content [id]{
+  scroll-margin-top: 96px;
+}
+@media (max-width: 768px){
+  .lesson-content [id]{ scroll-margin-top: 80px; }
+}
+
+
+/* === Modern refresh (minimal / outline) === */
+
+/* Title pill: remove solid mint background & heavy glow */
+.lesson-title--pill{
+  background: rgba(26,178,147,0.06) !important; /* subtle tint; set to transparent if you want fully outline */
+  border: 1px solid rgba(26,178,147,0.22) !important;
+  box-shadow: 0 1px 2px rgba(2,6,23,.04), 0 8px 24px rgba(2,6,23,.08) !important;
+  -webkit-backdrop-filter: saturate(140%) blur(6px);
+  backdrop-filter: saturate(140%) blur(6px);
+}
+
+/* Section heading: move to outline badge + no left border */
+.lesson-content h2{
+  color: var(--text) !important;
+  border-left: none !important;
+  padding-left: clamp(44px, 6vw, 52px) !important;
+  position: relative;
+}
+h2::before{
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  font-size: 1rem !important;
+  color: var(--primary-600) !important;
+  background: transparent !important;
+  border: 1px solid rgba(26,178,147,.30) !important;
+  box-shadow: 0 0 0 4px rgba(26,178,147,.08) !important;
+  border-radius: 8px !important;
+  left: 8px !important;
+}
+
+/* Lesson card: softer shadow & border */
+.lesson-content{
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 8px 24px rgba(2,6,23,.06) !important;
+  border-radius: 18px !important;
+}
+
+/* Earth box: remove neon glow; use neutral card look */
+.earth-box{
+  border: 1px solid var(--border) !important;
+  box-shadow: 0 6px 22px rgba(2,6,23,.08) !important;
+  border-radius: 18px !important;
+}
+
+
+/* === No background for lesson title pill === */
+.lesson-title--pill{
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  border: 1px solid rgba(26,178,147,.28) !important; /* giữ viền mảnh */
+  box-shadow: 0 1px 2px rgba(2,6,23,.04) !important; /* shadow rất nhẹ */
+}
+
+
+/* === No border for lesson title pill === */
+.lesson-title--pill{
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+/* === Match H2 title color to badge (I.) === */
+.lesson-content h2{
+  color: var(--primary-600) !important;
+}
+
+
+/* === Use --primary for H2 & badge numeral === */
+.lesson-content h2{
+  color: var(--primary) !important;
+}
+h2::before{
+  color: var(--primary) !important;
+  border-color: rgba(26,178,147,.30) !important; /* keep outline consistent */
+  box-shadow: 0 0 0 4px rgba(26,178,147,.08) !important;
+}
+
+.hero {
+  background: linear-gradient(180deg, #eafdf5, #ffffff);
+  text-align: center;
+  padding: 100px 20px 60px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.subject-list {
+  background-color: #f4fffb;
+  padding: 60px 20px 100px;
+  text-align: center;
+}
+
+.subject-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.subject-card {
+  background: #ffffff;
+  border: 1.5px solid #c8f3e5;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  width: 260px;
+  padding: 24px;
+  transition: 0.25s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.subject-card h2 {
+  color: #1ab293;
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.subject-card p {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.subject-card .btn {
+  display: inline-block;
+  background: #1ab293;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: 0.3s;
+}
+
+.subject-card .btn:hover {
+  background: #159d82;
+}
+
+/* Nội dung bài học */
+.lesson-content {
+  background: #fff;
+  padding: 40px 20px 80px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.lesson-content h2 {
+  color: #1ab293;
+  margin-top: 30px;
+}
+
+.lesson-content p, 
+.lesson-content li {
+  color: #333;
+  line-height: 1.7;
+  margin: 10px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .subject-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .subject-card {
+    width: 90%;
+    max-width: 340px;
+  }
+}
+
+.hero {
+  padding: 60px 20px; 
+  min-height: 30vh; 
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2rem; 
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  font-size: 1rem;
+  color: #444;
+}
+
+/* Footer spacing to avoid overlap with fixed footer */
+:root { --footer-h: 88px; }
+body { padding-bottom: calc(var(--footer-h) + env(safe-area-inset-bottom)); }
+#footer-placeholder { min-height: var(--footer-h); }
+
+/* Hero bài học */
+.lesson-hero {
+  text-align: center;
+  padding: 36px 0 24px;
+}
+
+.lesson-subtitle {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: #444;
+}
+
+/* Breadcrumb */
+.lesson-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 10px;
+}
+
+.lesson-breadcrumb a {
+  color: #00bfa5;
+  text-decoration: none;
+}
+
+.lesson-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* Nhóm nút quay lại */
+.lesson-back-group {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Nút quay lại nhỏ */
+.btn-ghost-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #00bfa5;
+  background: #fff;
+  color: #00bfa5;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: transform 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              background-color 0.15s ease-out,
+              border-color 0.15s ease-out;
+}
+
+.btn-ghost-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 191, 165, 0.25);
+  background-color: #e6fffb;
+  border-color: #00a28a;
+}
+/* ==== Vị trí nút quay lại cho trang bài/chọn bài ==== */
+
+/* Đặt cụm nút trong khối nội dung, sát trên card bài */
+.lesson-nav {
+  max-width: 960px;
+  margin: 0 auto 4px;
+  padding: 0 16px;              /* cùng lề với nội dung chính */
+}
+
+/* Căn nút về bên trái thay vì giữa */
+.lesson-back-group {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;  /* trái */
+  gap: 10px;
+}
+
+/* Style nút quay lại nhỏ, gọn */
+.btn-ghost-sm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid #00bfa5;
+  background: #ffffff;
+  color: #00bfa5;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: transform 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              background-color 0.15s ease-out,
+              border-color 0.15s ease-out;
+}
+
+.btn-ghost-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(0, 191, 165, 0.25);
+  background-color: #e6fffb;
+  border-color: #00a28a;
+}
+/* ===== HERO CHỌN CHƯƠNG KT&PL ===== */
+
+/* Hero full nền, kéo hết chiều ngang trang */
+.hero-chonchuong {
+  background: linear-gradient(180deg, #e9fff7 0%, #f7fffb 70%, #f7fbfc 100%);
+}
+
+/* Bên trong hero: hàng ngang gồm nút back + text */
+.hero-chonchuong-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 16px 28px;
+}
+
+/* Cụm text ở giữa vẫn căn giữa theo chiều dọc */
+.hero-chonchuong-text {
+  text-align: left;
+}
+
+.hero-chonchuong-text h1 {
+  margin: 0 0 6px;
+  font-weight: 800;
+  font-size: clamp(26px, 3.3vw, 34px); /* nhỏ hơn chút để ít vỡ dòng */
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+}
+
+.hero-chonchuong-text p {
+  margin: 0;
+  font-size: 16px;
+  color: #3f4a4a;
+  opacity: 0.9;
+}
+
+/* Nút quay lại hình tròn */
+.hero-back-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 3px solid #00bfa5;
+  background: transparent;
+  color: #00bfa5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 28px;     /* cho mũi tên to, rõ */
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 191, 165, 0.35);
+  transition: transform 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              border-color 0.15s ease-out;
+}
+
+.hero-back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0, 191, 165, 0.45);
+  border-color: #00a28a;
+}
+
+/* Mobile: text căn giữa cho gọn */
+@media (max-width: 600px) {
+  .hero-chonchuong-inner {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .hero-chonchuong-text {
+    text-align: left;
+  }
+}
+
+/* Bên trong vẫn giới hạn nội dung ở 960px cho gọn */
+.hero-chonchuong-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 16px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+
+/* ===== HERO FULL-WIDTH CHO /mon ===== */
+
+/* Dải hero phủ full ngang màn hình */
+.hero.hero-small.hero-band {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  border-radius: 0;
+  padding: 40px 0 32px;
+}
+
+/* Nền mint nhẹ cho hero */
+.hero-band--mint {
+  background: #e9fff7;
+}
+
+/* Container bên trong hero */
+.hero-band__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Khối chữ */
+.hero-band__text {
+  text-align: center;
+}
+
+.hero-band__text h1 {
+  margin: 0 0 6px;
+  font-weight: 800;
+  font-size: clamp(26px, 3.3vw, 34px);
+  line-height: 1.2;
+  letter-spacing: 0.2px;
+}
+
+.hero-band__text p {
+  margin: 0;
+  font-size: 16px;
+  color: #3f4a4a;
+  opacity: 0.9;
+}
+
+/* Nếu có nút quay lại đặt trong hero-band__inner (các trang con) */
+.hero-band__back {
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 3px solid #00bfa5;
+  background: transparent;
+  color: #00bfa5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 28px;      /* mũi tên to rõ */
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(0, 191, 165, 0.35);
+  transition: transform 0.15s ease-out,
+              box-shadow 0.15s ease-out,
+              border-color 0.15s ease-out;
+}
+
+.hero-band__back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(0, 191, 165, 0.45);
+  border-color: #00a28a;
+}
+/* Căn lại hero: chữ ở giữa rộng hơn, nút back không chiếm chỗ */
+.hero-band__inner {
+  position: relative;
+  justify-content: center;      /* chữ luôn ở giữa */
+  gap: 0;                       /* không cần gap vì back sẽ absolute */
+}
+
+/* Nút quay lại nằm “nổi” bên trái, không làm hẹp khối chữ */
+.hero-band__back {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Khối chữ hero – cho rộng hơn, đẹp hơn */
+.hero-band__text {
+  text-align: center;
+  max-width: 640px;            /* đủ rộng để ít bị xuống dòng */
+}
+
+/* Tiêu đề */
+.hero-band__text h1 {
+  margin: 0 0 6px;
+  font-weight: 800;
+  font-size: clamp(24px, 3vw, 32px);  /* nhỏ lại 1 chút */
+  line-height: 1.25;
+}
+
+/* Dòng mô tả */
+.hero-band__text p {
+  margin: 0;
+  font-size: 15px;
+  color: #3f4a4a;
+  opacity: 0.9;
+}
+
+/* Mobile: chừa chỗ cho nút back */
+@media (max-width: 600px) {
+  .hero-band__inner {
+    padding-left: 64px;
+  }
+}

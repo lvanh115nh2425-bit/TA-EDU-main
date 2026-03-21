@@ -1,0 +1,81 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+<header class="main-header">
+  <div class="container">
+    <a href="/index.html" class="logo-area">
+      <img src="/assets/logo.png" alt="TA-Edu Logo" class="logo" />
+      <h1 class="site-name">TA-Edu</h1>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Mở menu" aria-controls="mainNav" aria-expanded="false">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav">
+      <ul>
+        <li><a href="/index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
+        <li><a href="/mon/lythuyet.html" data-active-scope="/mon/"><i class="fa-solid fa-book"></i> Học lý thuyết</a></li>
+        <li><a href="/mindmap.html"><i class="fa-solid fa-diagram-project"></i> Mind Map</a></li>
+        <li><a href="/tu-van-luat.html"><i class="fa-solid fa-scale-balanced"></i> Tư vấn luật</a></li>
+        <li><a href="/thoi-gian-bieu.html"><i class="fa-solid fa-calendar-check"></i> Thời gian biểu</a></li>
+        <li><a href="/thao-luan.html"><i class="fa-solid fa-comments"></i> Thảo luận</a></li>
+        <li><a href="/ktpl-exercise.html"><i class="fa-solid fa-file-pen"></i> Tạo bài tập</a></li>
+        <li><a href="/hoi-dap.html"><i class="fa-solid fa-circle-question"></i> Hỏi đáp</a></li>
+
+        <li class="nav-auth-item">
+          <button id="btnLogin" class="btn-login" type="button">
+            <img src="/assets/Google_logo.png" alt="Google" class="google-icon" />
+            Đăng nhập
+          </button>
+
+          <div id="userInfo" hidden>
+            <img id="userPhoto" class="header-avatar" src="/assets/default_avatar.svg" alt="User Avatar">
+            <div id="userMenu" role="menu" aria-labelledby="userPhoto">
+              <div class="um-head">
+                <div class="um-name" id="menuName">Anh Lê</div>
+                <div class="um-balance">
+                  <div class="trust-pill__icon">
+                    <i class="fa-solid fa-shield-heart"></i>
+                  </div>
+                  <div class="trust-pill__content">
+                    <p class="trust-pill__label">Điểm uy tín</p>
+                    <p class="trust-pill__value" id="menuTrust">100</p>
+                    <p class="trust-pill__hint" id="menuTrustHint">Giữ trên 50 điểm để tránh bị hạn chế.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="header-theme-toggle" role="group" aria-label="Chọn kiểu nền TA-Edu">
+                <p class="header-theme-toggle__label">Kiểu nền TA-Edu</p>
+                <div class="header-theme-slider" data-theme-slider data-theme-current="neon">
+                  <div class="header-theme-slider__track">
+                    <div class="header-theme-slider__pill"></div>
+                    <button type="button" data-theme-option="home" aria-label="Dùng nền sáng">Sáng</button>
+                    <button type="button" data-theme-option="neon" aria-label="Dùng nền neon">Neon</button>
+                  </div>
+                </div>
+              </div>
+
+              <nav class="um-list" aria-label="Tác vụ nhanh">
+                <a href="/dashboard.html" id="dashboardLink" class="um-item is-primary">
+                  <i class="fa-solid fa-gauge-high"></i>
+                  <span>Dashboard</span>
+                </a>
+                <a href="/admin/index.html" id="menuAdminKyc" class="um-item" hidden>
+                  <i class="fa-solid fa-shield-halved"></i>
+                  <span>Quản trị KYC</span>
+                </a>
+              </nav>
+
+              <button id="btnLogout" type="button" class="um-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+              </button>
+            </div>
+          </div>
+        </li>
+
+        <!-- mobile logout moved inside user menu; removed redundant external logout -->
+      </ul>
+    </nav>
+  </div>
+
+  <div class="menu-overlay" id="menuOverlay" hidden></div>
+</header>

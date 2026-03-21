@@ -1,0 +1,5 @@
+FIREBASE_PROJECT_ID="your-project-id"
+FIREBASE_CLIENT_EMAIL="service-account@project-id.iam.gserviceaccount.com"
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...escape-newlines-with-\\n...\n-----END PRIVATE KEY-----\n"
+ADMIN_REVIEW_KEY="set-a-strong-review-key"
+CORS_ORIGIN="http://localhost:5500"

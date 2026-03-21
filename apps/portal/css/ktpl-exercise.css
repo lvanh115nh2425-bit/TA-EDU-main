@@ -1,0 +1,708 @@
+/* ============================================================
+   KTPL Exercise Builder — Light Theme
+   Scoped under .exercise-page to avoid conflicts
+   ============================================================ */
+
+/* --- Variables --- */
+.exercise-page {
+  --ex-text: #0f172a;
+  --ex-muted: #64748b;
+  --ex-accent: #0ea5e9;
+  --ex-success: #16a34a;
+  --ex-danger: #dc2626;
+  --ex-border: rgba(15, 23, 42, 0.08);
+  --ex-border-strong: rgba(15, 23, 42, 0.15);
+  --ex-surface: #ffffff;
+  --ex-bg-tint: rgba(224, 242, 254, 0.5);
+  --ex-shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
+  --ex-radius-panel: 26px;
+  --ex-radius-card: 22px;
+  --ex-radius-input: 16px;
+  --ex-radius-pill: 999px;
+}
+
+/* --- Page body --- */
+body.exercise-page {
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+  color: var(--ex-text);
+  min-height: 100vh;
+}
+
+/* --- Main container --- */
+.exercise-shell {
+  max-width: 900px;
+  margin: 60px auto 120px;
+  padding: 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ============================================================
+   Step sections
+   ============================================================ */
+.exercise-step {
+  background: var(--ex-surface);
+  border: 1px solid var(--ex-border);
+  border-radius: var(--ex-radius-panel);
+  padding: 28px;
+  box-shadow: var(--ex-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.step-eyebrow {
+  font-size: 0.8rem;
+  color: var(--ex-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.step-title {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--ex-text);
+  line-height: 1.3;
+}
+
+.step-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--ex-radius-pill);
+  padding: 6px 14px;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+  background: var(--ex-bg-tint);
+  color: var(--ex-accent);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Section titles & badges (from JS)
+   ============================================================ */
+.ex-section-title {
+  margin: 8px 0 4px;
+  font-size: 1.15rem;
+  color: var(--ex-accent);
+}
+
+.ex-difficulty-badge {
+  display: inline-block;
+  border-radius: var(--ex-radius-pill);
+  padding: 3px 10px;
+  background: var(--ex-bg-tint);
+  color: var(--ex-accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.ex-radio-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.ex-radio-label strong {
+  font-size: 0.95rem;
+  min-width: 18px;
+}
+
+.ex-btn-danger {
+  border-color: rgba(220, 38, 38, 0.3) !important;
+  color: var(--ex-danger) !important;
+}
+
+.ex-btn-danger:hover {
+  background: rgba(220, 38, 38, 0.06) !important;
+  border-color: var(--ex-danger) !important;
+}
+
+.ex-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.ex-field span {
+  color: var(--ex-muted);
+  font-size: 0.9rem;
+}
+
+.ex-field--full {
+  grid-column: 1 / -1;
+}
+
+.ex-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* Preview rendered from JS */
+.preview-header {
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ex-border);
+}
+
+.preview-header h3 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+  color: var(--ex-text);
+}
+
+.preview-header p {
+  margin: 0;
+  color: var(--ex-muted);
+  font-size: 0.95rem;
+}
+
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-section h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--ex-text);
+}
+
+.preview-option {
+  margin: 2px 0;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.status-loading {
+  animation: exBlink 1.4s infinite;
+}
+
+/* ============================================================
+   Form layout
+   ============================================================ */
+.ex-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* form-field compat — kept for any shared form-field usage */
+
+/* --- Form inputs (scoped) --- */
+.exercise-page input,
+.exercise-page select,
+.exercise-page textarea {
+  border-radius: var(--ex-radius-input);
+  border: 1px solid var(--ex-border-strong);
+  background: var(--ex-surface);
+  color: var(--ex-text);
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.exercise-page input:focus,
+.exercise-page select:focus,
+.exercise-page textarea:focus {
+  border-color: var(--ex-accent);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+.exercise-page textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.exercise-page .helper-text {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--ex-muted);
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.ex-btn-primary,
+.ex-btn-ghost,
+.ex-btn-icon {
+  border-radius: var(--ex-radius-pill);
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+/* Primary gradient pill */
+.ex-btn-primary {
+  background: linear-gradient(120deg, #4dffff, #6c4bff);
+  color: #041024;
+  font-weight: 600;
+  padding: 11px 22px;
+}
+
+.ex-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(77, 255, 255, 0.3);
+}
+
+.ex-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ghost button */
+.ex-btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.2);
+  color: var(--ex-text);
+  padding: 10px 20px;
+}
+
+.ex-btn-ghost:hover {
+  transform: translateY(-1px);
+  border-color: var(--ex-accent);
+  color: var(--ex-accent);
+}
+
+.ex-btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ex-btn-ghost--danger {
+  border-color: rgba(220, 38, 38, 0.4);
+  color: var(--ex-danger);
+}
+
+.ex-btn-ghost--danger:hover {
+  border-color: var(--ex-danger);
+  color: var(--ex-danger);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+/* Icon-only button (reorder / delete) */
+.ex-btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid var(--ex-border-strong);
+  color: var(--ex-muted);
+  font-size: 1rem;
+}
+
+.ex-btn-icon:hover {
+  border-color: var(--ex-accent);
+  color: var(--ex-accent);
+  background: rgba(14, 165, 233, 0.06);
+}
+
+.ex-btn-icon--danger:hover {
+  border-color: var(--ex-danger);
+  color: var(--ex-danger);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+/* Add-question button (dashed) */
+.ex-btn-add {
+  width: 100%;
+  border: 2px dashed rgba(15, 23, 42, 0.2);
+  border-radius: var(--ex-radius-card);
+  background: transparent;
+  color: var(--ex-muted);
+  padding: 18px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.ex-btn-add:hover {
+  border-color: var(--ex-accent);
+  color: var(--ex-accent);
+  background: rgba(14, 165, 233, 0.04);
+}
+
+/* ============================================================
+   Exercise card
+   ============================================================ */
+.ex-card {
+  background: var(--ex-surface);
+  border: 1px solid var(--ex-border);
+  border-radius: var(--ex-radius-card);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: relative;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ex-card:hover {
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.ex-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ex-card-header .ex-card-number {
+  font-weight: 700;
+  color: var(--ex-accent);
+  font-size: 1rem;
+}
+
+.ex-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ex-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ex-card-question {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ex-text);
+}
+
+/* --- MCQ option rows --- */
+.ex-option-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--ex-border);
+  background: rgba(248, 250, 252, 0.6);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.ex-option-row:hover {
+  border-color: rgba(15, 23, 42, 0.2);
+}
+
+.ex-option-row input[type="radio"],
+.ex-option-row input[type="checkbox"] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--ex-accent);
+}
+
+.ex-option-row input[type="text"] {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 4px 0;
+  font-size: 0.95rem;
+}
+
+.ex-option-row input[type="text"]:focus {
+  box-shadow: none;
+}
+
+/* Correct answer highlight (preview / answer-key) */
+.ex-option-correct {
+  border-color: rgba(22, 163, 74, 0.4);
+  background: rgba(22, 163, 74, 0.07);
+}
+
+.ex-option-correct::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ex-success);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   Preview panel
+   ============================================================ */
+.preview-panel {
+  background: var(--ex-surface);
+  border: 1px solid var(--ex-border);
+  border-radius: var(--ex-radius-panel);
+  padding: 28px;
+  box-shadow: var(--ex-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.preview-panel__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--ex-text);
+}
+
+.preview-question {
+  border: 1px solid var(--ex-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.preview-question__number {
+  font-weight: 700;
+  color: var(--ex-accent);
+  font-size: 0.95rem;
+}
+
+.preview-question__text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ex-text);
+}
+
+.preview-question__options {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.preview-answer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  color: var(--ex-success);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ============================================================
+   Export row
+   ============================================================ */
+.export-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+
+/* ============================================================
+   Loading state
+   ============================================================ */
+.ex-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.ex-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: var(--ex-radius-panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  animation: exBlink 1.4s infinite;
+}
+
+@keyframes exBlink {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Loading text helper (optional inner element) */
+.ex-loading-text {
+  animation: exBlink 1.4s infinite;
+  color: var(--ex-muted);
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 24px;
+}
+
+/* ============================================================
+   Empty state
+   ============================================================ */
+.ex-empty {
+  border: 2px dashed rgba(15, 23, 42, 0.18);
+  border-radius: var(--ex-radius-card);
+  padding: 36px 24px;
+  text-align: center;
+  color: var(--ex-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ex-empty__icon {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.ex-empty__text {
+  font-size: 0.95rem;
+  max-width: 360px;
+}
+
+/* ============================================================
+   Form actions row (within steps)
+   ============================================================ */
+.exercise-page .form-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* ============================================================
+   Utility classes
+   ============================================================ */
+.exercise-page .text-muted {
+  color: var(--ex-muted);
+}
+
+.exercise-page .text-accent {
+  color: var(--ex-accent);
+}
+
+.exercise-page .text-success {
+  color: var(--ex-success);
+}
+
+.exercise-page .text-danger {
+  color: var(--ex-danger);
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+  .exercise-shell {
+    margin-top: 40px;
+    padding: 0 16px;
+    gap: 24px;
+  }
+
+  .exercise-step {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .ex-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-panel {
+    padding: 22px;
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .exercise-step {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .step-title {
+    font-size: 1.25rem;
+  }
+
+  .ex-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .export-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .export-row .ex-btn-primary,
+  .export-row .ex-btn-ghost {
+    width: 100%;
+  }
+
+  .ex-card-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ex-card-actions {
+    align-self: flex-end;
+  }
+
+  .exercise-page .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .exercise-page .form-actions .ex-btn-primary,
+  .exercise-page .form-actions .ex-btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+}

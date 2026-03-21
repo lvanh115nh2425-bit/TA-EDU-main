@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Form Submit</title>
+</head>
+<body>
+  <h1>Test Form Submit</h1>
+  
+  <form id="testForm">
+    <input type="text" name="name" placeholder="Tên" required>
+    <button type="submit">Submit Test</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script type="module">
+    console.log("✅ Script loaded");
+    
+    const form = document.getElementById("testForm");
+    const result = document.getElementById("result");
+    
+    if (form) {
+      console.log("✅ Form found");
+      
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        console.log("🎯 Submit triggered!");
+        result.innerHTML = "<p style='color:green'>✅ Form submit works!</p>";
+        
+        const name = form.querySelector('[name="name"]').value;
+        console.log("Name:", name);
+      });
+    } else {
+      console.error("❌ Form not found!");
+    }
+  </script>
+</body>
+</html>

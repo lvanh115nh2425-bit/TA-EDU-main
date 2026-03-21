@@ -1,0 +1,4 @@
+PERPLEXITY_API_KEY="pk-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+PERPLEXITY_MODEL="llama-3.1-sonar-small-128k-online"
+ALLOWED_ORIGINS="https://huongsaccodo.io.vn,https://smart.taedu.vn"
+SMARTTUTOR_SYSTEM="Bạn là SmartTutor của TA-Edu. Luôn trả lời tiếng Việt, giải thích từng bước, nhấn mạnh mẹo học tập."

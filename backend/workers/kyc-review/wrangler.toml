@@ -1,0 +1,9 @@
+name = "taedu-kyc-review"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+workers_dev = true
+
+[vars]
+# Có thể override khi publish (wrangler secret/env). Để trống ở repo.
+# FIREBASE_PROJECT_ID = "ta-edu-nh"
+# CORS_ORIGIN = "*"

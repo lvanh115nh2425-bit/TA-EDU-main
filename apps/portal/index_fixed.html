@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>TA-Edu | Trung tâm học tập</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/taedu_global.css">
+  <link rel="stylesheet" href="./css/css_menu.css">
+</head>
+<body>
+
+  <!-- Firebase + Header -->
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script defer src="/js/core/boot_header.js"></script>
+  <script type="module" src="js/core/menu_toggle.js"></script>
+
+  <!-- Header sẽ được boot_header.js chèn vào -->
+  <div id="ta-header"></div>
+
+  <main class="home-main">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>
+          Chào mừng đến với <br>
+          <span class="highlight">TA Edu</span> 🎓
+        </h1>
+        <p>
+          Nền tảng học tập thông minh – học thật vui, kiến thức thật chắc!
+        </p>
+
+        <div class="hero-buttons">
+          <a href="mon/lythuyet.html" class="btn-primary hero-btn">
+            Bắt đầu học ngay
+          </a>
+          <a href="dashboard.html" class="btn-secondary hero-btn">
+            Làm bài tập
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features">
+      <h2>✨ Tính năng nổi bật</h2>
+      <div class="feature-list">
+        <div class="feature-card">
+          <h3>📘 Học lý thuyết dễ hiểu</h3>
+          <p>Bài giảng sinh động, trực quan và bám sát chương trình học.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🧩 Bài tập trắc nghiệm</h3>
+          <p>Kho đề phong phú giúp bạn luyện tập và củng cố kiến thức.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🤖 AI giải bài thông minh</h3>
+          <p>Phân tích và gợi ý cách giải từng bước, giúp bạn hiểu sâu hơn.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎯 Gia sư trực tuyến</h3>
+          <p>Kết nối với gia sư thật để được hỗ trợ học tập mọi lúc, mọi nơi.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="ta-footer"></div>
+</body>
+</html>

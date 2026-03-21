@@ -1,0 +1,239 @@
+:root { --ta: #00bfa5; }
+
+.ob { max-width: 980px; margin: 32px auto; padding: 0 16px; font-family: "Baloo 2", cursive; }
+.ob__card { background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:16px; padding:20px; box-shadow:0 8px 18px rgba(0,0,0,.04); }
+.ob__head h1 { margin: 0 0 6px; }
+.ob__head p { margin: 0 0 16px; opacity:.85; }
+
+.ob__grid { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+.ob__role {
+  display:flex; flex-direction:column; gap:6px; align-items:flex-start;
+  border:1px solid rgba(0,0,0,.12); border-radius:14px; padding:16px; cursor:pointer;
+  background:#f9fffe; transition:.18s; box-shadow:0 3px 10px rgba(0,0,0,.04);
+}
+.ob__role:hover { transform: translateY(-1px); border-color: var(--ta); }
+.ob__role i { color: var(--ta); font-size: 24px; }
+.ob__role.is-active {
+  border-color: var(--ta);
+  box-shadow:0 12px 26px rgba(0,191,165,.2);
+  background:#fff;
+}
+
+.ob__form { display:grid; gap:14px; }
+.ob__form .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+.ob__form label { display:flex; flex-direction:column; gap:6px; font-weight:600; }
+/* Áp dụng chung cho input/textarea/select */
+.ob__form input,
+.ob__form textarea,
+.ob__form select{
+  width: 100%;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 10px;
+  padding: 10px 12px;
+  outline: none;
+  background-color: #fff;
+  font-family: "Baloo 2", cursive;
+}
+
+.ob__form input:focus,
+.ob__form textarea:focus,
+.ob__form select:focus{
+  border-color: var(--ta);
+  box-shadow: 0 0 0 3px rgba(0,191,165,.15);
+}
+
+/* Làm đẹp <select>: bỏ kiểu mặc định + mũi tên */
+.ob__form select{
+  height: 42px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 40px; /* chừa chỗ cho mũi tên */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2300bfa5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+.grade-picker {
+  position: relative;
+  width: 100%;
+}
+.grade-picker__toggle {
+  width: 100%;
+  display:flex; align-items:center; justify-content:space-between;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius:10px;
+  padding:10px 12px;
+  font-weight:600;
+  font-family:"Baloo 2", cursive;
+  background:#fff;
+  cursor:pointer;
+  color:#1a2e2a;
+  transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.grade-picker__toggle i {
+  transition: transform .2s ease, color .2s ease;
+}
+.grade-picker.is-open .grade-picker__toggle {
+  border-color: var(--ta);
+  box-shadow: 0 0 0 3px rgba(0,191,165,.12);
+}
+.grade-picker.is-open .grade-picker__toggle i {
+  transform: rotate(-180deg);
+  color: var(--ta);
+}
+.grade-picker__toggle:hover {
+  border-color: var(--ta);
+  background:#fff;
+}
+.grade-picker__toggle:hover i {
+  color: var(--ta);
+}
+.grade-picker__list {
+  position:absolute;
+  top: calc(100% + 4px);
+  left:0; right:0;
+  list-style:none;
+  margin:0;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.12);
+  border-radius:10px;
+  box-shadow:0 12px 24px rgba(0,0,0,.08);
+  z-index:20;
+  padding:6px;
+}
+.grade-picker__list button {
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:10px 12px;
+  border-radius:8px;
+  text-align:left;
+  font-weight:600;
+  cursor:pointer;
+  font-family:"Baloo 2", cursive;
+}
+.grade-picker__list button:hover,
+.grade-picker__list button:focus {
+  background:#e6fffa;
+  color:#0b3d36;
+  outline:none;
+}
+.grade-picker__list button.is-selected {
+  background:#c2fff1;
+  color:#026b55;
+  font-weight:600;
+}
+.grade-picker__native {
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  height:0;
+}
+
+.agree { display:flex; align-items:center; gap:8px; font-weight:600; }
+.actions { display:flex; gap:10px; margin-top:4px; }
+.btn { border-radius:10px; padding:10px 14px; border:1px solid rgba(0,0,0,.12); cursor:pointer; font-weight:800; }
+.btn.primary { background: var(--ta); color:#fff; border-color: transparent; }
+.btn.ghost   { background:#fff; }
+
+.ob__back {
+  background: transparent;
+  border: none;
+  color: #0c5349;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: .95rem;
+}
+.ob__back i { font-size: .9rem; }
+.ob__back:hover { color: var(--ta); }
+
+.ob__status-note {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0,191,165,.08);
+  color: #0b3d36;
+  font-weight: 600;
+}
+.ob__status-note.is-error {
+  background: #fff5f5;
+  color: #a83a3a;
+}
+
+@media (max-width: 760px){
+  .ob__grid { grid-template-columns: 1fr; }
+  .ob__form .row { grid-template-columns: 1fr; }
+}
+/* Nhóm chọn Lớp (Gia sư) */
+.ob__levels { display:flex; flex-direction:column; gap:6px; font-weight:600; }
+.ob__levels .checks { display:flex; gap:10px; flex-wrap:wrap; }
+.ob__levels .check {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 10px; border:1px solid rgba(0,0,0,.12);
+  border-radius:10px; background:#fff;
+}
+.ob__levels input[type="checkbox"] { transform: translateY(1px); }
+
+/* ===== Chips chọn Lớp – phiên bản mượt ===== */
+.ob__levels { display:flex; flex-direction:column; gap:8px; }
+.ob__levels .lbl { font-weight:800; color:#0b3d36; opacity:.95; }
+
+.ob__levels .checks { display:flex; gap:12px; flex-wrap:wrap; }
+
+/* Ẩn checkbox gốc, chỉ hiển thị pill */
+.chip-check { position:relative; display:inline-block; }
+.chip-check input{
+  position:absolute; inset:0; width:0; height:0; opacity:0; pointer-events:none;
+}
+
+/* Pill mặc định */
+.chip-check span{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:46px; height:40px; padding:0 14px;
+  border:1.6px solid rgba(0,0,0,.10);
+  border-radius:12px;
+  background: linear-gradient(#fff, #f9fffe);
+  color:#1f1f1f; font-weight:800;
+  letter-spacing:.2px;
+  box-shadow:
+    0 1px 1px rgba(0,0,0,.04),
+    0 4px 12px rgba(0,0,0,.05);
+  transition:
+    transform .12s ease,
+    box-shadow .18s ease,
+    border-color .18s ease,
+    background .18s ease,
+    color .18s ease;
+}
+
+/* Hover/active */
+.chip-check:hover span{
+  transform: translateY(-1px);
+  border-color: rgba(0,191,165,.45);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+.chip-check:active span{ transform: translateY(0); }
+
+/* Focus (bàn phím) */
+.chip-check input:focus-visible + span{
+  outline:3px solid rgba(0,191,165,.35);
+  outline-offset:2px;
+}
+
+/* Trạng thái chọn */
+.chip-check input:checked + span{
+  color: var(--ta);
+  border-color: var(--ta);
+  background:
+    radial-gradient(120px 60px at 50% -10%, rgba(0,191,165,.15), transparent),
+    #fff;
+  box-shadow:
+    0 10px 22px rgba(0,191,165,.22),
+    0 2px 6px rgba(0,0,0,.06);
+}

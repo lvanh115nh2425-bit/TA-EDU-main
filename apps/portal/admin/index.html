@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TA-Edu Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/admin_console.css">
+</head>
+<body class="admin-body">
+  <header class="admin-header">
+    <div class="brand">
+      <img src="/assets/Logo.png" alt="TA-Edu" class="brand-logo">
+      <div>
+        <p class="brand-label">TA-Edu Admin</p>
+        <small>Quản lý cộng đồng học tập</small>
+      </div>
+    </div>
+    <div class="header-right">
+      <span id="headerStatus" class="status-dot status-offline">Ngoại tuyến</span>
+      <a href="/" class="header-link">Về trang chủ</a>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar" id="adminSidebar" hidden>
+      <div class="sidebar-section">
+        <p class="sidebar-caption">Bảng điều khiển</p>
+        <button class="nav-item is-active" data-tab="kyc">
+          <span>📋</span>
+          <div>
+            <strong>Duyệt KYC</strong>
+            <small>Kiểm duyệt hồ sơ</small>
+          </div>
+        </button>
+        <button class="nav-item" disabled>
+          <span>📊</span>
+          <div>
+            <strong>Báo cáo</strong>
+            <small>Sắp ra mắt</small>
+          </div>
+        </button>
+        <button class="nav-item" disabled>
+          <span>⚙️</span>
+          <div>
+            <strong>Cài đặt</strong>
+            <small>Sắp ra mắt</small>
+          </div>
+        </button>
+      </div>
+      <div class="sidebar-footer">
+        <p>Liên hệ hỗ trợ</p>
+        <a href="mailto:support@ta-edu.vn">support@ta-edu.vn</a>
+        <button type="button" id="btnLogout" class="sidebar-logout">Đăng xuất</button>
+      </div>
+    </aside>
+
+    <main class="admin-content">
+      <div class="admin-shell">
+        <section class="admin-card" id="loginView">
+          <h1>Đăng nhập quản trị</h1>
+          <p>Truy cập khu vực duyệt KYC riêng, không dùng chung giao diện học sinh.</p>
+          <form class="login-form" id="adminLoginForm">
+            <label for="adminUsername">Tên đăng nhập</label>
+            <input id="adminUsername" name="username" placeholder="admin" autocomplete="username">
+            <label for="adminPassword">Mật khẩu</label>
+            <input id="adminPassword" type="password" name="password" placeholder="••••••••" autocomplete="current-password">
+            <button class="btn-primary" type="submit">Đăng nhập</button>
+          </form>
+          <div class="flash" id="authError" hidden></div>
+        </section>
+
+        <section class="admin-card" id="dashboardView" hidden>
+          <div class="dashboard-head">
+            <div>
+              <p class="eyebrow">Smart Moderation</p>
+              <h2>Trung tâm duyệt KYC</h2>
+              <p id="adminWelcome" class="muted"></p>
+            </div>
+            <div class="filter-controls">
+              <select id="statusFilter">
+                <option value="all">Tất cả trạng thái</option>
+                <option value="submitted">Chờ duyệt</option>
+                <option value="approved">Đã duyệt</option>
+                <option value="rejected">Từ chối</option>
+                <option value="unverified">Chưa gửi</option>
+              </select>
+              <input type="search" id="searchInput" placeholder="Tìm theo email, tên...">
+              <select id="pageSizeSelect">
+                <option value="25">25 / trang</option>
+                <option value="50">50 / trang</option>
+                <option value="100">100 / trang</option>
+              </select>
+              <button class="btn-primary" type="button" id="btnRefresh">Làm mới</button>
+              <button class="btn-primary ghost" type="button" id="btnExport">Xuất CSV</button>
+            </div>
+          </div>
+
+          <div class="dashboard-summary">
+            <div class="metric-card">
+              <p>Chờ duyệt</p>
+              <strong id="metricPending">0</strong>
+              <small>Hồ sơ cần xử lý</small>
+            </div>
+            <div class="metric-card">
+              <p>Đã duyệt</p>
+              <strong id="metricApproved">0</strong>
+              <small>Hồ sơ hợp lệ</small>
+            </div>
+            <div class="metric-card">
+              <p>Từ chối</p>
+              <strong id="metricRejected">0</strong>
+              <small>Cần cập nhật thêm</small>
+            </div>
+            <div class="metric-card">
+              <p>Tổng cộng</p>
+              <strong id="metricTotal">0</strong>
+              <small>Toàn bộ hệ thống</small>
+            </div>
+          </div>
+
+          <div class="flash" id="dashboardMessage" hidden></div>
+          <div class="table-wrap">
+            <table class="kyc-table">
+              <thead>
+                <tr>
+                  <th>Hồ sơ</th>
+                  <th>Trạng thái</th>
+                  <th>Thông tin thêm</th>
+                  <th>Hành động</th>
+                </tr>
+              </thead>
+              <tbody id="kycTableBody"></tbody>
+            </table>
+            <div class="table-footer">
+              <div id="paginationInfo" class="pagination-info">Không có dữ liệu</div>
+              <div class="pagination-controls">
+                <button type="button" class="pager-btn" id="btnPrevPage">Trang trước</button>
+                <button type="button" class="pager-btn" id="btnNextPage">Trang sau</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.__TAEDU_ADMIN_API__ = window.__TAEDU_ADMIN_API__ || "http://localhost:4001";
+  </script>
+  <dialog id="historyDialog" class="history-dialog">
+    <div class="history-dialog__surface">
+      <header>
+        <h3>Lịch sử xử lý</h3>
+        <p id="historyDialogSubtitle"></p>
+      </header>
+      <div id="historyTimeline" class="history-timeline"></div>
+      <div class="history-dialog__actions">
+        <button type="button" class="btn-primary ghost" id="btnExportHistory">Xuất CSV</button>
+        <button type="button" class="btn-primary" id="btnCloseHistory">Đóng</button>
+      </div>
+    </div>
+  </dialog>
+  <script type="module" src="/js/admin/console.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+        <p class="hero-chip">TA-Lab ? Exercise Builder</p>
+        <h1>T?o b?i t?p t?y ch??nh ch?? trong v?i ph?t</h1>
+          K?t h?p m?c ti?u h?c t?p, k? n?fng tr?ng t?m v? c?u h?i ?'?f xu?t ra b?T ?'? chu?n TA-Edu.
+          Trang n?y gi?p gi?o vi?n ki?fm so?t to?n b?T c?u tr?c b?i t?p tru?>c khi chia s? cho h?c sinh.
+          <li>Thi?t l?p th?ng tin b?i t?p v? hu?>ng d?n n?Tp</li>
+          <li>Th?m c?u h?i v?>i m?c ?'?T, d?ng b?i, ?'i?fm s?' r? r?ng</li>
+          <li>Xu?t JSON ?'?f d?ng cho SmartTutor ho?c share v?>i ?'?"ng nghi??p</li>
+            B?t ?'?u thi?t k?
+            Xem preview chu?n
+          <p>D? ?'? d?ng tu?n n?y</p>
+          <span>T? t?. chuy?n m?n TA-Edu</span>
+          <p>Th?i gian trung b?nh</p>
+          <strong>~4 ph?t</strong>
+          <span>D?f d?ng 1 b?T 5 c?u h?i</span>
+          <p>Xu?t ?'?<nh d?ng</p>
+          <strong>JSON ? PDF</strong>
+          <span>K?t h?p ?'u?c v?>i SmartTutor</span>
+            <p class="panel__eyebrow">Bu?>c 1 ? Khai b?o</p>
+            <h2>Thi?t l?p th?ng tin b?i t?p</h2>
+            D?t l?i
+            <span>Ti?u ?'? b?i t?p</span>
+            <input type="text" data-meta="title" placeholder="VD: ?"n t?p tho hi??n ?'?i 1945-1975" />
+            <span>M?n h?c</span>
+              <option value="Ng? v?fn 10">Ng? v?fn 10</option>
+              <option value="Ng? v?fn 11">Ng? v?fn 11</option>
+              <option value="Ng? v?fn 12">Ng? v?fn 12</option>
+              <option value="Ng? v?fn chuy?n">Ng? v?fn chuy?n</option>
+              <option value="L?<ch s? 12">L?<ch s? 12</option>
+              <option value="D?<a l? 12">D?<a l? 12</option>
+            <span>Kh?'i l?>p</span>
+            <span>Th?i lu?ng g?i ?</span>
+              <option value="30 ph?t">30 ph?t</option>
+              <option value="45 ph?t">45 ph?t</option>
+              <option value="60 ph?t">60 ph?t</option>
+              <option value="90 ph?t">90 ph?t</option>
+            <span>M?c ?'?T t?.ng th?f</span>
+              <option value="C?n b?ng">C?n b?ng</option>
+              <option value="Co b?n">Co b?n</option>
+              <option value="N?ng cao">N?ng cao</option>
+              <option value="?"n thi TN/DGNL">?"n thi TN/DGNL</option>
+            <span>Giao s?n ph?m</span>
+              <option value="B?i vi?t tay">B?i vi?t tay</option>
+              <option value="Slide thuy?t tr?nh nh?m">Slide thuy?t tr?nh nh?m</option>
+              <option value="Phi?u tr? l?i PDF">Phi?u tr? l?i PDF</option>
+            <span>M?c ti?u & chu?n ?'?u ra</span>
+            <input type="text" data-meta="objective" placeholder="VD: C?ng c?' thao t?c l?p lu?n v? k? n?fng ?'?c hi?fu bi?fu c?m" />
+            <span>Y?u c?u & ghi ch? n?Tp b?i</span>
+            <textarea data-meta="instructions" data-autoresize rows="4" placeholder="Ghi r? c?ch n?Tp, quy t?c ?'?t t?n file..."></textarea>
+            <span>K? n?fng tr?ng t?m</span>
+              <button type="button" data-skill="D?c hi?fu">D?c hi?fu</button>
+              <button type="button" data-skill="Vi?t ngh?< lu?n">Vi?t ngh?< lu?n</button>
+              <button type="button" data-skill="Thuy?t tr?nh">Thuy?t tr?nh</button>
+              <button type="button" data-skill="Tu duy ph?n bi??n">Tu duy ph?n bi??n</button>
+              <button type="button" data-skill="S?ng t?o">S?ng t?o</button>
+              <button type="button" data-skill="H?p t?c nh?m">H?p t?c nh?m</button>
+              <button type="button" data-skill="K?t n?'i li?n m?n">K?t n?'i li?n m?n</button>
+              <button type="button" data-skill="?"n thi TN">?"n thi TN</button>
+            T?t c? tru?ng ?'u?c luu c?c b?T tr?n tr?nh duy??t. B?n c? th?f thay ?'?.i b?t k? l?c n?o v? preview s? c?p nh?t ngay.
+            L?m m?>i preview
+            <p class="panel__eyebrow">Bu?>c 2 ? Preview</p>
+            <h2>B?n nh?p b?i t?p</h2>
+            Xu?t JSON
+            H?y nh?p th?ng tin ?Y b?ng b?n tr?i ?'?f xem preview ti?u chu?n TA-Edu.
+            <h3>Payload chu?n h?a</h3>
+            <p id="exportStatus" role="status">Chua xu?t d? li??u.</p>
+          <textarea id="exportOutput" readonly placeholder="JSON s? xu?t hi??n t?i ?'?y sau khi b?m Xu?t JSON."></textarea>
+          <p class="panel__eyebrow" id="questionLabTitle">Bu?>c 3 ? Ph?ng lab c?u h?i</p>
+          <h2>X?y t?ng c?u h?i</h2>
+            Th?m th? tr?'ng
+            X?a t?t c?
+            <span>N?Ti dung c?u h?i</span>
+            <textarea id="composerPrompt" data-autoresize rows="3" placeholder="Nh?p m? t? c?u h?i..."></textarea>
+            <span>D?p ?n g?i ? / Rubric</span>
+            <textarea id="composerAnswer" data-autoresize rows="3" placeholder="Nh?p ?'?p ?n m?u ho?c ti?u ch? ch?m..."></textarea>
+            <span>S?' ?'i?fm</span>
+            <span>M?c ?'?T</span>
+              <option value="de">D?.</option>
+              <option value="vua" selected>Trung b?nh</option>
+              <option value="kho">Kh?</option>
+              <option value="nangcao">N?ng cao</option>
+            <span>D?ng b?i</span>
+              <option value="tu-luan">T? lu?n</option>
+              <option value="trac-nghiem">Tr?c nghi??m</option>
+              <option value="ket-hop">K?t h?p</option>
+              <option value="du-an">D? ?n nh?m</option>
+            Dua v?o danh s?ch
+          <p>Chua c? c?u h?i n?o. Th?m c?u h?i b?ng form ph?a tr?n ho?c t?o th? tr?'ng ?'?f ch??nh s?a sau.</p>

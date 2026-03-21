@@ -1,0 +1,739 @@
+@charset "UTF-8";
+
+/* Theme variables (default = home) */
+:root{
+  --ta-primary: #00bfa5;
+  --ta-primary-rgb: 0,191,165;
+  --ta-primary-contrast: #ffffff;
+  --ta-btn-gradient: linear-gradient(135deg,#37e5c0 0%, #53b3ff 100%);
+  --ta-menu-bg: #ffffff;
+  --ta-menu-gradient: linear-gradient(135deg,#c0f4e6,#a8f0db);
+  --ta-card-bg: #dff8f3;
+  --ta-text: #222;
+}
+
+body.theme-home{ /* explicit home theme - keeps :root defaults */
+}
+
+body.theme-neon{
+  --ta-primary: #7ef0ff;
+  --ta-primary-rgb: 126,240,255;
+  --ta-primary-contrast: #05121a;
+  --ta-btn-gradient: linear-gradient(135deg,#7ef0ff 0%, #9b7aff 100%);
+  --ta-menu-bg: #081320;
+  --ta-menu-gradient: linear-gradient(135deg,#061826,#0d1430);
+  --ta-card-bg: rgba(126,240,255,0.08);
+  --ta-text: #e6f9ff;
+}
+
+/* ===== HEADER / MENU CHÍNH ===== */
+.main-header {
+  background: var(--ta-menu-bg, #ffffff);
+  border-bottom: 3px solid var(--ta-primary);
+  box-shadow: 0 2px 12px rgba(var(--ta-primary-rgb), 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  width: 100%;
+  padding: 6px 0;
+}
+
+/* ===== CONTAINER ===== */
+.main-header .container {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 12px 12px;
+  box-sizing: border-box;
+}
+
+/* Responsive: giảm padding container trên màn hình nhỏ để tránh tràn */
+@media (max-width: 992px) {
+  .main-header .container { padding: 12px 20px; }
+}
+
+/* Desktop: make nav area full-width while keeping logo/auth fixed */
+@media (min-width: 992px) {
+  .main-header .container {
+    max-width: 100%;
+    padding: 12px 24px;
+  }
+  .logo-area { justify-self: start; }
+  .nav__auth { justify-self: end; }
+  .main-nav { justify-self: stretch; padding: 0 8px; }
+  .main-nav ul { width: 100%; justify-content: space-between; gap: 20px; padding: 0 6px; }
+  /* keep auth/menu items visually separated */
+  .main-nav .nav-auth-item { margin-left: 12px; }
+}
+
+/* ===== LOGO ===== */
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  animation: floatLogo 3s ease-in-out infinite;
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.logo-area:hover .logo {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 6px rgba(var(--ta-primary-rgb), 0.6));
+}
+
+.site-name {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--ta-primary);
+  margin: 0;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+}
+
+.logo-area:hover .site-name {
+  color: #25a38c;
+}
+
+/* Hiệu ứng logo nổi nhẹ */
+@keyframes floatLogo {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ===== MENU CHÍNH ===== */
+.main-nav {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.main-nav ul {
+  list-style: none;
+  display: flex;
+  gap: 22px;
+  margin: 0;
+  padding: 0;
+  align-items: center; /* căn giữa item menu với nút Đăng nhập */
+}
+
+.main-nav li {
+  display: flex;
+  align-items: center;
+}
+
+.main-nav a {
+  position: relative;
+  text-decoration: none;
+  color: var(--ta-text, #222);
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 10px 18px;
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--ta-primary);
+  transition: width 0.3s ease;
+}
+
+.main-nav a:hover {
+  color: var(--ta-primary);
+  background: rgba(var(--ta-primary-rgb), 0.08);
+}
+
+.main-nav a:hover::after {
+  width: 100%;
+}
+
+.main-nav a.active {
+  background: var(--ta-primary);
+  color: var(--ta-primary-contrast, #fff);
+  box-shadow: 0 3px 8px rgba(var(--ta-primary-rgb), 0.3);
+}
+
+/* ===== KHU VỰC ĐĂNG NHẬP ===== */
+.nav__auth {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: 40px;
+}
+
+/* ===== NÚT ĐĂNG NHẬP ===== */
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #37e5c0 0%, #53b3ff 100%);
+  color: #fff;
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  padding: 12px 32px;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  text-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.btn-login:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 2.5px 7.5px rgba(83, 179, 255, 0.5);
+}
+
+/* ===== ICON GOOGLE ===== */
+.google-icon {
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: 1px;
+  transition: transform 0.25s ease;
+}
+
+.btn-login:hover .google-icon {
+  transform: scale(1.08);
+}
+
+/* ==== AVATAR NGƯỜI DÙNG ==== */
+#userInfo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ẢNH AVATAR */
+#userPhoto {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #00bfa5;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+/* Hiệu ứng hover chỉ trên ảnh */
+#userPhoto:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(46, 191, 165, 0.6);
+  border-color: #1fa58e;
+}
+
+/* Ẩn tên khỏi header */
+#userName {
+  display: none;
+}
+
+/* ==== DROPDOWN MENU DƯỚI AVATAR ==== */
+#userMenu {
+  position: absolute;
+  top: 65px;
+  right: 0;
+  background: #ffffff;
+  border-radius: 14px;
+  min-width: 200px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10002; /* ensure above header/nav */
+  animation: fadeIn 0.25s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+#userMenu.show {
+  display: flex;
+}
+
+/* JS toggles `is-open`; đảm bảo cả hai class đều hiển thị menu */
+#userMenu.is-open { display: flex; }
+
+/* ====== USER NAME ====== */
+#menuName {
+  background: linear-gradient(135deg, #c0f4e6, #a8f0db); /* 🔹 Màu đậm hơn, gradient nhẹ */
+  color: #117c66;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: default;
+  border-bottom: 1px solid rgba(46, 191, 165, 0.25);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 0;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  line-height: 1.4;
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* ====== MỤC MENU ====== */
+#userMenu div,
+#userMenu a {
+  padding: 12px 18px;
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  color: #333;
+  transition: background 0.25s ease, color 0.25s ease;
+  cursor: pointer;
+}
+
+/* Hover cho mục khác (trừ tên) */
+#userMenu a:hover {
+  background: rgba(46, 191, 165, 0.1);
+  color: #00bfa5;
+}
+
+/* Avatar sáng khi mở menu */
+#userPhoto.active {
+  box-shadow: 0 0 0 4px rgba(46, 191, 165, 0.3);
+}
+
+/* Hiệu ứng mượt khi menu xuất hiện */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect prefers-reduced-motion for decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  .logo { animation: none !important; }
+  #userMenu { animation: none !important; }
+  .header-avatar.is-current { animation: none !important; }
+}
+
+/* ===== RESET ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: 'Baloo 2', sans-serif;
+}
+/* ===== OVERLAY (nếu dùng) ===== */
+.menu-overlay[hidden] { display: none !important; }
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+  z-index: 9998;
+}
+
+/* (Removed redundant external mobile logout — logout remains inside `#userMenu`) */
+
+/* ===== HAMBURGER (tuỳ chọn) ===== */
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 8px;
+}
+.menu-toggle .bar {
+  display: block;
+  width: 26px;
+  height: 3px;
+  background: #00bfa5; /* TODO: chuyển sang var(--taedu) sau */
+  border-radius: 2px;
+  margin: 5px 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+.main-nav .nav-auth-item {
+  display: flex;
+  align-items: center;
+}
+
+.main-nav .nav-auth-item a,
+.main-nav .nav-auth-item button {
+  color: var(--ta-text, #222);
+}
+
+@media (min-width: 992px) {
+  .main-nav .nav-auth-item {
+    margin-left: 18px;
+  }
+}
+
+/* ===== NAV MOBILE SLIDE (tuỳ chọn) ===== */
+@media (max-width: 992px) {
+  .menu-toggle { display: block; }
+  .main-nav {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background: var(--ta-menu-bg, #fff);
+    box-shadow: 0 6px 30px rgba(0,0,0,.12);
+    transform: translateY(-100%);
+    transition: transform .28s ease;
+    z-index: 10001;
+    padding: 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.nav-open { overflow: hidden; }
+  body.nav-open .main-nav { transform: translateY(0); }
+
+  /* Khi menu chính mở trên mobile, hiển thị nội dung dropdown của avatar trong menu */
+  body.nav-open #userMenu,
+  body.nav-open #userMenu.is-open,
+  body.nav-open #userMenu.show {
+    display: flex;
+    position: static;
+    top: auto;
+    right: auto;
+    width: 100%;
+    min-width: auto;
+    margin: 8px 0 0 0;
+    box-shadow: none;
+    border-radius: 12px;
+    background: transparent;
+    padding: 0;
+    animation: none;
+    flex-direction: column;
+  }
+
+  /* Bọc lại nội dung userMenu để trông giống menu trong ảnh */
+  body.nav-open #userMenu .um-head{
+    background: linear-gradient(135deg, #c8f3ec, #a8f0db);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+    text-align: center;
+  }
+  body.nav-open #userMenu .um-list{ margin: 8px 0; }
+  body.nav-open #userMenu .um-item{ background: transparent; padding: 12px 8px; }
+  body.nav-open #userMenu .um-logout{ width:100%; margin:8px 0 0; }
+
+  /* Ensure theme toggle inside mobile user menu is readable */
+  body.nav-open .header-theme-toggle .header-theme-slider__track {
+    background: var(--ta-menu-gradient);
+    color: var(--ta-text);
+  }
+}
+
+/* ===== Theme slider (avatar menu) ===== */
+.header-theme-toggle { padding: 8px 12px; }
+.header-theme-toggle__label { font-size: 0.9rem; margin: 0 0 8px; color: var(--ta-text); font-weight:700; }
+.header-theme-slider { width: 220px; max-width: 100%; margin: 0 auto; }
+.header-theme-slider__track {
+  display: flex;
+  background: #D2F2EE; /* Changed from #E3F8F6 */
+  border-radius: 999px;
+  /* Removed padding: 4px; */
+  transition: background .3s ease;
+  position: relative; /* Added for absolute positioning of the pill */
+  overflow: hidden; /* Added to contain the absolutely positioned pill */
+}
+
+.header-theme-slider__pill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0; /* Initial position for 'home' theme */
+  background: #00BFA6;
+  border-radius: 999px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+  transition: transform 0.25s ease;
+  z-index: 1;
+  width: 50%; /* Covers half of the track */
+}
+.header-theme-slider__track button[data-theme-option] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 0;
+  /* Removed border-radius: 999px; */
+  background: transparent;
+  color: #7A8A8F; /* Changed from #333 */
+  /* Removed opacity: 0.6; */
+  font-weight: 600; /* Added font-weight */
+  cursor: pointer;
+  transition: color .25s ease; /* Changed transition to only color */
+  position: relative; /* Added for z-index */
+  z-index: 2; /* Added to appear above the pill */
+}
+.header-theme-slider__track button[data-theme-option].active {
+  /* Removed background: #00BFA6; */
+  color: #fff;
+  /* Removed opacity: 1; */
+  /* Removed box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+}
+
+/* JavaScript-controlled classes for pill position */
+.header-theme-slider[data-theme-current="home"] .header-theme-slider__pill {
+  transform: translateX(0%);
+}
+
+.header-theme-slider[data-theme-current="neon"] .header-theme-slider__pill {
+  transform: translateX(100%);
+}
+
+/* Neon background for pages */
+body.theme-neon { 
+  background: radial-gradient(ellipse at 10% 10%, rgba(126,240,255,0.06) 0%, transparent 12%),
+              radial-gradient(ellipse at 90% 90%, rgba(155,122,255,0.03) 0%, transparent 18%),
+              linear-gradient(180deg, #04121a 0%, #071722 40%, #0a1322 100%);
+  color: var(--ta-text);
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+
+/* Slight card/bg overrides in neon mode for readability */
+body.theme-neon .card, body.theme-neon .box, body.theme-neon .um-head {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(126,240,255,0.02));
+  border: 1px solid rgba(126,240,255,0.06);
+}
+
+/* Make header contrast well on neon */
+body.theme-neon .main-header { background: rgba(8,19,32,0.7); backdrop-filter: blur(6px); }
+
+/* Emergency: force header visible and on top to recover from styling issues */
+.main-header {
+  display: flex !important;
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 20000 !important;
+  background: var(--ta-menu-bg, #ffffff) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+}
+.main-header .container { padding-top: 10px !important; padding-bottom: 10px !important; }
+.logo, .site-name { z-index: 20001 !important; }
+
+/* ===== Nút Đăng xuất trong menu người dùng ===== */
+#userMenu {
+  /* đảm bảo bo góc + đổ bóng của menu giữ được form khi có nút ở đáy */
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.06);
+}
+
+/* dòng kẻ phía trên nút (nếu bạn chưa có) */
+#btnLogout {
+  position: relative;
+}
+#btnLogout::before {
+  content: "";
+  position: absolute;
+  left: 8px; right: 8px; top: -8px;
+  height: 1px;
+  background: rgba(0,0,0,0.06);
+}
+
+/* style chính cho nút */
+#btnLogout {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 12px auto 12px;
+  padding: 10px 12px;
+  background: #00bfa5;             /* màu chủ đạo TA-Edu */
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+#btnLogout:hover {
+  transform: translateY(-1px);
+
+  opacity: .95;
+}
+
+#btnLogout:active {
+  transform: translateY(0);
+}
+
+#btnLogout:focus-visible {
+  outline: 2px solid #00bfa5;
+  outline-offset: 2px;
+}
+/* ===== AUTH STATE GUARD (khóa hiển thị đúng trạng thái) ===== */
+#userInfo[hidden],
+.btn-login[hidden] {
+  display: none !important;
+}
+
+/* Khi đã đăng nhập: ẩn nút login, hiện khối avatar */
+body.is-auth .btn-login { display: none !important; }
+body.is-auth #userInfo  { display: inline-flex !important; }
+
+/* Khi chưa đăng nhập: luôn ẩn dropdown menu người dùng */
+body:not(.is-auth) #userMenu { display: none !important; }
+
+/* Trợ năng: focus rõ cho nút đăng nhập & avatar */
+.btn-login:focus-visible,
+#userPhoto:focus-visible {
+  outline: 3px solid #00bfa5;
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+/* ===== User Menu - Layout mới gọn, hành động trước ===== */
+#userMenu { width: 260px; padding: 12px; }
+
+#userMenu .um-head{
+  display:flex;
+  align-items:center; /* center horizontally */
+  justify-content:center;
+  flex-direction:column; /* username + trust stacked vertically */
+  background:#c8f3ec;border-radius:12px;padding:10px 12px;margin-bottom:10px;
+}
+#userMenu .um-name#menuName{
+  margin: 0 0 6px 0;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: 'Baloo 2', system-ui, sans-serif;
+  font-weight: 700;
+  color: #0e3c36;
+  width: 100%;
+  text-align: center;
+}
+#userMenu .um-balance{
+  display:inline-flex;align-items:center;gap:8px;
+  background:transparent;color:#00bfa5;font-weight:700;
+  border-radius:8px;padding:0;font-size:15px;
+}
+#userMenu .um-balance i{font-size:16px;}
+
+#userMenu .um-list{display:grid;gap:6px;margin:6px 0 10px;}
+#userMenu .um-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:10px;
+  background:#f6fffd;color:#1d1d1d;text-decoration:none;
+  font-family:'Baloo 2',sans-serif;font-weight:600;transition:.2s;
+}
+
+#userMenu .um-item.is-primary{background:#e6fffb;font-weight:700;}
+#userMenu .um-item i{color:#00bfa5;}
+
+#userMenu .um-logout{
+  width:100%;border:0;padding:12px 14px;border-radius:12px;
+  background:#00bfa5;color:#fff;font-weight:800;cursor:pointer;transition:.15s;
+}
+
+
+/* Show simplified trust text: "Điểm uy tín: <value>" */
+#userMenu .trust-pill__label,
+#userMenu .trust-pill__hint { display: none; }
+#menuTrust::before { content: "Điểm uy tín: "; font-weight:700; color:#117c66; margin-right:6px; }
+
+/* Khoá hiển thị đúng trạng thái (giữ nguyên logic hiện có) */
+#userInfo[hidden], .btn-login[hidden]{display:none!important;}
+body.is-auth .btn-login{display:none!important;}
+body.is-auth #userInfo{display:inline-flex!important;}
+body:not(.is-auth) #userMenu{display:none!important;} /* chưa login không mở menu */
+/* Avatar highlight khi đang ở Dashboard */
+.header-avatar.is-current {
+
+  border-radius: 999px;
+  transition: box-shadow .2s ease;
+}
+@media (prefers-reduced-motion: no-preference){
+  .header-avatar.is-current { animation: taeduRing 1s ease-in-out 2; }
+  @keyframes taeduRing {
+    0% { box-shadow: 0 0 0 0 rgba(0,191,165,.20), 0 0 0 3px #00bfa5; }
+    70%{ box-shadow: 0 0 0 8px rgba(0,191,165,.05), 0 0 0 3px #00bfa5; }
+    100%{ box-shadow: 0 0 0 0 rgba(0,191,165,.15), 0 0 0 3px #00bfa5; }
+  }
+}
+
+/* === TA-Edu: vòng sáng avatar khi ở Dashboard (chuẩn v2.1) === */
+.header-avatar.is-current { position: relative; }
+.header-avatar.is-current::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #00bfa5, 0 0 8px rgba(0,191,165,.5);
+  pointer-events: none;
+}
+
+/* Mobile / small-screen: make the main nav full-width and avoid double scrollbars
+   - position fixed so it covers viewport
+   - body.nav-open hides background scrolling to avoid two vertical scrollbars
+   - ensure inner containers don't exceed viewport width (no horizontal scroll)
+*/
+@media (max-width: 992px) {
+  body.nav-open {
+    overflow: hidden; /* prevent page from scrolling while nav is open */
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-y: auto; /* allow menu to scroll if content exceeds viewport */
+    overflow-x: hidden;
+    z-index: 10001; /* above header but below user menu which uses 10002 */
+    -webkit-overflow-scrolling: touch;
+    background: var(--ta-nav-bg, #ffffff);
+  }
+
+  .main-nav .nav-inner,
+  .main-nav .nav-list,
+  .main-nav ul {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Make sure the user menu (dropdown) can be shown inside the fixed nav
+     when the nav is open without creating extra scrolling layers */
+  body.nav-open #userMenu {
+    position: static;
+    display: flex !important;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    background: var(--ta-nav-bg, #ffffff);
+  }
+}
+

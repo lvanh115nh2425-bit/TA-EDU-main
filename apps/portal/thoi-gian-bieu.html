@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thời gian biểu linh hoạt | TA-Edu</title>
+  <script>
+    window.__TAEDU_ADMIN_API__ = window.__TAEDU_ADMIN_API__ || "http://localhost:4001";
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/css/taedu_global.css" />
+  <link rel="stylesheet" href="/css/css_menu.css" />
+  <link rel="stylesheet" href="/css/timetable.css" />
+</head>
+<body class="timetable-body">
+  <div id="headerMount"></div>
+
+  <main class="timetable-shell">
+    <section class="schedule-board">
+      <header class="board-header">
+        <div>
+          <h2>Lịch biểu tuần này</h2>
+          <p>Quản lý lịch học linh hoạt và bật chia sẻ khi cần.</p>
+        </div>
+        <div class="board-actions" id="boardActions">
+          <label class="share-toggle">
+            <input type="checkbox" id="timetableShareToggle">
+            <span>Cho phép chia sẻ</span>
+          </label>
+          <button type="button" class="btn btn-primary btn-mini" data-timetable-action="share">
+            <i class="fa-solid fa-link"></i> Sao chép liên kết
+          </button>
+        </div>
+      </header>
+      <div id="timetableShareHint" class="share-badge" hidden>
+        <i class="fa-solid fa-sparkles"></i>
+        Đã bật chia sẻ. Link được tạo tự động để bạn gửi cho bạn học!
+      </div>
+      <div id="timetableGrid" class="week-grid" aria-live="polite"></div>
+      <div id="timetableEmpty" class="timetable-empty" hidden>
+        <p>Chưa có hoạt động nào. Nhấn vào dấu “+” ở từng ngày để thêm hoạt động.</p>
+      </div>
+      <footer class="board-footer">
+        <span>Bạn có thể lưu, xuất file và chia sẻ cùng bạn bè hoặc phụ huynh.</span>
+        <span id="timetableMeta"></span>
+      </footer>
+    </section>
+
+    <section class="deadline-board">
+      <header class="deadline-header">
+        <div>
+          <h2>Deadline trọng tâm</h2>
+          <p>Theo dõi bài tập quan trọng, đánh dấu tiến độ rõ ràng.</p>
+        </div>
+        <button type="button" class="btn btn-primary btn-mini" data-deadline-action="add">
+          <i class="fa-solid fa-plus"></i> Thêm deadline
+        </button>
+      </header>
+      <div class="deadline-table" id="deadlineTable">
+        <div class="deadline-empty" id="deadlineEmpty">Chưa có deadline nào.</div>
+      </div>
+    </section>
+
+    <section class="timeline-demo">
+      <div class="timeline-card">
+        <strong>Ý tưởng sử dụng</strong>
+        <p>Chia lịch cho từng môn, đánh dấu buổi học nhóm và thêm ghi chú cho giáo viên.</p>
+      </div>
+      <div class="timeline-card">
+        <strong>Chế độ chia sẻ</strong>
+        <p>Khi bật, bạn sẽ có một đường dẫn có thể gửi cho bạn bè hoặc phụ huynh.</p>
+      </div>
+      <div class="timeline-card">
+        <strong>Sắp tới</strong>
+        <p>Kéo thả hoạt động, đồng bộ với Google Calendar và đề xuất từ AI.</p>
+      </div>
+    </section>
+  </main>
+
+  <div id="ttModalBackdrop" class="tt-modal-backdrop" hidden></div>
+  <div id="ttModal" class="tt-modal" hidden>
+    <form id="ttModalForm" class="tt-modal-card">
+      <header>
+        <h3>Thêm hoạt động</h3>
+        <p>Ngày: <span id="ttModalDayName">--</span></p>
+      </header>
+      <label class="tt-field">
+        <span>Tiêu đề</span>
+        <input type="text" id="ttSlotTitle" required placeholder="Ví dụ: Luyện nghe TOEIC" />
+      </label>
+      <div class="tt-field tt-field-inline">
+        <label>
+          <span>Bắt đầu</span>
+          <input type="time" id="ttSlotStart" required />
+        </label>
+        <label>
+          <span>Kết thúc</span>
+          <input type="time" id="ttSlotEnd" required />
+        </label>
+      </div>
+      <label class="tt-field">
+        <span>Ghi chú</span>
+        <textarea id="ttSlotNote" rows="2" placeholder="Nội dung chính..."></textarea>
+      </label>
+      <label class="tt-field">
+        <span>Tông màu</span>
+        <select id="ttSlotTone">
+          <option value="focus">Tập trung</option>
+          <option value="fun">Thư giãn</option>
+        </select>
+      </label>
+      <div class="tt-modal-actions">
+        <button type="button" class="btn btn-ghost" data-tt-modal="cancel">Huỷ</button>
+        <button type="submit" class="btn btn-primary">Lưu hoạt động</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="deadlineModalBackdrop" class="tt-modal-backdrop" hidden></div>
+  <div id="deadlineModal" class="tt-modal" hidden>
+    <form id="deadlineForm" class="tt-modal-card">
+      <header>
+        <h3>Thêm deadline</h3>
+        <p>Ghi nhớ những mốc quan trọng.</p>
+      </header>
+      <label class="tt-field">
+        <span>Tiêu đề</span>
+        <input type="text" id="deadlineTitle" required placeholder="Ví dụ: Nộp bài tập Hóa" />
+      </label>
+      <label class="tt-field">
+        <span>Ngày bắt đầu</span>
+        <input type="date" id="deadlineStart" required />
+      </label>
+      <label class="tt-field">
+        <span>Ngày đến hạn</span>
+        <input type="date" id="deadlineDate" required />
+      </label>
+      <label class="tt-field">
+        <span>Mô tả</span>
+        <textarea id="deadlineNote" rows="2" placeholder="Ghi chú thêm..."></textarea>
+      </label>
+      <label class="tt-field">
+        <span>Trạng thái</span>
+        <select id="deadlineStatus">
+          <option value="pending">Chưa bắt đầu</option>
+          <option value="working">Đang làm</option>
+        </select>
+      </label>
+      <div class="tt-modal-actions">
+        <button type="button" class="btn btn-ghost" data-deadline-modal="cancel">Huỷ</button>
+        <button type="submit" class="btn btn-primary">Lưu deadline</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js" defer></script>
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script defer src="/js/core/boot_header.js"></script>
+  <script type="module" src="/js/modules/timetable.js"></script>
+</body>
+</html>

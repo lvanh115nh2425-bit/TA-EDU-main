@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TA-Edu · Bài tập KTPL</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="/css/css_menu.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/css/ktpl-exercise.css">
+</head>
+<body class="exercise-page">
+  <div id="headerMount"></div>
+
+  <main class="exercise-shell">
+    <!-- Step 1: Chọn lớp và bài học -->
+    <section class="exercise-step" id="stepConfig">
+      <header class="step-header">
+        <div>
+          <p class="step-eyebrow">Bước 1 · Cấu hình</p>
+          <h2 class="step-title">Chọn lớp và bài học</h2>
+        </div>
+        <span class="step-status" id="configStatus">Sẵn sàng</span>
+      </header>
+
+      <form id="exerciseForm" class="ex-form-grid" autocomplete="off">
+        <label class="ex-field">
+          <span>Khối lớp</span>
+          <select id="gradeSelect" required>
+            <option value="10">Lớp 10</option>
+            <option value="11">Lớp 11</option>
+            <option value="12">Lớp 12</option>
+          </select>
+        </label>
+        <label class="ex-field">
+          <span>Mức độ</span>
+          <select id="difficultySelect" required>
+            <option value="easy">Dễ</option>
+            <option value="medium" selected>Trung bình</option>
+            <option value="hard">Khó</option>
+          </select>
+        </label>
+        <label class="ex-field ex-field--full">
+          <span>Bài học</span>
+          <select id="lessonSelect" required>
+            <option value="">-- Chọn lớp trước --</option>
+          </select>
+        </label>
+        <label class="ex-field">
+          <span>Số câu trắc nghiệm</span>
+          <input type="number" id="mcqCount" value="5" min="1" max="20">
+        </label>
+        <label class="ex-field">
+          <span>Số câu tự luận</span>
+          <input type="number" id="essayCount" value="2" min="0" max="10">
+        </label>
+        <div class="ex-form-actions ex-field--full">
+          <button type="submit" id="generateBtn" class="ex-btn-primary">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Tạo bài tập
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Step 2: Chỉnh sửa bài tập -->
+    <section class="exercise-step" id="stepEdit" hidden>
+      <header class="step-header">
+        <div>
+          <p class="step-eyebrow">Bước 2 · Chỉnh sửa</p>
+          <h2 class="step-title">Chỉnh sửa bài tập</h2>
+        </div>
+        <span class="step-status" id="editStatus">0 câu</span>
+      </header>
+
+      <div id="mcqContainer"></div>
+      <button type="button" id="addMcqBtn" class="ex-btn-add">
+        <i class="fa-solid fa-plus"></i> Thêm câu trắc nghiệm
+      </button>
+
+      <div id="essayContainer"></div>
+      <button type="button" id="addEssayBtn" class="ex-btn-add">
+        <i class="fa-solid fa-plus"></i> Thêm câu tự luận
+      </button>
+    </section>
+
+    <!-- Step 3: Xem trước & Xuất -->
+    <section class="exercise-step" id="stepExport" hidden>
+      <header class="step-header">
+        <div>
+          <p class="step-eyebrow">Bước 3 · Xuất bài tập</p>
+          <h2 class="step-title">Xem trước và tải về</h2>
+        </div>
+      </header>
+
+      <div id="previewPanel" class="preview-panel"></div>
+
+      <div class="export-row">
+        <button type="button" id="exportWordNoAnswer" class="ex-btn-primary">
+          <i class="fa-solid fa-file-word"></i> Word (không ĐA)
+        </button>
+        <button type="button" id="exportWordWithAnswer" class="ex-btn-primary">
+          <i class="fa-solid fa-file-word"></i> Word (có ĐA)
+        </button>
+        <button type="button" id="exportPdfNoAnswer" class="ex-btn-ghost">
+          <i class="fa-solid fa-file-pdf"></i> PDF (không ĐA)
+        </button>
+        <button type="button" id="exportPdfWithAnswer" class="ex-btn-ghost">
+          <i class="fa-solid fa-file-pdf"></i> PDF (có ĐA)
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Firebase + header boot -->
+  <script type="module" src="js/core/firebase.js"></script>
+  <script type="module" src="/js/core/boot_header.js"></script>
+
+  <!-- CDN: docx for Word export -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js" defer></script>
+  <!-- CDN: jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js" defer></script>
+
+  <!-- Module -->
+  <script type="module" src="js/modules/ktpl-exercise.js"></script>
+</body>
+</html>

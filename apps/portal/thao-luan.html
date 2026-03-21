@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TA-Edu • Thảo luận</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/taedu_global.css" />
+  <link rel="stylesheet" href="css/css_menu.css" />
+  <link rel="stylesheet" href="css/thao-luan.css" />
+</head>
+<body>
+  <div id="ta-header"></div>
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script type="module" src="/js/core/boot_header.js"></script>
+  <script type="module" src="/js/core/menu_toggle.js"></script>
+
+  <main class="discussion-shell">
+    <header class="discussion-header">
+      <h1><i class="fa-solid fa-comments"></i> Thảo luận cộng đồng</h1>
+      <div id="discussionAuthSlot"></div>
+    </header>
+
+    <div class="discussion-grid">
+      <section class="discussion-main">
+        <section class="discussion-card">
+          <div class="quick-composer">
+            <div class="composer-row">
+              <img id="composerAvatar" src="/assets/default_avatar.svg" alt="Avatar người dùng">
+              <button type="button" class="composer-input" data-post-action="open">Bạn đang nghĩ gì?</button>
+            </div>
+            <div class="composer-actions">
+              <button type="button" class="composer-action" data-post-action="open">
+                <i class="fa-solid fa-pen"></i> Viết bài
+              </button>
+              <button type="button" class="composer-action" data-post-action="open">
+                <i class="fa-solid fa-image"></i> Hình ảnh
+              </button>
+            </div>
+            <div class="auth-guard" id="postAuthGuard">
+              <p>Vui lòng <button class="btn--text" type="button" data-auth-action="login">đăng nhập</button> để đăng bài.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="discussion-feed" id="discussionFeed">
+        </section>
+      </section>
+
+      <aside class="discussion-aside">
+        <section class="discussion-card suggestions-card">
+          <h3>Gợi ý nổi bật</h3>
+          <ul id="discussionSuggestions" class="suggestion-list">
+            <li>Đang tải gợi ý...</li>
+          </ul>
+        </section>
+        <section class="discussion-card tips-card">
+          <h3>Mẹo thảo luận</h3>
+          <ul>
+            <li>Chia sẻ trải nghiệm học tập, mẹo ghi nhớ.</li>
+            <li>Đặt câu hỏi rõ ràng, thêm hình minh hoạ nếu có.</li>
+            <li>Tôn trọng mọi người, phản hồi đúng trọng tâm.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div id="postModalBackdrop" class="tt-modal-backdrop" hidden></div>
+  <div id="postModal" class="tt-modal" hidden>
+    <form id="postForm" class="tt-modal-card post-modal-card">
+      <header>
+        <div>
+          <h3>Tạo bài viết</h3>
+          <p>Chia sẻ câu chuyện học tập, mẹo ôn tập của bạn.</p>
+        </div>
+        <button type="button" class="modal-close-btn" data-post-modal="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+      <input type="text" id="postTitle" placeholder="Tiêu đề" required />
+      <textarea id="postBody" placeholder="Bạn đang nghĩ gì...?" required></textarea>
+      <label class="file-input">
+        <i class="fa-solid fa-image"></i>
+        <input type="file" id="postImage" accept="image/*" hidden />
+        <span id="fileName">Thêm hình ảnh</span>
+      </label>
+      <div id="imagePreviewContainer" class="image-preview-container" hidden>
+        <img id="imagePreview" src="" alt="Preview">
+        <button type="button" class="remove-image-btn" id="removeImageBtn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="post-form__footer">
+        <button type="submit" class="btn btn-primary">Đăng bài</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="discussionToast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/modules/thao-luan.js"></script>
+</body>
+</html>

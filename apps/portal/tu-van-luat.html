@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <title>Tư vấn Luật pháp - TA-Edu</title>
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="css/css_menu.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <style>
+    .legal-container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 30px;
+    }
+
+    .chat-main {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, #2ebfa5 0%, #1a9886 100%);
+      color: white;
+      padding: 25px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-header-text {
+      text-align: center;
+      flex: 1;
+    }
+
+    .chat-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      font-weight: 600;
+    }
+
+    .chat-header p {
+      margin: 8px 0 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .new-chat-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .new-chat-btn:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
+    .chat-messages {
+      height: 500px;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      background: #f8fffe;
+    }
+
+    .message {
+      max-width: 85%;
+      padding: 12px 18px;
+      border-radius: 18px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #2ebfa5, #25a88f);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background: white;
+      border: 1px solid #e8f4f2;
+      color: #2c3e50;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .message-sources {
+      margin-top: 12px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(46, 191, 165, 0.2);
+      font-size: 0.8rem;
+      color: #2ebfa5;
+      font-weight: 500;
+    }
+
+    .chat-input-area {
+      padding: 20px 30px;
+      background: white;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid #e8f4f2;
+      border-radius: 25px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: #f8fffe;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #2ebfa5;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(46, 191, 165, 0.1);
+    }
+
+    .send-btn {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #2ebfa5, #25a88f);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(46, 191, 165, 0.3);
+    }
+
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 191, 165, 0.4);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid #f0f8f6;
+    }
+
+    .info-card h3 {
+      color: #2ebfa5;
+      margin-bottom: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .law-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .law-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f5f5f5;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .law-list li:last-child {
+      border-bottom: none;
+    }
+
+    .law-list i {
+      color: #2ebfa5;
+      width: 16px;
+    }
+
+    .quick-questions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-btn {
+      background: #f8fffe;
+      border: 1px solid #e8f4f2;
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      color: #2c3e50;
+    }
+
+    .quick-btn:hover {
+      background: #e8f4f2;
+      border-color: #2ebfa5;
+      color: #2ebfa5;
+    }
+
+    .loading-animation {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #2ebfa5;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      background: #2ebfa5;
+      border-radius: 50%;
+      animation: loading 1.4s infinite ease-in-out;
+    }
+
+    .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes loading {
+      0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .message.bot h1, .message.bot h2, .message.bot h3 {
+      font-size: 1rem;
+      margin: 8px 0 4px;
+      color: #1a9886;
+    }
+
+    .message.bot ul, .message.bot ol {
+      margin: 4px 0;
+      padding-left: 20px;
+    }
+
+    .message.bot li {
+      margin-bottom: 2px;
+    }
+
+    .message.bot blockquote {
+      border-left: 3px solid #2ebfa5;
+      margin: 8px 0;
+      padding: 4px 12px;
+      background: #f0faf8;
+      border-radius: 4px;
+      font-style: italic;
+    }
+
+    .message.bot p {
+      margin: 4px 0;
+    }
+
+    .message.bot hr {
+      border: none;
+      border-top: 1px solid #e8f4f2;
+      margin: 8px 0;
+    }
+
+    .fallback-notice {
+      font-size: 0.78rem;
+      color: #e67e22;
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #f0d9b5;
+    }
+
+    /* Chat history styles */
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .history-item {
+      background: #f8fffe;
+      border: 1px solid #e8f4f2;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 0.85rem;
+    }
+
+    .history-item:hover {
+      background: #e8f4f2;
+      border-color: #2ebfa5;
+    }
+
+    .history-item.active {
+      background: #e0f5f0;
+      border-color: #2ebfa5;
+      box-shadow: 0 0 0 2px rgba(46, 191, 165, 0.15);
+    }
+
+    .history-question {
+      color: #2c3e50;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .history-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: #999;
+    }
+
+    .history-empty {
+      font-size: 0.85rem;
+      color: #aaa;
+      text-align: center;
+      padding: 12px 0;
+    }
+
+    @media (max-width: 768px) {
+      .legal-container {
+        grid-template-columns: 1fr;
+        margin: 10px;
+        padding: 0;
+      }
+
+      .sidebar {
+        order: -1;
+      }
+
+      .chat-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body class="theme-neon">
+  <div id="ta-header"></div>
+  <script type="module" src="js/core/firebase.js"></script>
+  <script type="module" src="js/core/boot_header.js"></script>
+  <script type="module" src="js/core/menu_toggle.js"></script>
+
+  <main class="legal-container">
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="chat-header-text">
+          <h1><i class="fa-solid fa-scale-balanced"></i> Trợ lý Luật pháp AI</h1>
+          <p>Hỏi về Hiến pháp, Luật Lao động, Hôn nhân gia đình và các quy định pháp luật Việt Nam</p>
+        </div>
+        <button id="newChatBtn" class="new-chat-btn" title="Bắt đầu cuộc trò chuyện mới">
+          <i class="fa-solid fa-plus"></i> Trò chuyện mới
+        </button>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="message bot">
+          <strong>Chào bạn!</strong> Mình là trợ lý pháp luật AI, sẵn sàng giúp bạn tìm hiểu các quy định pháp luật Việt Nam.
+          <br><br>
+          <em>Bạn có thể hỏi về: tuổi kết hôn, quyền lao động, thuế thu nhập, quyền con người, ly hôn...</em>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <form id="consultForm" class="input-group">
+          <input type="text" id="userInput" placeholder="Nhập câu hỏi của bạn..." required>
+          <button type="submit" id="sendBtn" class="send-btn">
+            <i class="fa-solid fa-paper-plane"></i> Gửi
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="info-card" id="historyCard">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trò chuyện</h3>
+        <div id="historyList" class="history-list">
+          <div class="history-empty">Đăng nhập để xem lịch sử</div>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3><i class="fa-solid fa-database"></i> Bộ dữ liệu luật</h3>
+        <ul class="law-list">
+          <li><i class="fa-solid fa-check"></i> Hiến pháp 2013</li>
+          <li><i class="fa-solid fa-check"></i> Luật Lao động</li>
+          <li><i class="fa-solid fa-check"></i> Luật Hôn nhân & Gia đình</li>
+          <li><i class="fa-solid fa-check"></i> Luật Tố cáo / Khiếu nại</li>
+          <li><i class="fa-solid fa-check"></i> Luật Thuế / Ngân sách</li>
+          <li><i class="fa-solid fa-check"></i> Luật Việc làm</li>
+          <li><i class="fa-solid fa-check"></i> Luật Bình đẳng giới</li>
+          <li><i class="fa-solid fa-check"></i> Luật Bầu cử</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3><i class="fa-solid fa-lightbulb"></i> Câu hỏi gợi ý</h3>
+        <div class="quick-questions">
+          <button class="quick-btn" data-question="Tuổi kết hôn theo luật là bao nhiêu?">Tuổi kết hôn</button>
+          <button class="quick-btn" data-question="Thời gian làm việc tối đa trong ngày là bao nhiêu?">Thời gian làm việc</button>
+          <button class="quick-btn" data-question="Quyền con người cơ bản gồm những gì?">Quyền con người</button>
+          <button class="quick-btn" data-question="Điều kiện ly hôn theo luật">Điều kiện ly hôn</button>
+          <button class="quick-btn" data-question="Thuế thu nhập cá nhân bao nhiều phần trăm?">Thuế thu nhập</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from '/js/core/firebase.js';
+
+    const chatMessages = document.getElementById('chatMessages');
+    const consultForm = document.getElementById('consultForm');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const quickBtns = document.querySelectorAll('.quick-btn');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const historyList = document.getElementById('historyList');
+    const API_URL = window.__TAEDU_ADMIN_API__ || (
+      location.hostname === "127.0.0.1" || location.hostname === "localhost"
+        ? "http://localhost:4001"
+        : ""
+    );
+
+    // Session management
+    let sessionId = generateSessionId();
+
+    function generateSessionId() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
+    }
+
+    const WELCOME_HTML = `<strong>Chào bạn!</strong> Mình là trợ lý pháp luật AI, sẵn sàng giúp bạn tìm hiểu các quy định pháp luật Việt Nam.
+          <br><br>
+          <em>Bạn có thể hỏi về: tuổi kết hôn, quyền lao động, thuế thu nhập, quyền con người, ly hôn...</em>`;
+
+    // New chat handler
+    newChatBtn.addEventListener('click', () => {
+      sessionId = generateSessionId();
+      chatMessages.innerHTML = '';
+      const welcome = document.createElement('div');
+      welcome.className = 'message bot';
+      welcome.innerHTML = WELCOME_HTML;
+      chatMessages.appendChild(welcome);
+      userInput.focus();
+      // Remove active state from history items
+      document.querySelectorAll('.history-item.active').forEach(el => el.classList.remove('active'));
+    });
+
+    // Quick question handlers
+    quickBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const question = btn.getAttribute('data-question');
+        userInput.value = question;
+        consultForm.dispatchEvent(new Event('submit'));
+      });
+    });
+
+    function appendMessage(content, role = 'bot', { sources = [], usedLLM = true } = {}) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${role}`;
+
+      let rendered;
+      if (role === 'bot') {
+        rendered = DOMPurify.sanitize(marked.parse(content));
+      } else {
+        const escaped = content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        rendered = escaped;
+      }
+
+      let html = `<div>${rendered}</div>`;
+      if (sources && sources.length > 0) {
+        const sourcesText = sources
+          .map(s => s.lawName)
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .join(', ');
+        html += `<div class="message-sources">
+          <i class="fa-solid fa-book-open"></i> <strong>Nguồn:</strong> ${sourcesText}
+        </div>`;
+      }
+      if (role === 'bot' && usedLLM === false) {
+        html += `<div class="fallback-notice">
+          <i class="fa-solid fa-info-circle"></i> Trả lời tự động từ cơ sở dữ liệu (AI tạm thời không khả dụng)
+        </div>`;
+      }
+
+      msgDiv.innerHTML = html;
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showLoading() {
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'message bot';
+      loadingDiv.id = 'loading-message';
+      loadingDiv.innerHTML = `
+        <div class="loading-animation">
+          <i class="fa-solid fa-gavel"></i> Đang tra cứu luật pháp
+          <div class="loading-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      `;
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      return loadingDiv;
+    }
+
+    function hideLoading() {
+      const loading = document.getElementById('loading-message');
+      if (loading) {
+        loading.remove();
+      }
+    }
+
+    consultForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const question = userInput.value.trim();
+      if (!question) return;
+
+      // Disable input while processing
+      sendBtn.disabled = true;
+      userInput.disabled = true;
+
+      appendMessage(question, 'user');
+      userInput.value = '';
+
+      const loading = showLoading();
+
+      try {
+        const user = auth.currentUser;
+        const res = await fetch(`${API_URL}/api/legal/consult`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question,
+            userUid: user ? user.uid : 'anonymous',
+            sessionId
+          })
+        });
+
+        const data = await res.json();
+        hideLoading();
+
+        if (data.answer) {
+          appendMessage(data.answer, 'bot', { sources: data.sources, usedLLM: data.usedLLM });
+          loadHistory(); // refresh sidebar after new message
+        } else {
+          appendMessage("Xin lỗi, mình gặp trục trặc khi tra cứu thông tin. Bạn thử lại nhé!", 'bot');
+        }
+      } catch (err) {
+        hideLoading();
+        appendMessage("Không thể kết nối với hệ thống tư vấn. Vui lòng kiểm tra kết nối mạng và thử lại.", 'bot');
+      } finally {
+        // Re-enable input
+        sendBtn.disabled = false;
+        userInput.disabled = false;
+        userInput.focus();
+      }
+    });
+
+    // Chat history functions
+    function formatRelativeTime(dateStr) {
+      const date = new Date(dateStr);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Vừa xong';
+      if (diffMins < 60) return `${diffMins} phút trước`;
+      if (diffHours < 24) return `${diffHours} giờ trước`;
+      if (diffDays < 7) return `${diffDays} ngày trước`;
+      return date.toLocaleDateString('vi-VN');
+    }
+
+    async function loadHistory() {
+      const user = auth.currentUser;
+      if (!user) {
+        historyList.innerHTML = '<div class="history-empty">Đăng nhập để xem lịch sử</div>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_URL}/api/legal/history?userUid=${encodeURIComponent(user.uid)}`);
+        const sessions = await res.json();
+
+        if (!sessions.length) {
+          historyList.innerHTML = '<div class="history-empty">Chưa có cuộc trò chuyện nào</div>';
+          return;
+        }
+
+        historyList.innerHTML = sessions.slice(0, 10).map(s => `
+          <div class="history-item ${s.sessionId === sessionId ? 'active' : ''}" data-session-id="${s.sessionId}">
+            <div class="history-question">${escapeHtml(s.firstQuestion)}</div>
+            <div class="history-meta">
+              <span>${s.messageCount} tin nhắn</span>
+              <span>${formatRelativeTime(s.lastMessageAt)}</span>
+            </div>
+          </div>
+        `).join('');
+
+        // Attach click handlers
+        document.querySelectorAll('.history-item').forEach(item => {
+          item.addEventListener('click', () => loadSession(item.dataset.sessionId));
+        });
+      } catch (err) {
+        console.warn('Failed to load history:', err);
+        historyList.innerHTML = '<div class="history-empty">Không thể tải lịch sử</div>';
+      }
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    async function loadSession(targetSessionId) {
+      try {
+        const res = await fetch(`${API_URL}/api/legal/history/${encodeURIComponent(targetSessionId)}`);
+        const messages = await res.json();
+
+        if (!messages.length) return;
+
+        // Switch to this session
+        sessionId = targetSessionId;
+
+        // Clear chat and repopulate
+        chatMessages.innerHTML = '';
+        const welcome = document.createElement('div');
+        welcome.className = 'message bot';
+        welcome.innerHTML = WELCOME_HTML;
+        chatMessages.appendChild(welcome);
+
+        for (const msg of messages) {
+          appendMessage(msg.question, 'user');
+          appendMessage(msg.answer, 'bot');
+        }
+
+        // Update active state in history
+        document.querySelectorAll('.history-item').forEach(el => {
+          el.classList.toggle('active', el.dataset.sessionId === targetSessionId);
+        });
+
+        userInput.focus();
+      } catch (err) {
+        console.warn('Failed to load session:', err);
+      }
+    }
+
+    // Load history when auth state changes
+    auth.onAuthStateChanged(() => {
+      loadHistory();
+    });
+
+    // Auto-focus input
+    userInput.focus();
+
+    // Enter to submit
+    userInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        consultForm.dispatchEvent(new Event('submit'));
+      }
+    });
+
+  </script>
+  <div id="ta-footer"></div>
+</body>
+</html>

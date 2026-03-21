@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<link rel="icon" type="image/png" href="/assets/Logo.png?v=1">
+<link rel="shortcut icon" type="image/png" href="/assets/Logo.png?v=1">
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kinh tế &amp; Pháp luật - Chọn lớp | TA Edu</title>
+
+  <!-- CSS chung của site -->
+
+  <link rel="icon" href="../../favicon.ico" />
+  <meta name="description" content="Chọn lớp học môn Kinh tế & Pháp luật: Lớp 10, 11, 12." />
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="/css/css_menu.css" />
+  <link rel="stylesheet" href="/css/css_lythuyet.css" />
+  <link rel="stylesheet" href="/css/css_mon.css" />
+</head>
+<body>
+  <!-- Menu -->
+  <!-- Menu -->
+  <script type="module" src="../../js/core/boot_header.js"></script>
+
+  <!-- Hero -->
+  <section class="hero hero-small hero-band hero-band--mint">
+  <div class="hero-band__inner">
+    <button class="hero-band__back" onclick="location.href='/mon/lythuyet.html'">←</button>
+    <div class="hero-band__text">
+      <div class="container">
+      <h1>Kinh tế &amp; Pháp luật</h1>
+      <p>Chọn lớp học bạn muốn khám phá 📘⚖️</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- Danh sách lớp -->
+  <section class="subject-list">
+    <div class="subject-grid" aria-labelledby="chon-lop-heading">
+
+      <!-- Lớp 10 -->
+      <article class="subject-card" data-grade="10" data-available="true">
+        <header>
+          <h3>Lớp 10</h3>
+          <p class="subject-subtitle">Nền tảng kinh tế học &amp; công dân với pháp luật</p>
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="/css/css_menu.css" />
+  <link rel="stylesheet" href="/css/css_lythuyet.css" />
+  <link rel="stylesheet" href="/css/css_mon.css" />
+        </header>
+        <a href="ktpl_l10_chonchuong.html" class="btn" aria-label="Vào học Lớp 10">
+          Vào học
+        </a>
+      </article>
+
+      <!-- Lớp 11 (đang khóa) -->
+      <article class="subject-card" data-grade="11" data-available="false">
+        <header>
+          <h3>Lớp 11</h3>
+          <p class="subject-subtitle">Thị trường, doanh nghiệp, lao động</p>
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="/css/css_menu.css" />
+  <link rel="stylesheet" href="/css/css_lythuyet.css" />
+  <link rel="stylesheet" href="/css/css_mon.css" />
+        </header>
+        <a href="#" class="btn disabled"
+           aria-disabled="true" tabindex="-1"
+           aria-label="Lớp 11 sắp ra mắt">
+          Sắp ra mắt
+        </a>
+      </article>
+
+      <!-- Lớp 12 (đang khóa) -->
+      <article class="subject-card" data-grade="12" data-available="false">
+        <header>
+          <h3>Lớp 12</h3>
+          <p class="subject-subtitle">Tài chính công, hội nhập &amp; pháp luật chuyên đề</p>
+  <link rel="stylesheet" href="/css/taedu_global.css">
+  <link rel="stylesheet" href="/css/css_menu.css" />
+  <link rel="stylesheet" href="/css/css_lythuyet.css" />
+  <link rel="stylesheet" href="/css/css_mon.css" />
+        </header>
+        <a href="#" class="btn disabled"
+           aria-disabled="true" tabindex="-1"
+           aria-label="Lớp 12 sắp ra mắt">
+          Sắp ra mắt
+        </a>
+      </article>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Script chung của site (để menu/footer hiển thị) -->
+  <script src="../../js/loadMenu.js"></script>
+  <script src="../../js/script.js"></script>
+
+  <!-- Chặn click vào nút bị khóa + gợi ý nhanh -->
+  <script>
+    document.addEventListener('click', function(e) {
+      const a = e.target.closest('a.btn.disabled[aria-disabled="true"]');
+      if (a) {
+        e.preventDefault();
+        // Bạn có thể thay bằng toast của site nếu đã có
+        alert('Nội dung đang được cập nhật. Vui lòng quay lại sau!');
+      }
+    });
+  </script>
+
+  <!-- No-JS fallback -->
+  <noscript>
+    <div class="container" style="margin: 1rem auto;">
+      <p><strong>Lưu ý:</strong> Bật JavaScript để hiển thị menu và footer.</p>
+    </div>
+  </noscript>
+</body>
+</html>

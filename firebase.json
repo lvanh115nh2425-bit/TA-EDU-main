@@ -1,0 +1,59 @@
+{
+  "functions": {
+    "source": "backend/firebase-functions",
+    "ignore": [
+      "node_modules",
+      ".git",
+      "firebase-debug.log",
+      "firebase-debug.*.log",
+      "*.local"
+    ]
+  },
+  "hosting": {
+    "public": "apps/portal",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "backend/firebase-functions/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin/index.html"
+      },
+      {
+        "source": "/api/notify-parent",
+        "function": "notifyParent",
+        "region": "asia-southeast1"
+      },
+      {
+        "source": "/api/mindmap-ai",
+        "function": "mindmapAi",
+        "region": "asia-southeast1"
+      },
+      {
+        "source": "/api/smarttutor",
+        "function": "smarttutor",
+        "region": "asia-southeast1"
+      }
+    ]
+  },
+  "emulators": {
+    "functions": {
+      "port": 5001
+    },
+    "hosting": {
+      "port": 5000
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}

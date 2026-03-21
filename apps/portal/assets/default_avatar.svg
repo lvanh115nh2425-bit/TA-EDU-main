@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <style>
+      .bg{fill:#00bfa5}
+      .face{fill:#fff}
+      .eye{fill:#2d2d2d}
+    </style>
+  </defs>
+  <circle class="bg" cx="128" cy="128" r="128"/>
+  <circle class="face" cx="128" cy="108" r="48"/>
+  <path class="face" d="M48 204c18-28 47-44 80-44s62 16 80 44a4 4 0 0 1-3 6H51a4 4 0 0 1-3-6z"/>
+  <circle class="eye" cx="110" cy="108" r="6"/>
+  <circle class="eye" cx="146" cy="108" r="6"/>
+</svg>

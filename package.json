@@ -1,0 +1,13 @@
+{
+  "name": "ta-edu-monorepo",
+  "private": true,
+  "workspaces": [
+    "backend/firebase-functions"
+  ],
+  "scripts": {
+    "dev": "npm --prefix backend/firebase-functions run serve",
+    "dev:functions": "npm --prefix backend/firebase-functions run serve",
+    "deploy:functions": "npm --prefix backend/firebase-functions run deploy",
+    "lint:functions": "npm --prefix backend/firebase-functions run lint --if-present"
+  }
+}

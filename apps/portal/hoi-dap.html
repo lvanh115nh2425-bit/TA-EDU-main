@@ -1,0 +1,57 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TA-Edu • Hỏi đáp</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/taedu_global.css" />
+  <link rel="stylesheet" href="css/css_menu.css" />
+  <link rel="stylesheet" href="css/hoi-dap.css" />
+</head>
+<body>
+  <div id="ta-header"></div>
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script type="module" src="/js/core/boot_header.js"></script>
+  <script type="module" src="/js/core/menu_toggle.js"></script>
+
+  <div class="board-shell">
+    <header class="board-header">
+      <div class="board-header__brand">
+        <i class="fa-solid fa-comments"></i> TA-Edu Hỏi đáp
+      </div>
+      <div class="auth-slot" id="authSlot"></div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Đặt câu hỏi mới</h2>
+        <form id="askForm" data-auth-form class="ask-form">
+          <div class="ask-form__row">
+            <img id="askAvatar" src="assets/default_avatar.svg" alt="Avatar người hỏi">
+            <div class="ask-form__fields">
+              <input id="askTitle" name="title" type="text" placeholder="Tiêu đề / câu hỏi của bạn" required>
+              <textarea id="askDetails" name="details" placeholder="Mô tả vấn đề, bối cảnh, tài liệu bạn đã thử..." required></textarea>
+              <input id="askTags" name="tags" type="text" placeholder="Từ khóa (cách nhau bằng dấu phẩy)">
+            </div>
+          </div>
+          <div class="ask-form__actions">
+            <button class="btn btn--primary" type="submit">Đăng câu hỏi</button>
+            <p class="hint">Chỉ đăng nội dung tuân thủ nội quy TA-Edu. Bình luận tôn trọng mọi người.</p>
+          </div>
+          <div class="auth-guard" id="askAuthGuard">
+            <p>Vui lòng <button class="btn--text" type="button" data-auth-action="login">đăng nhập</button> để đăng bài viết.</p>
+          </div>
+        </form>
+      </section>
+
+      <section class="feed" id="feed"></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="js/hoi-dap.js"></script>
+</body>
+</html>
