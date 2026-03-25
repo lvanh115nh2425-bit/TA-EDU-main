@@ -1,31 +1,31 @@
 // js/modules/progress.js
-// TA-Edu 2.x - Bi?u d? ti?n d? h?c t?p cho tab "progress"
-// - T? d?ng load Chart.js khi c?n
-// - Ch? v? khi tab #tab=progress dang active
-// - Kh�ng ph� hi?u ?ng cu; kh�ng ch?n UI n?u offline
+// TA-Edu 2.x - Biểu đồ tiến độ học tập cho tab "progress"
+// - Tự động load Chart.js khi cần
+// - Chỉ vẽ khi tab #tab=progress đang active
+// - Không phá hiệu ứng cũ; không chặn UI nếu offline
 
-const CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js';
+const CHART_CDN = "https://cdn.jsdelivr.net/npm/chart.js";
 let chartInstance = null;
 
-// ---------- Helper DOM c?c b? ----------
+// ---------- Helper DOM cục bộ ----------
 const $ = (s, r = document) => r.querySelector(s);
 
-// ---------- T?i Chart.js n?u chua c� ----------
+// ---------- Tải Chart.js nếu chưa có ----------
 function loadChartJS() {
   return new Promise((resolve, reject) => {
     if (window.Chart) return resolve(window.Chart);
-    const s = document.createElement('script');
+    const s = document.createElement("script");
     s.src = CHART_CDN;
     s.async = true;
     s.onload = () => resolve(window.Chart);
-    s.onerror = () => reject(new Error('Kh�ng t?i du?c Chart.js'));
+    s.onerror = () => reject(new Error("Không tải được Chart.js"));
     document.head.appendChild(s);
   });
 }
 
-// ---------- D? li?u mock (an to�n, kh�ng c?n Firestore) ----------
+// ---------- Dữ liệu mock (an toàn, không cần Firestore) ----------
 function getMockWeeklyData() {
-  // 7 ng�y g?n nh?t
+  // 7 ngày gần nhất
   const labels = [];
   const data = [];
   const now = new Date();
@@ -33,17 +33,17 @@ function getMockWeeklyData() {
   for (let i = 6; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(now.getDate() - i);
-    labels.push(d.toLocaleDateString('vi-VN', { weekday: 'short' })); // T2, T3, ...
+    labels.push(d.toLocaleDateString("vi-VN", { weekday: "short" }));
     data.push(Math.max(0, 50 + Math.round(Math.sin((i / 7) * Math.PI) * 40) + (Math.random() * 10 - 5)));
   }
   return { labels, data };
 }
 
-// ---------- Kh?i t?o & v? bi?u d? ----------
+// ---------- Khởi tạo và vẽ biểu đồ ----------
 async function renderProgressChart() {
-  const canvas = $('#progressChart');
-  if (!canvas) return; // kh�ng c� canvas -> b? qua
-  const ctx = canvas.getContext('2d');
+  const canvas = $("#progressChart");
+  if (!canvas) return; // không có canvas -> bỏ qua
+  const ctx = canvas.getContext("2d");
 
   try {
     await loadChartJS();
@@ -54,20 +54,20 @@ async function renderProgressChart() {
 
   const { labels, data } = getMockWeeklyData();
 
-  // H?y chart cu n?u c�
+  // Hủy chart cũ nếu có
   if (chartInstance) {
     chartInstance.destroy();
     chartInstance = null;
   }
 
   chartInstance = new Chart(ctx, {
-    type: 'line',
+    type: "line",
     data: {
       labels,
       datasets: [{
-        label: 'Di?m ti?n d? (tu?n)',
+        label: "Điểm tiến độ (tuần)",
         data,
-        // D? m?c d?nh m�u c?a Chart.js (kh�ng �p m�u, kh�ng ph� theme)
+        // Để mặc định màu của Chart.js, không áp màu để tránh phá theme
         tension: 0.35,
         fill: true,
       }]
@@ -75,7 +75,7 @@ async function renderProgressChart() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: true },
         tooltip: { enabled: true }
@@ -87,38 +87,38 @@ async function renderProgressChart() {
   });
 }
 
-// ---------- Ki?m tra tab "progress" c� dang active kh�ng ----------
+// ---------- Kiểm tra tab "progress" có đang active không ----------
 function isProgressActive() {
-  const p = document.getElementById('tab-progress');
-  return p && p.classList.contains('is-active');
+  const p = document.getElementById("tab-progress");
+  return p && p.classList.contains("is-active");
 }
 
-// ---------- Kh?i d?ng ----------
+// ---------- Khởi động ----------
 function initProgressModule() {
-  // N?u kh�ng c� panel progress -> b? qua
-  if (!document.getElementById('tab-progress')) return;
+  // Nếu không có panel progress thì bỏ qua
+  if (!document.getElementById("tab-progress")) return;
 
-  // Ch? v? khi tab dang m?
+  // Chỉ vẽ khi tab đang mở
   const tryRender = () => {
     if (isProgressActive()) {
       renderProgressChart();
-      window.removeEventListener('hashchange', tryRender);
+      window.removeEventListener("hashchange", tryRender);
     }
   };
 
-  // N?u dang ? tab progress th� v? lu�n; n?u chua th� ch? hashchange
+  // Nếu đang ở tab progress thì vẽ luôn; nếu chưa thì chờ hashchange
   if (isProgressActive()) {
     renderProgressChart();
   } else {
-    window.addEventListener('hashchange', tryRender);
+    window.addEventListener("hashchange", tryRender);
   }
 
-  // N?u c?n reflow khi resize
-  window.addEventListener('resize', () => {
+  // Nếu cần reflow khi resize
+  window.addEventListener("resize", () => {
     if (isProgressActive() && chartInstance) {
       chartInstance.resize();
     }
   });
 }
 
-document.addEventListener('DOMContentLoaded', initProgressModule);
+document.addEventListener("DOMContentLoaded", initProgressModule);

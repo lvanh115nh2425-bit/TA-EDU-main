@@ -1,5 +1,5 @@
 /* ===============================
-   ?? DASHBOARD STYLE (TA-EDU)
+   DASHBOARD STYLE (TA-EDU)
    =============================== */
 :root { --taedu: #00bfa5; }
 
@@ -186,7 +186,7 @@
 /* --- Compat TA-Edu Dashboard (append) --- */
 [hidden] { display: none !important; }
 
-/* Map .dashboard-content --> .main (HTML m?i d�ng .main) */
+/* Map .dashboard-content -> .main (HTML mới dùng .main) */
 .main {
   flex: 1;
   background: #fff;
@@ -211,7 +211,7 @@
 
 /* Tabs remain as defined above */
 
-/* N�t toggle */
+/* Nút toggle */
 .sidebar-toggle{
   margin-left:auto; background:#f3f7f6; border:0; border-radius:10px;
   padding:8px 10px; cursor:pointer; box-shadow:0 6px 14px rgba(0,0,0,.06);
@@ -219,7 +219,7 @@
 }
 .sidebar-toggle:hover{ transform:translateY(-1px); box-shadow:0 10px 20px rgba(0,0,0,.08); }
 
-/* Tr?ng th�i thu g?n */
+/* Trạng thái thu gọn */
 body.sidebar-collapsed .sidebar { width: 72px; }
 body.sidebar-collapsed .sidebar-user,
 body.sidebar-collapsed .sidebar-brand .user-name,
@@ -280,7 +280,7 @@ body.sidebar-collapsed .sidebar-toggle i { transform: rotate(180deg); }
   .tutor-fab{ right:12px; bottom:12px; }
 }
 
-/* ====== Patch cho layout .dash__* (kh?p HTML hi?n t?i) ====== */
+/* ====== Patch cho layout .dash__* (khớp HTML hiện tại) ====== */
 :root{ --brand:#00bfa5; --muted:#687076; --card:#fff; --bg:#f6f8f9; --shadow:0 10px 25px rgba(0,0,0,.06); }
 
 .dash{display:grid;grid-template-columns:290px 1fr;gap:24px;}
@@ -491,6 +491,5 @@ body.theme-neon .history-empty {
 .notice--ok{background:#f2fff9;border-color:#00bfa5}
 .notice[hidden]{display:none!important}
 
-/* optional: disabled look cho ph?n c?n kho� */
+/* optional: disabled look cho phần cần khóa */
 .is-disabled{opacity:.55;pointer-events:none;filter:grayscale(.1)}
-

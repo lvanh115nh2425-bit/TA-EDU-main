@@ -31,6 +31,50 @@
   font-size: 2rem;
 }
 
+.auth-user {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+.auth-user img {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.auth-user__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auth-user__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.auth-user__role {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.auth-admin-badge {
+  display: inline-flex;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
 .feed-toolbar {
   display: flex;
   justify-content: space-between;
@@ -314,6 +358,31 @@
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
 }
 
+.post-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.post-topbar h3 {
+  margin: 0;
+}
+
+.post-delete-btn {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.post-delete-btn:hover {
+  background: #fecaca;
+}
+
 .post-author {
   display: flex;
   align-items: center;
@@ -338,6 +407,24 @@
   color: #0f172a;
   margin: 12px 0;
   white-space: pre-line;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #ecfeff;
+  color: #0f766e;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .post-image {
@@ -391,6 +478,18 @@
   font-size: 0.8rem;
   color: #94a3b8;
   margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.comment-delete-btn {
+  border: none;
+  background: transparent;
+  color: #b91c1c;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .comment-input {
@@ -641,10 +740,28 @@
   pointer-events: auto;
 }
 
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 .toast.success {
   background: linear-gradient(135deg, #34d399, #10b981);
 }
 
 .toast.error {
   background: linear-gradient(135deg, #f87171, #ef4444);
+}
+
+@media (max-width: 960px) {
+  .auth-user {
+    width: 100%;
+    border-radius: 20px;
+    justify-content: space-between;
+  }
+
+  .post-topbar {
+    flex-direction: column;
+  }
 }

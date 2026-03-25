@@ -72,6 +72,7 @@ node_modules/
 .env.local
 .env.*
 !.env.example
+services/kyc-admin-api/serviceAccountKey.json
 
 # IDE/editor
 .vscode/

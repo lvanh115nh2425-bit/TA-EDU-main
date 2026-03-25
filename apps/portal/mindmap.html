@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mind Map Builder | TA-Edu</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <title>Sơ đồ tư duy | TA-Edu</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%230f766e'/%3E%3Cpath d='M20 32h24M32 20v24' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23ffd39a'/%3E%3C/svg%3E" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/taedu_global.css" />
   <link rel="stylesheet" href="/css/css_menu.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
@@ -13,9 +14,12 @@
     (function () {
       if (window.__TAEDU_MINDMAP_AI_ENDPOINT) return;
       const sameOriginEndpoint = "/api/mindmap-ai";
+      const localFunctionEndpoint = "http://localhost:5001/ta-edu-nh/asia-southeast1/mindmapAi";
       const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
       if (isLocal) {
-        window.__TAEDU_MINDMAP_AI_ENDPOINT = sameOriginEndpoint;
+        window.__TAEDU_MINDMAP_AI_ENDPOINT = location.port === "5000"
+          ? sameOriginEndpoint
+          : localFunctionEndpoint;
         return;
       }
       window.__TAEDU_MINDMAP_AI_ENDPOINT = sameOriginEndpoint;
@@ -26,221 +30,212 @@
   <div id="headerMount"></div>
 
   <main class="mindmap-shell">
-    <section class="mindmap-grid">
-      <article class="panel mindmap-toolbox">
-        <h2>Bảng điều khiển</h2>
-        <div class="export-box">
-          <div class="ai-box">
-            <h4>Tạo mindmap bằng AI</h4>
-            <button type="button" class="btn btn-primary" data-action="open-ai-modal">
-              <i class="fa-solid fa-wand-magic-sparkles"></i> Tạo nhanh
-            </button>
-          </div>
-          <div class="export-section">
-            <h4>Xuất file</h4>
-            <div class="export-buttons">
-              <button type="button" class="btn btn-primary" data-action="export-png">
-                <i class="fa-solid fa-image"></i> PNG
-              </button>
-              <button type="button" class="btn btn-ghost" data-action="export-json-file">
-                <i class="fa-solid fa-file-export"></i> Mindmap (.json)
-              </button>
-            </div>
-          </div>
-          <div class="export-section">
-            <h4>Nhập file</h4>
-            <div class="export-buttons">
-              <button type="button" class="btn btn-ghost" data-action="import-json-file">
-                <i class="fa-solid fa-file-import"></i> Tải file Mindmap
-              </button>
-              <input type="file" id="mindmapFileInput" accept=".json,application/json" hidden />
-            </div>
-          </div>
-          <div class="export-section">
-            <div class="export-buttons">
-              <button type="button" class="btn btn-ghost" data-action="reset-map">
-                <i class="fa-solid fa-trash-can"></i> Reset sơ đồ
-              </button>
-              <button type="button" class="btn btn-ghost" data-action="reload-fresh">
-                <i class="fa-solid fa-bolt"></i> Tải mới (no cache)
-              </button>
-            </div>
-          </div>
-          <div class="cache-status" id="mindmapCacheStatus"></div>
+    <section class="mindmap-layout">
+      <aside class="mindmap-sidebar panel">
+        <div class="sidebar-head">
+          <span class="eyebrow">TA-Edu</span>
+          <h1>Mindmap Studio</h1>
         </div>
-      </article>
 
-      <article class="panel mindmap-stage">
-        <div id="mindmap-toolbar">Mind map đang tải...</div>
-        <div id="mindmapCanvas"></div>
+        <div class="sidebar-group">
+          <h2>Tạo nhanh</h2>
+          <div class="button-grid">
+            <button type="button" class="btn btn-primary" data-action="open-ai-modal"><i class="fa-solid fa-wand-magic-sparkles"></i>Tạo bằng AI</button>
+            <button type="button" class="btn btn-ghost" data-action="reset-map"><i class="fa-solid fa-trash-can"></i>Reset sơ đồ</button>
+            <button type="button" class="btn btn-ghost" data-action="reload-fresh"><i class="fa-solid fa-bolt"></i>Tải mới</button>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <h2>Tệp dữ liệu</h2>
+          <div class="button-grid">
+            <button type="button" class="btn btn-primary" data-action="export-png"><i class="fa-solid fa-image"></i>Xuất PNG</button>
+            <button type="button" class="btn btn-ghost" data-action="export-json-file"><i class="fa-solid fa-file-export"></i>Xuất JSON</button>
+            <button type="button" class="btn btn-ghost" data-action="import-json-file"><i class="fa-solid fa-file-import"></i>Nhập JSON</button>
+            <input type="file" id="mindmapFileInput" accept=".json,application/json" hidden />
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <h2>Điều hướng</h2>
+          <div class="button-grid">
+            <button type="button" class="btn btn-ghost" data-action="zoom-out"><i class="fa-solid fa-magnifying-glass-minus"></i>Zoom out</button>
+            <button type="button" class="btn btn-ghost" data-action="center"><i class="fa-solid fa-crosshairs"></i>Về giữa</button>
+            <button type="button" class="btn btn-ghost" data-action="zoom-in"><i class="fa-solid fa-magnifying-glass-plus"></i>Zoom in</button>
+          </div>
+        </div>
+
+        <div class="sidebar-group">
+          <h2>Hướng dẫn nhanh</h2>
+          <ul class="guide-list">
+            <li>Click node để chọn.</li>
+            <li>Kéo node để đổi vị trí.</li>
+            <li>Kéo góc node để đổi kích thước.</li>
+            <li>Chuột phải để mở menu nhanh.</li>
+            <li>Cuộn chuột để zoom, giữ và kéo nền để di chuyển.</li>
+          </ul>
+        </div>
+
+      </aside>
+
+      <section class="mindmap-stage panel">
+        <div class="stage-toolbar">
+          <div>
+            <p class="toolbar-label">Trạng thái</p>
+            <strong id="mindmapToolbar">Đang khởi tạo mindmap...</strong>
+          </div>
+          <div class="toolbar-meta">
+            <span id="mindmapSelectionMeta">Chưa chọn node</span>
+            <span id="mindmapZoomMeta">100%</span>
+          </div>
+        </div>
+
+        <div id="mindmapCanvas" class="mindmap-canvas">
+          <div class="mindmap-grid-glow"></div>
+        </div>
+
         <div id="mindmapContextMenu" class="mindmap-context-menu" hidden>
-          <div class="context-section" data-context-for="canvas">
-            <span>Chủ đề nền</span>
-            <div class="theme-swatches">
-              <button type="button" data-context-action="theme-soft" data-theme="soft" title="Đào pastel">
-                <span class="swatch" style="--swatch-color:#ffe1d3;"></span>
-              </button>
-              <button type="button" data-context-action="theme-sunset" data-theme="sunset" title="Hoàng hôn">
-                <span class="swatch" style="--swatch-color:#ffd8c3;"></span>
-              </button>
-              <button type="button" data-context-action="theme-ocean" data-theme="ocean" title="Biển xanh">
-                <span class="swatch" style="--swatch-color:#c6f0ff;"></span>
-              </button>
-              <button type="button" data-context-action="theme-forest" data-theme="forest" title="Rừng xanh">
-                <span class="swatch" style="--swatch-color:#c9f7e1;"></span>
-              </button>
-              <button type="button" data-context-action="theme-night" data-theme="night" title="Đêm tím">
-                <span class="swatch" style="--swatch-color:#e0d4ff;"></span>
-              </button>
+          <div class="menu-section" data-context-for="canvas">
+            <p class="menu-title">Nền canvas</p>
+            <div class="swatch-grid">
+              <button type="button" data-context-action="theme-soft" data-theme="soft" title="Soft"><span class="swatch" style="--swatch:#fff6ef;"></span></button>
+              <button type="button" data-context-action="theme-sunset" data-theme="sunset" title="Sunset"><span class="swatch" style="--swatch:#ffe1cf;"></span></button>
+              <button type="button" data-context-action="theme-ocean" data-theme="ocean" title="Ocean"><span class="swatch" style="--swatch:#d9f2ff;"></span></button>
+              <button type="button" data-context-action="theme-forest" data-theme="forest" title="Forest"><span class="swatch" style="--swatch:#dff8e7;"></span></button>
+              <button type="button" data-context-action="theme-night" data-theme="night" title="Night"><span class="swatch" style="--swatch:#ebe2ff;"></span></button>
             </div>
-            <div class="theme-custom-row">
-              <label for="themeCustomColor">Tùy chỉnh</label>
-              <div class="custom-color-picker">
-                <span class="swatch custom"></span>
-                <input type="color" id="themeCustomColor" value="#fff7f1" />
-                <button type="button" class="btn btn-primary btn-mini" data-context-action="theme-custom">Áp dụng</button>
-              </div>
+            <div class="custom-theme-row">
+              <input type="color" id="themeCustomColor" value="#fff7f1" />
+              <button type="button" class="btn btn-ghost btn-inline" data-context-action="theme-custom">Dùng màu này</button>
             </div>
           </div>
-          <div class="context-divider" data-context-for="canvas"></div>
-          <div class="context-actions context-section" data-context-for="node">
-            <button type="button" data-context-action="add-child">
-              <i class="fa-solid fa-plus"></i> Nhánh con
-            </button>
-            <button type="button" data-context-action="add-sibling">
-              <i class="fa-solid fa-code-branch"></i> Nhánh cùng cấp
-            </button>
-            <button type="button" data-context-action="edit-node">
-              <i class="fa-solid fa-pen"></i> Đổi tiêu đề
-            </button>
-            <button type="button" data-context-action="delete-node">
-              <i class="fa-solid fa-trash"></i> Xóa nhánh
-            </button>
-          </div>
-          <div class="context-divider context-section" data-context-for="node"></div>
-          <div class="context-shapes context-section" data-context-for="node">
-            <span>Hình dạng</span>
-            <div class="shape-options">
-              <button type="button" data-context-action="shape-pill" title="Pill">
-                <span class="shape-pill"></span>
-              </button>
-              <button type="button" data-context-action="shape-rect" title="Vuông">
-                <span class="shape-rect"></span>
-              </button>
-              <button type="button" data-context-action="shape-oval" title="Bầu dục">
-                <span class="shape-oval"></span>
-              </button>
-              <button type="button" data-context-action="shape-cloud" title="Đám mây">
-                <span class="shape-cloud"></span>
-              </button>
+
+          <div class="menu-divider" data-context-for="node"></div>
+
+          <div class="menu-section" data-context-for="node">
+            <p class="menu-title">Node</p>
+            <div class="menu-actions">
+              <button type="button" data-context-action="add-child"><i class="fa-solid fa-plus"></i>Nhánh con</button>
+              <button type="button" data-context-action="add-sibling"><i class="fa-solid fa-code-branch"></i>Nhánh cùng cấp</button>
+              <button type="button" data-context-action="edit-node"><i class="fa-solid fa-pen"></i>Đổi tiêu đề</button>
+              <button type="button" data-context-action="delete-node"><i class="fa-solid fa-trash"></i>Xóa nhanh</button>
             </div>
           </div>
-          <div class="context-style context-section" data-context-for="node">
-            <span>Màu box</span>
-            <div class="color-options">
-              <button type="button" data-context-action="color-purple" data-color-preset="purple"><span style="--color-fill:#d8c8ff;--color-border:#a78bfa;"></span></button>
-              <button type="button" data-context-action="color-mint" data-color-preset="mint"><span style="--color-fill:#b2f2d5;--color-border:#3cb371;"></span></button>
-              <button type="button" data-context-action="color-peach" data-color-preset="peach"><span style="--color-fill:#ffd9b6;--color-border:#fb923c;"></span></button>
-              <button type="button" data-context-action="color-rose" data-color-preset="rose"><span style="--color-fill:#ffb3ba;--color-border:#f97373;"></span></button>
-              <button type="button" data-context-action="color-yellow" data-color-preset="yellow"><span style="--color-fill:#ffe7a3;--color-border:#facc15;"></span></button>
-              <button type="button" data-context-action="color-lilac" data-color-preset="lilac"><span style="--color-fill:#c7d2fe;--color-border:#7c3aed;"></span></button>
+
+          <div class="menu-section" data-context-for="node">
+            <p class="menu-title">Hình dạng</p>
+            <div class="chip-row">
+              <button type="button" data-context-action="shape-pill" data-shape="pill">Pill</button>
+              <button type="button" data-context-action="shape-rect" data-shape="rect">Rect</button>
+              <button type="button" data-context-action="shape-oval" data-shape="oval">Oval</button>
+              <button type="button" data-context-action="shape-cloud" data-shape="cloud">Cloud</button>
             </div>
           </div>
-          <div class="context-style context-section" data-context-for="node">
-            <span>Cỡ chữ</span>
-            <div class="font-options">
-              <button type="button" data-context-action="font-decrease" data-stay-open="true">−</button>
-              <span class="font-value" id="contextFontValue">100%</span>
-              <button type="button" data-context-action="font-increase" data-stay-open="true">+</button>
-              <button type="button" class="btn-link" data-context-action="font-reset" data-stay-open="true">Đặt lại</button>
+
+          <div class="menu-section" data-context-for="node">
+            <p class="menu-title">Màu node</p>
+            <div class="swatch-grid swatch-grid-small">
+              <button type="button" data-context-action="color-purple" data-color-preset="purple"><span class="swatch node-swatch" style="--fill:#d8c8ff;--stroke:#8b5cf6;"></span></button>
+              <button type="button" data-context-action="color-mint" data-color-preset="mint"><span class="swatch node-swatch" style="--fill:#bdf3d7;--stroke:#22c55e;"></span></button>
+              <button type="button" data-context-action="color-peach" data-color-preset="peach"><span class="swatch node-swatch" style="--fill:#ffd9b8;--stroke:#f97316;"></span></button>
+              <button type="button" data-context-action="color-rose" data-color-preset="rose"><span class="swatch node-swatch" style="--fill:#ffc0ca;--stroke:#f43f5e;"></span></button>
+              <button type="button" data-context-action="color-yellow" data-color-preset="yellow"><span class="swatch node-swatch" style="--fill:#ffe89b;--stroke:#eab308;"></span></button>
+              <button type="button" data-context-action="color-lilac" data-color-preset="lilac"><span class="swatch node-swatch" style="--fill:#cdd6ff;--stroke:#6366f1;"></span></button>
             </div>
           </div>
-          <div class="context-divider context-section" data-context-for="link"></div>
-          <div class="context-style context-section" data-context-for="link">
-            <span>Mũi tên</span>
-            <div class="arrow-options">
-              <button type="button" data-context-action="link-arrow-none" data-link-arrow="none">∥</button>
-              <button type="button" data-context-action="link-arrow-end" data-link-arrow="end">→</button>
-              <button type="button" data-context-action="link-arrow-start" data-link-arrow="start">←</button>
-              <button type="button" data-context-action="link-arrow-both" data-link-arrow="both">↔</button>
+
+          <div class="menu-section" data-context-for="node">
+            <p class="menu-title">Cỡ chữ</p>
+            <div class="chip-row">
+              <button type="button" data-context-action="font-decrease" data-stay-open="true">A-</button>
+              <span id="contextFontValue" class="font-pill">100%</span>
+              <button type="button" data-context-action="font-increase" data-stay-open="true">A+</button>
+              <button type="button" data-context-action="font-reset" data-stay-open="true">Reset</button>
             </div>
           </div>
-          <div class="context-style context-section" data-context-for="link">
-            <span>Độ dày</span>
-            <div class="arrow-options">
+
+          <div class="menu-divider" data-context-for="link"></div>
+
+          <div class="menu-section" data-context-for="link">
+            <p class="menu-title">Mũi tên</p>
+            <div class="chip-row">
+              <button type="button" data-context-action="link-arrow-none" data-link-arrow="none">None</button>
+              <button type="button" data-context-action="link-arrow-start" data-link-arrow="start">Start</button>
+              <button type="button" data-context-action="link-arrow-end" data-link-arrow="end">End</button>
+              <button type="button" data-context-action="link-arrow-both" data-link-arrow="both">Both</button>
+            </div>
+          </div>
+
+          <div class="menu-section" data-context-for="link">
+            <p class="menu-title">Độ dày / độ đậm</p>
+            <div class="chip-row">
               <button type="button" data-context-action="link-width-thin" data-link-width="thin">Mỏng</button>
               <button type="button" data-context-action="link-width-medium" data-link-width="medium">Vừa</button>
               <button type="button" data-context-action="link-width-thick" data-link-width="thick">Dày</button>
             </div>
-          </div>
-          <div class="context-style context-section" data-context-for="link">
-            <span>Độ đậm</span>
-            <div class="arrow-options">
+            <div class="chip-row">
               <button type="button" data-context-action="link-opacity-soft" data-link-opacity="soft">Nhạt</button>
               <button type="button" data-context-action="link-opacity-normal" data-link-opacity="normal">Chuẩn</button>
               <button type="button" data-context-action="link-opacity-bold" data-link-opacity="bold">Đậm</button>
             </div>
           </div>
         </div>
+
         <div id="mindmapModalBackdrop" class="mindmap-modal-backdrop" hidden></div>
+
         <div id="mindmapModal" class="mindmap-modal" hidden>
           <div class="mindmap-modal-card">
-            <header class="mindmap-modal-header">
-              <h3 id="mindmapModalTitle">Tiêu đề</h3>
-              <button type="button" class="mindmap-modal-close" data-modal-action="close" aria-label="Đóng">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
+            <header class="modal-head">
+              <h3 id="mindmapModalTitle">Thông báo</h3>
+              <button type="button" class="icon-button" data-modal-action="close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
             </header>
-            <p id="mindmapModalMessage" class="mindmap-modal-message"></p>
-            <div id="mindmapModalInputWrap" class="mindmap-modal-field" hidden>
+            <p id="mindmapModalMessage" class="modal-copy"></p>
+            <div id="mindmapModalInputWrap" class="modal-field" hidden>
               <input id="mindmapModalInput" type="text" placeholder="Nhập nội dung..." />
             </div>
-            <div id="mindmapModalTextareaWrap" class="mindmap-modal-field" hidden>
-              <textarea id="mindmapModalTextarea" rows="6" placeholder="Dán nội dung tại đây..."></textarea>
+            <div id="mindmapModalTextareaWrap" class="modal-field" hidden>
+              <textarea id="mindmapModalTextarea" rows="8" placeholder="Dán nội dung tại đây..."></textarea>
             </div>
-            <div class="mindmap-modal-actions">
-              <button type="button" id="mindmapModalCancel" class="btn btn-ghost">Huỷ</button>
+            <div class="modal-actions">
+              <button type="button" id="mindmapModalCancel" class="btn btn-ghost">Hủy</button>
               <button type="button" id="mindmapModalConfirm" class="btn btn-primary">Xong</button>
             </div>
           </div>
         </div>
+
         <div id="aiModal" class="mindmap-modal" hidden>
-          <div class="mindmap-modal-card ai-card">
-            <header class="mindmap-modal-header">
+          <div class="mindmap-modal-card ai-modal-card">
+            <header class="modal-head">
               <h3>Tạo mindmap bằng AI</h3>
-              <button type="button" class="mindmap-modal-close" data-ai-action="close" aria-label="Đóng">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
+              <button type="button" class="icon-button" data-ai-action="close" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
             </header>
-            <p class="mindmap-modal-message">
-              Chọn <strong>một trong hai</strong>: nhập prompt hoặc tải file TXT. Khi dùng file, mục prompt sẽ bị khóa và ngược lại.
-            </p>
-            <div class="ai-options">
-              <div class="ai-option" data-ai-mode="prompt">
+            <p class="modal-copy">Chọn một trong hai: nhập prompt hoặc tải file TXT. Khi có file, ô prompt sẽ bị khóa và ngược lại.</p>
+            <div class="ai-layout">
+              <section class="ai-card" data-ai-mode="prompt">
                 <h4>Bằng prompt</h4>
-                <textarea id="aiPromptInput" placeholder="Ví dụ: Lập kế hoạch học tiếng Anh cho kỳ thi TOEIC mức 750..."></textarea>
-              </div>
-              <div class="ai-option" data-ai-mode="file">
+                <textarea id="aiPromptInput" rows="8" placeholder="Ví dụ: Tạo mindmap về lộ trình đạt IELTS 6.5 trong 6 tháng..."></textarea>
+              </section>
+              <section class="ai-card" data-ai-mode="file">
                 <h4>Bằng file TXT</h4>
-                <p class="ai-hint">Tải lên file .txt chứa các gợi ý hoặc outline của bạn.</p>
-                <label class="ai-upload">
+                <p>Phù hợp khi bạn đã có dàn ý hoặc outline sẵn.</p>
+                <label class="upload-box">
                   <input type="file" id="aiFileInput" accept=".txt,text/plain" hidden />
                   <span class="btn btn-ghost"><i class="fa-solid fa-upload"></i> Chọn file</span>
-                  <span id="aiFileName" class="ai-file-name">Chưa chọn file</span>
-                  <button type="button" class="btn btn-ghost btn-mini" data-ai-action="clear-file" hidden>Huỷ chọn</button>
                 </label>
-              </div>
+                <div class="file-line">
+                  <span id="aiFileName">Chưa chọn file</span>
+                  <button type="button" class="btn btn-ghost btn-inline" data-ai-action="clear-file" hidden>Bỏ file</button>
+                </div>
+              </section>
             </div>
-            <p class="ai-status-text" data-ai-status role="status" aria-live="polite"></p>
-            <div class="mindmap-modal-actions">
+            <p class="ai-status" data-ai-status role="status" aria-live="polite"></p>
+            <div class="modal-actions">
               <button type="button" class="btn btn-ghost" data-ai-action="close">Đóng</button>
-              <button type="button" class="btn btn-primary" data-ai-action="generate" disabled>
-                Đang chờ lựa chọn...
-              </button>
+              <button type="button" class="btn btn-primary" data-ai-action="generate" disabled>Đang chờ lựa chọn...</button>
             </div>
           </div>
         </div>
-      </article>
+      </section>
     </section>
   </main>
 

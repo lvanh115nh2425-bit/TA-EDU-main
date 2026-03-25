@@ -16,8 +16,12 @@ async function ensureSchema() {
       uid VARCHAR(128) PRIMARY KEY,
       email VARCHAR(255),
       display_name VARCHAR(255),
+      full_name VARCHAR(255),
       photo_url TEXT,
       role VARCHAR(32),
+      trust_points INTEGER NOT NULL DEFAULT 100,
+      trust_history JSONB NOT NULL DEFAULT '[]'::jsonb,
+      last_trust_recovery_at TIMESTAMP WITH TIME ZONE,
       verify_status VARCHAR(32) DEFAULT 'unverified',
       verify_note TEXT,
       submitted_at TIMESTAMP WITH TIME ZONE,
@@ -41,6 +45,26 @@ async function ensureSchema() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
+  `);
+
+  await query(`
+    ALTER TABLE user_profiles
+    ADD COLUMN IF NOT EXISTS full_name VARCHAR(255);
+  `);
+
+  await query(`
+    ALTER TABLE user_profiles
+    ADD COLUMN IF NOT EXISTS trust_points INTEGER NOT NULL DEFAULT 100;
+  `);
+
+  await query(`
+    ALTER TABLE user_profiles
+    ADD COLUMN IF NOT EXISTS trust_history JSONB NOT NULL DEFAULT '[]'::jsonb;
+  `);
+
+  await query(`
+    ALTER TABLE user_profiles
+    ADD COLUMN IF NOT EXISTS last_trust_recovery_at TIMESTAMP WITH TIME ZONE;
   `);
 
   await query(`

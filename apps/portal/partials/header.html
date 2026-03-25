@@ -13,7 +13,7 @@
     <nav class="main-nav" id="mainNav">
       <ul>
         <li><a href="/index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
-        <li><a href="/mon/lythuyet.html" data-active-scope="/mon/"><i class="fa-solid fa-book"></i> Học lý thuyết</a></li>
+        <li><a href="/mon/KTPL/ktpl_chonlop.html" data-active-scope="/mon/"><i class="fa-solid fa-book"></i> Học lý thuyết</a></li>
         <li><a href="/mindmap.html"><i class="fa-solid fa-diagram-project"></i> Mind Map</a></li>
         <li><a href="/tu-van-luat.html"><i class="fa-solid fa-scale-balanced"></i> Tư vấn luật</a></li>
         <li><a href="/thoi-gian-bieu.html"><i class="fa-solid fa-calendar-check"></i> Thời gian biểu</a></li>
@@ -23,8 +23,8 @@
 
         <li class="nav-auth-item">
           <button id="btnLogin" class="btn-login" type="button">
-            <img src="/assets/Google_logo.png" alt="Google" class="google-icon" />
-            Đăng nhập
+            <span class="btn-login__primary">Đăng nhập</span>
+            <span class="btn-login__secondary">Đăng ký</span>
           </button>
 
           <div id="userInfo" hidden>
@@ -43,6 +43,7 @@
                   </div>
                 </div>
               </div>
+
               <div class="header-theme-toggle" role="group" aria-label="Chọn kiểu nền TA-Edu">
                 <p class="header-theme-toggle__label">Kiểu nền TA-Edu</p>
                 <div class="header-theme-slider" data-theme-slider data-theme-current="neon">
@@ -71,11 +72,69 @@
             </div>
           </div>
         </li>
-
-        <!-- mobile logout moved inside user menu; removed redundant external logout -->
       </ul>
     </nav>
   </div>
 
   <div class="menu-overlay" id="menuOverlay" hidden></div>
+
+  <div class="auth-modal" id="authModal" hidden>
+    <div class="auth-modal__backdrop" data-auth-modal="close"></div>
+    <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+      <button class="auth-modal__close" type="button" data-auth-modal="close" aria-label="Đóng">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="auth-modal__head">
+        <h2 id="authModalTitle">Tài khoản TA-Edu</h2>
+        <p>Đăng nhập nhanh bằng Google hoặc dùng email và mật khẩu.</p>
+      </div>
+
+      <div class="auth-modal__tabs">
+        <button type="button" class="auth-tab is-active" data-auth-mode="login">Đăng nhập</button>
+        <button type="button" class="auth-tab" data-auth-mode="register">Đăng ký</button>
+      </div>
+
+      <form id="authEmailForm" class="auth-form">
+        <label class="auth-field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="email" placeholder="tenban@gmail.com" required>
+        </label>
+        <label class="auth-field">
+          <span>Mật khẩu</span>
+          <div class="auth-password-wrap">
+            <input type="password" name="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required>
+            <button type="button" class="auth-password-toggle" data-password-toggle="password" aria-label="Hiện mật khẩu">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </label>
+        <div class="auth-password-strength" id="authPasswordStrength" hidden>
+          <div class="auth-password-strength__bar">
+            <span id="authPasswordStrengthFill"></span>
+          </div>
+          <p class="auth-password-strength__text" id="authPasswordStrengthText">Độ mạnh mật khẩu</p>
+        </div>
+        <label class="auth-field auth-field--confirm" hidden>
+          <span>Nhập lại mật khẩu</span>
+          <div class="auth-password-wrap">
+            <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
+            <button type="button" class="auth-password-toggle" data-password-toggle="confirmPassword" aria-label="Hiện mật khẩu">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+        </label>
+        <p class="auth-modal__hint" id="authModeHint">Dùng email và mật khẩu để đăng nhập vào tài khoản đã có.</p>
+        <p class="auth-modal__error" id="authModalError" hidden></p>
+        <button type="submit" class="auth-submit" id="authSubmitBtn">Đăng nhập</button>
+      </form>
+
+      <div class="auth-divider"><span>hoặc</span></div>
+
+      <button type="button" class="auth-google" id="authGoogleBtn">
+        <img src="/assets/Google_logo.png" alt="Google" class="google-icon" />
+        Tiếp tục với Google
+      </button>
+    </div>
+  </div>
 </header>

@@ -1,199 +1,114 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chọn vai trò & Xác minh | TA-Edu</title>
+  <title>Hoàn tất thông tin tài khoản | TA-Edu</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/taedu_global.css">
   <link rel="stylesheet" href="css/css_onboarding.css">
-    <link rel="stylesheet" href="css/css_menu.css">
+  <link rel="stylesheet" href="css/css_menu.css">
   <script>
     window.__TAEDU_ADMIN_API__ = window.__TAEDU_ADMIN_API__ || "http://localhost:4001";
-    console.log("🔧 [Config] API Base:", window.__TAEDU_ADMIN_API__);
   </script>
   <script defer type="module" src="js/core/firebase.js"></script>
-  <script defer src="/js/core/boot_header.js"></script>
-  <script>
-    (function prepInitialStep() {
-      function applyInitialStep() {
-        const params = new URLSearchParams((location.hash || "#step=select").slice(1));
-        const step = params.get("step") || "select";
-        console.log("📍 [Route] Initial step:", step);
-        document.querySelectorAll("section[data-step]").forEach((section) => {
-          section.hidden = section.dataset.step !== step;
-        });
-      }
-      document.addEventListener("DOMContentLoaded", applyInitialStep);
-    })();
-  </script>
-  <script defer type="module" src="js/modules/onboarding.js?v=20241120"></script>
+  <script defer src="/js/core/boot_header.js?v=20260330"></script>
+  <script defer type="module" src="js/modules/onboarding.js?v=20260329"></script>
 </head>
 <body>
-  <!-- Header -->
-  <div id="headerMount"></div>
-
   <main class="ob">
-    <!-- Step 1: chọn vai trò -->
-    <section class="ob__card" data-step="select" hidden>
+    <section class="ob__card" data-step="profile">
       <header class="ob__head">
-        <h1>Chọn vai trò của bạn</h1>
-        <p>Để bắt đầu, hãy chọn 1 trong 2 vai trò dưới đây.</p>
-      </header>
-      <div class="ob__grid">
-        <button class="ob__role" data-role="student" aria-label="Chọn Học sinh">
-          <i class="fa-solid fa-graduation-cap"></i>
-          <strong>Học sinh</strong>
-          <span>Hoàn thành hồ sơ & thông tin phụ huynh</span>
-        </button>
-        <button class="ob__role" data-role="tutor" aria-label="Chọn Gia sư">
-          <i class="fa-solid fa-chalkboard-user"></i>
-          <strong>Gia sư</strong>
-          <span>Xác thực danh tính & chứng chỉ</span>
-        </button>
-      </div>
-    </section>
-
-    <!-- Step 2a: form Học sinh -->
-    <section class="ob__card" data-step="student" hidden>
-      <header class="ob__head">
-        <h1>Hồ sơ Học sinh</h1>
-        <p>Vui lòng điền thông tin thật và tải ảnh xác minh.</p>
+        <span class="ob__eyebrow">Bước cuối để vào hệ thống</span>
+        <h1>Hoàn tất thông tin tài khoản</h1>
+        <p>Chỉ cần điền thông tin cơ bản bên dưới là bạn có thể dùng hệ thống ngay, không cần chờ admin xác nhận.</p>
       </header>
 
-      <form id="formStudent" class="ob__form">
-        <h3>Thông tin cá nhân</h3>
-        <div class="row">
-          <label>Họ tên <input required name="name"></label>
-          <label>Ngày sinh <input type="date" required name="dob"></label>
-        </div>
-        <div class="row">
-          <label>Số điện thoại
-            <input type="tel" name="phone" inputmode="tel"
-              pattern="^[0-9]{8,15}$" title="Nhập 8–15 chữ số">
-          </label>
-          <label>Lớp
-            <select name="grade" required>
-              <option value="" disabled selected>Chọn lớp</option>
-              <option value="10">10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-            </select>
-          </label>
-
-        </div>
-        <label>Địa chỉ <input name="address"></label>
-
-        <h3>Ảnh xác minh</h3>
-        <div class="row">
-          <label>CCCD/Thẻ HS (mặt trước)
-            <input type="file" accept="image/*" required name="cccd_front">
-          </label>
-          <label>CCCD/Thẻ HS (mặt sau)
-            <input type="file" accept="image/*" required name="cccd_back">
-          </label>
-        </div>
-
-        <h3>Thông tin phụ huynh</h3>
-        <div class="row">
-          <label>Họ tên phụ huynh <input required name="parent_name"></label>
-          <label>Email phụ huynh <input required type="email" name="parent_email"></label>
-        </div>
-        <label>SĐT phụ huynh 
-          <input name="parent_phone" type="tel" pattern="^[0-9]{8,15}$" title="Nhập 8–15 chữ số">        </label>
-
-        <label class="agree">
-          <input type="checkbox" required>
-          Tôi cam kết thông tin là đúng sự thật và đồng ý với điều khoản TA-Edu.
-        </label>
-
-        <div class="actions">
-          <button type="button" class="btn ghost" data-back>Quay lại</button>
-          <button type="submit" class="btn primary">Gửi hồ sơ</button>
-        </div>
-      </form>
-    </section>
-
-    <!-- Step 2b: form Gia sư -->
-    <section class="ob__card" data-step="tutor" hidden>
-      <header class="ob__head">
-        <h1>Hồ sơ Gia sư</h1>
-        <p>Vui lòng hoàn tất để xác nhận người thật.</p>
-      </header>
-
-      <form id="formTutor" class="ob__form">
-        <h3>Thông tin cá nhân</h3>
-        <div class="row">
-          <label>Họ tên <input required name="name"></label>
-          <label>Ngày sinh <input type="date" required name="dob"></label>
-        </div>
-        <div class="row">
-          <label>Số CCCD <input required name="cccd" pattern="^[0-9]{9,12}$"></label>
-          <label>Số điện thoại <input required name="phone" pattern="^[0-9 +()-]{8,}$"></label>
-        </div>
-        <label>Địa chỉ <input name="address"></label>
-
-        <h3>Ảnh xác minh</h3>
-        <div class="row">
-          <label>CCCD mặt trước <input type="file" accept="image/*" required name="cccd_front"></label>
-          <label>CCCD mặt sau   <input type="file" accept="image/*" required name="cccd_back"></label>
-        </div>
-        <label>Ảnh chân dung/selfie <input type="file" accept="image/*" required name="selfie"></label>
-
-        <h3>Chuyên môn</h3>
-        <div class="row">
-          <label>Môn dạy <input required name="subjects" placeholder="Toán; Lý; Hoá"></label>
-          <div class="ob__levels">
-            <span class="lbl">Lớp</span>
-            <div class="checks checks--chips">
-              <label class="chip-check">
-                <input type="checkbox" name="levels[]" value="10">
-                <span>10</span>
-              </label>
-              <label class="chip-check">
-                <input type="checkbox" name="levels[]" value="11">
-                <span>11</span>
-              </label>
-              <label class="chip-check">
-                <input type="checkbox" name="levels[]" value="12">
-                <span>12</span>
-              </label>
-            </div>
+      <form id="profileForm" class="ob__form">
+        <fieldset class="ob__section">
+          <legend>Chọn vai trò</legend>
+          <div class="ob__grid">
+            <label class="ob__role">
+              <input type="radio" name="role" value="student" required>
+              <span class="ob__role-badge"><i class="fa-solid fa-user-graduate"></i></span>
+              <strong>Học sinh</strong>
+              <span>Dành cho học viên tham gia học tập, làm bài và theo dõi tiến độ.</span>
+            </label>
+            <label class="ob__role">
+              <input type="radio" name="role" value="teacher" required>
+              <span class="ob__role-badge"><i class="fa-solid fa-chalkboard-user"></i></span>
+              <strong>Giáo viên</strong>
+              <span>Dành cho giáo viên hướng dẫn, chia sẻ nội dung và quản lý học tập.</span>
+            </label>
           </div>
+        </fieldset>
+
+        <div class="row">
+          <label>
+            Biệt danh
+            <input required name="display_name" placeholder="Tên hiển thị ở mọi nơi">
+          </label>
+          <label>
+            Họ và tên
+            <input required name="full_name" placeholder="Nhập họ và tên đầy đủ">
+          </label>
         </div>
 
-        <label>Chứng chỉ/Bằng cấp (PDF/JPG/PNG, có thể nhiều)
-          <input type="file" multiple accept=".pdf,image/*" name="certs">
-        </label>
-        <label>Mô tả ngắn <textarea name="bio" rows="3" placeholder="Kinh nghiệm, phong cách giảng dạy..."></textarea></label>
+        <div class="row">
+          <label>
+            Lớp
+            <div class="grade-picker" data-grade-picker>
+              <button type="button" class="grade-picker__toggle" data-grade-toggle aria-haspopup="listbox" aria-expanded="false">
+                <span data-grade-label>Chọn lớp</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+              <ul class="grade-picker__list" data-grade-list role="listbox" hidden>
+                <li><button type="button" data-grade-option="" class="is-selected">Chọn lớp</button></li>
+                <li><button type="button" data-grade-option="10">Lớp 10</button></li>
+                <li><button type="button" data-grade-option="11">Lớp 11</button></li>
+                <li><button type="button" data-grade-option="12">Lớp 12</button></li>
+              </ul>
+              <select required name="student_grade" class="grade-picker__native">
+                <option value="">Chọn lớp</option>
+                <option value="10">Lớp 10</option>
+                <option value="11">Lớp 11</option>
+                <option value="12">Lớp 12</option>
+              </select>
+            </div>
+          </label>
+          <label>
+            Email
+            <input required type="email" name="email" placeholder="tenban@gmail.com" readonly>
+          </label>
+          <label>
+            Số điện thoại
+            <input required type="tel" name="student_phone" inputmode="tel" pattern="^[0-9 +()-]{8,15}$" placeholder="Nhập số điện thoại">
+          </label>
+        </div>
 
         <label class="agree">
-          <input type="checkbox" required> Tôi đồng ý với điều khoản TA-Edu.
+          <input type="checkbox" name="privacy_commitment" required>
+          <span>Chúng tôi cam kết các thông tin cá nhân của bạn sẽ được bảo mật.</span>
         </label>
 
         <div class="actions">
-          <button type="button" class="btn ghost" data-back>Quay lại</button>
-          <button type="submit" class="btn primary">Gửi hồ sơ</button>
+          <a href="index.html" class="btn ghost">Về trang chủ</a>
+          <button type="submit" class="btn primary">Lưu hồ sơ</button>
         </div>
       </form>
     </section>
 
-    <!-- Step 3: trạng thái -->
-    <section class="ob__card" data-step="submitted" hidden>
+    <section class="ob__card ob__card--success" data-step="success" hidden>
       <header class="ob__head">
-        <h1>Đã gửi hồ sơ!</h1>
-        <p>Chúng tôi sẽ duyệt trong thời gian sớm nhất. Bạn có thể quay về Dashboard.</p>
+        <span class="ob__eyebrow">Hoàn tất</span>
+        <h1>Thông tin đã được lưu</h1>
+        <p>Bạn có thể vào hệ thống ngay bây giờ.</p>
       </header>
-      <div class="actions">
-        <a href="dashboard.html" class="btn primary">Về Dashboard</a>
+      <div class="actions actions--center">
+        <a href="dashboard.html" class="btn primary">Vào Dashboard</a>
       </div>
     </section>
   </main>
-
-<link rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-      crossorigin="anonymous" referrerpolicy="no-referrer" />
-
 </body>
 </html>

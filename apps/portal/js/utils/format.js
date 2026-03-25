@@ -1,7 +1,7 @@
 // js/utils/format.js
-// ... (gi? nguy�n c�c export s?n c�)
+// ... (giữ nguyên các export sẵn có)
 
 export const formatCurrencyVN = (n) => {
   const v = Number.isFinite(+n) ? +n : 0;
-  return v.toLocaleString('vi-VN') + '?';
+  return v.toLocaleString("vi-VN") + "₫";
 };

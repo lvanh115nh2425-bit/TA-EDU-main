@@ -55,6 +55,10 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
+if (chatBox && !chatBox.children.length) {
+  appendMessage("bot", "Xin chao! Minh la TA-SmartTutor. Ban muon hoc phan nao hom nay?");
+}
+
 // ====== Gửi tin ======
 if (form) {
   form.addEventListener("submit", (e) => {

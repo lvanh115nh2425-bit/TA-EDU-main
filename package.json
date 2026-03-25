@@ -7,7 +7,12 @@
   "scripts": {
     "dev": "npm --prefix backend/firebase-functions run serve",
     "dev:functions": "npm --prefix backend/firebase-functions run serve",
+    "dev:firebase": "npx firebase emulators:start",
     "deploy:functions": "npm --prefix backend/firebase-functions run deploy",
     "lint:functions": "npm --prefix backend/firebase-functions run lint --if-present"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.11.0",
+    "retry": "^0.13.1"
   }
 }

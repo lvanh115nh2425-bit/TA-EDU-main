@@ -1,5 +1,5 @@
 // js/core/menu_toggle.js
-// Toggle menu cho header TA-Edu (d?i header s?n s�ng, overlay, ESC, resize, active link)
+// Toggle menu cho header TA-Edu (đợi header sẵn sàng, overlay, ESC, resize, active link)
 const READY_EVENT = "taedu:header:ready";
 
 function initMenuToggle() {
@@ -18,16 +18,16 @@ function initMenuToggle() {
 
   const mq = window.matchMedia("(min-width: 992px)");
 
-  const open  = () => { nav.classList.add("open");  btn.setAttribute("aria-expanded","true");  overlay.hidden = false;  document.body.classList.add("nav-open"); };
-  const close = () => { nav.classList.remove("open"); btn.setAttribute("aria-expanded","false"); overlay.hidden = true;  document.body.classList.remove("nav-open"); };
+  const open = () => { nav.classList.add("open"); btn.setAttribute("aria-expanded", "true"); overlay.hidden = false; document.body.classList.add("nav-open"); };
+  const close = () => { nav.classList.remove("open"); btn.setAttribute("aria-expanded", "false"); overlay.hidden = true; document.body.classList.remove("nav-open"); };
   const toggle = () => (nav.classList.contains("open") ? close() : open());
 
-  btn.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); toggle(); });
+  btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); toggle(); });
   overlay.addEventListener("click", close);
-  document.addEventListener("click", e => { if (!nav.contains(e.target) && !btn.contains(e.target)) close(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  document.addEventListener("click", (e) => { if (!nav.contains(e.target) && !btn.contains(e.target)) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
 
-  if (typeof mq.addEventListener === "function") mq.addEventListener("change", e => e.matches && close());
+  if (typeof mq.addEventListener === "function") mq.addEventListener("change", (e) => e.matches && close());
   else window.addEventListener("resize", () => { if (window.innerWidth >= 992) close(); });
 
   try {
@@ -39,7 +39,7 @@ function initMenuToggle() {
     const currentFull = normalize(location.pathname);
     const currentScope = location.pathname.replace(/\/+$/, "/").replace(/^\/+/, "/");
 
-    nav.querySelectorAll("a[href]").forEach(a => {
+    nav.querySelectorAll("a[href]").forEach((a) => {
       a.classList.remove("active");
       const scope = (a.dataset.activeScope || "").trim();
       if (scope) {

@@ -55,6 +55,87 @@ function ensureMindmapNode(node, depth = 0) {
   return sanitized;
 }
 
+function normalizeMockText(text) {
+  return String(text || "")
+    .replace(/\s+/g, " ")
+    .replace(/^tạo\s+mindmap\s*(về|cho)?\s*/i, "")
+    .trim();
+}
+
+function createMockBranch(index, content, preset, children) {
+  const shapes = ["rect", "oval", "cloud", "rect", "oval"];
+  return {
+    id: `branch-${index + 1}`,
+    content,
+    shape: shapes[index % shapes.length],
+    style: { preset },
+    children: children.map((child, childIndex) => ({
+      id: `branch-${index + 1}-${childIndex + 1}`,
+      content: child,
+      shape: childIndex === 2 ? "oval" : "rect",
+      children: []
+    }))
+  };
+}
+
+function buildMockMindmapTree(sourceText, rootTopic) {
+  const seedText = normalizeMockText(sourceText || rootTopic || "Kế hoạch học tập");
+  const lowerSeed = seedText.toLowerCase();
+  const rootLabel = normalizeMockText(rootTopic || seedText || "Chủ đề chính").slice(0, 52) || "Chủ đề chính";
+
+  let branches;
+
+  if (lowerSeed.includes("ielts")) {
+    branches = [
+      createMockBranch(0, "Mục tiêu 6.5", "mint", ["Band hiện tại", "Band mục tiêu", "Mốc kiểm tra"]),
+      createMockBranch(1, "Lộ trình 6 tháng", "peach", ["Tháng 1-2 nền tảng", "Tháng 3-4 tăng tốc", "Tháng 5-6 luyện đề"]),
+      createMockBranch(2, "Nghe và đọc", "rose", ["Nghe chép chính tả", "Reading theo dạng bài", "Làm đề hằng tuần"]),
+      createMockBranch(3, "Viết và nói", "yellow", ["Task 1, Task 2", "Speaking Part 1-3", "Chữa lỗi định kỳ"]),
+      createMockBranch(4, "Tài liệu và kỷ luật", "lilac", ["Cambridge/IELTS App", "Lịch học tuần", "Theo dõi tiến độ"])
+    ];
+  } else if (lowerSeed.includes("toeic")) {
+    branches = [
+      createMockBranch(0, "Mục tiêu điểm", "mint", ["Điểm hiện tại", "Điểm mục tiêu", "Mốc thi thử"]),
+      createMockBranch(1, "Từ vựng", "peach", ["Chủ đề quen thuộc", "Flashcard", "Ôn lặp lại"]),
+      createMockBranch(2, "Listening", "rose", ["Part 1-2", "Part 3-4", "Nghe tốc độ thật"]),
+      createMockBranch(3, "Reading", "yellow", ["Part 5", "Part 6", "Part 7"]),
+      createMockBranch(4, "Luyện đề", "lilac", ["1 đề/tuần", "Chữa lỗi", "Rà soát chiến lược"])
+    ];
+  } else if (/(kế hoạch|lộ trình|trong \d+ tháng|theo tháng|theo tuần)/i.test(lowerSeed)) {
+    branches = [
+      createMockBranch(0, "Mục tiêu", "mint", ["Kết quả mong muốn", "Đầu ra cụ thể", "Thời hạn hoàn thành"]),
+      createMockBranch(1, "Giai đoạn học", "peach", ["Nền tảng", "Tăng tốc", "Về đích"]),
+      createMockBranch(2, "Lịch tuần", "rose", ["Buổi học chính", "Ôn tập", "Làm bài kiểm tra"]),
+      createMockBranch(3, "Tài liệu", "yellow", ["Nguồn chính", "Bài tập thực hành", "Ghi chú cá nhân"]),
+      createMockBranch(4, "Đánh giá", "lilac", ["Mốc kiểm tra", "Điều chỉnh kế hoạch", "Tự thưởng động lực"])
+    ];
+  } else {
+    const keywords = seedText
+      .split(/[\n,;:!?]+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .slice(0, 5);
+    const topics = keywords.length
+      ? keywords
+      : ["Tổng quan", "Kiến thức chính", "Ví dụ", "Thực hành", "Đánh giá"];
+    branches = topics.map((topic, index) =>
+      createMockBranch(
+        index,
+        topic.slice(0, 28),
+        ["mint", "peach", "rose", "yellow", "lilac"][index % 5],
+        ["Ý chính 1", "Ý chính 2", "Ví dụ / ghi chú"]
+      )
+    );
+  }
+
+  return ensureMindmapNode({
+    id: "root",
+    content: rootLabel,
+    shape: "pill",
+    style: { preset: "purple" },
+    children: branches
+  });
+}
 
 // ========= SmartTutor (OpenAI) =========
 exports.smarttutor = onRequest({ region: "asia-southeast1", cors: true }, async (req, res) => {
@@ -67,14 +148,19 @@ exports.smarttutor = onRequest({ region: "asia-southeast1", cors: true }, async 
     const openai = new OpenAI({ apiKey });
 
     const messages = Array.isArray(req.body?.messages) ? req.body.messages : [];
-    const system = { role: "system", content: "Bạn là SmartTutor, giải thích ngắn gọn, dễ hiểu, từng bước." };
+    const system = {
+      role: "system",
+      content: "Bạn là SmartTutor, giải thích ngắn gọn, dễ hiểu, từng bước.",
+    };
 
     const r = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [system, ...messages].slice(-12)
+      messages: [system, ...messages].slice(-12),
     });
 
-    res.json({ reply: (r.choices?.[0]?.message?.content || "").trim() || "Mình chưa có câu trả lời." });
+    res.json({
+      reply: (r.choices?.[0]?.message?.content || "").trim() || "Mình chưa có câu trả lời.",
+    });
   } catch (e) {
     console.error("SmartTutor error:", e);
     res.status(500).send(e?.message || "OpenAI error");
@@ -85,7 +171,7 @@ const GEMINI_SYSTEM_PROMPT = [
   "Bạn là trợ lý TA-Edu tạo sơ đồ tư duy cho học sinh phổ thông.",
   "Xuất duy nhất JSON thuần (không Markdown, không giải thích).",
   "Mẫu JSON:",
-  '{',
+  "{",
   '  "id": "root",',
   '  "content": "Chủ đề",',
   '  "shape": "pill",',
@@ -104,8 +190,6 @@ const GEMINI_SYSTEM_PROMPT = [
 exports.mindmapAi = onRequest({ region: "asia-southeast1", cors: true }, async (req, res) => {
   try {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
-    const apiKey = pickGeminiKey();
-    if (!apiKey) return res.status(500).json({ error: "missing_gemini_key" });
 
     let body = req.body;
     if (typeof body === "string") {
@@ -119,6 +203,7 @@ exports.mindmapAi = onRequest({ region: "asia-southeast1", cors: true }, async (
 
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
     const fileText = typeof body.fileText === "string" ? body.fileText.trim() : "";
+    const rootTopic = typeof body.rootTopic === "string" ? body.rootTopic.trim() : "";
     if (!prompt && !fileText) {
       return res.status(400).json({ error: "missing_input" });
     }
@@ -129,6 +214,30 @@ exports.mindmapAi = onRequest({ region: "asia-southeast1", cors: true }, async (
       return res.status(400).json({ error: "file_too_large" });
     }
 
+    const mockMode =
+      process.env.MINDMAP_AI_MOCK === "1" ||
+      process.env.MINDMAP_AI_MOCK === "true" ||
+      body.mock === true;
+
+    if (mockMode) {
+      return res.json({
+        tree: buildMockMindmapTree(prompt || fileText, rootTopic),
+        meta: {
+          model: "mock-local",
+          inputType: prompt ? "prompt" : "file",
+          mock: true,
+        },
+      });
+    }
+
+    const apiKey = pickGeminiKey();
+    if (!apiKey) {
+      return res.status(500).json({
+        error: "missing_gemini_key",
+        message: "Chưa có GEMINI_API_KEY. Nếu muốn test local không cần quota, hãy bật MINDMAP_AI_MOCK=1.",
+      });
+    }
+
     const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
@@ -137,9 +246,10 @@ exports.mindmapAi = onRequest({ region: "asia-southeast1", cors: true }, async (
     });
 
     const inputDescriptor = prompt ? "Yêu cầu người dùng" : "Nội dung file TXT";
-    const extra = typeof body.rootTopic === "string" && body.rootTopic.trim()
-      ? `\nChủ đề gợi ý cho node gốc: ${body.rootTopic.trim()}`
-      : "";
+    const extra =
+      typeof body.rootTopic === "string" && body.rootTopic.trim()
+        ? `\nChủ đề gợi ý cho node gốc: ${body.rootTopic.trim()}`
+        : "";
 
     const response = await model.generateContent([
       { text: GEMINI_SYSTEM_PROMPT },
@@ -173,13 +283,30 @@ exports.mindmapAi = onRequest({ region: "asia-southeast1", cors: true }, async (
   } catch (err) {
     console.error("mindmapAi error:", err);
     const status = err.status || 500;
-    res.status(status).json({ error: err.message || "mindmap_ai_error" });
+    const message = String(err?.message || "");
+    const quotaExceeded =
+      status === 429 ||
+      message.includes("Too Many Requests") ||
+      message.includes("Quota exceeded");
+
+    if (quotaExceeded) {
+      return res.status(429).json({
+        error: "gemini_quota_exceeded",
+        message: "AI tạm thời hết quota. Hãy đổi key/project Gemini khác hoặc bật billing rồi thử lại.",
+      });
+    }
+
+    res.status(status).json({
+      error: "mindmap_ai_error",
+      message: message || "Không thể tạo mindmap bằng AI lúc này.",
+    });
   }
 });
 
-
 // ========= Notify Parent (email) =========
-function isEmail(x) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(x || "").trim()); }
+function isEmail(x) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(x || "").trim());
+}
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -205,9 +332,11 @@ exports.notifyParent = onRequest({ region: "asia-southeast1", cors: true }, asyn
       <p>Học sinh: <b>${user?.name || user?.email || user?.uid || "Không rõ"}</b></p>
       <p>Sự kiện: <b>${event}</b></p>
       <p>Nội dung: <pre style="background:#f6f8f9;padding:10px;border-radius:8px">${JSON.stringify(data || {}, null, 2)}</pre></p>
-      ${event === "withdraw_request"
-        ? `<p><i>Yêu cầu rút đang chờ bạn xác nhận (trả lời email này hoặc xác nhận trên hệ thống).</i></p>`
-        : ""}
+      ${
+        event === "withdraw_request"
+          ? "<p><i>Yêu cầu rút đang chờ bạn xác nhận (trả lời email này hoặc xác nhận trên hệ thống).</i></p>"
+          : ""
+      }
       <p>Trân trọng,<br/>TA-Edu</p>
     `;
 
@@ -229,7 +358,9 @@ exports.imgbbUpload = onRequest({ region: "asia-southeast1", cors: true }, async
   try {
     if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
     const { dataUrl, name } = req.body || {};
-    if (!dataUrl || typeof dataUrl !== "string") return res.status(400).json({ error: "missing dataUrl" });
+    if (!dataUrl || typeof dataUrl !== "string") {
+      return res.status(400).json({ error: "missing dataUrl" });
+    }
 
     const key = process.env.IMGBB_KEY;
     if (!key) return res.status(500).json({ error: "IMGBB_KEY not set" });
@@ -241,7 +372,10 @@ exports.imgbbUpload = onRequest({ region: "asia-southeast1", cors: true }, async
     fd.append("image", base64);
     if (name) fd.append("name", name);
 
-    const r = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { method: "POST", body: fd });
+    const r = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, {
+      method: "POST",
+      body: fd,
+    });
     const j = await r.json();
     if (!j?.success) {
       const msg = j?.error?.message || "ImgBB upload failed";

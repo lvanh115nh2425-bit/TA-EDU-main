@@ -7,9 +7,9 @@
     "node": "22"
   },
   "scripts": {
-    "serve": "firebase emulators:start --only functions",
-    "start": "firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions"
+    "serve": "npx firebase emulators:start --only functions",
+    "start": "npx firebase emulators:start --only functions",
+    "deploy": "npx firebase deploy --only functions"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

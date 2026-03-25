@@ -1,11 +1,12 @@
+import { auth, signOut } from "../core/firebase.js";
 import { getProfile } from "../utils/api.js";
 
 // js/modules/dashboard.js
-// TA-Edu 2.x - B?N S?A KH?P HTML HI?N T?I (kh�ng import)
-// - Di?u hu?ng tab b?ng hash
-// - Fill user cho c? Sidebar (#dash*) v� Profile (#profile*)
-// - T� s�ng avatar header (.is-current)
-// - Kh�ng ph� hi?u ?ng cu
+// TA-Edu 2.x - BẢN SỬA KHỚP HTML HIỆN TẠI (không import)
+// - Điều hướng tab bằng hash
+// - Fill user cho cả Sidebar (#dash*) và Profile (#profile*)
+// - Tô sáng avatar header (.is-current)
+// - Không phá hiệu ứng cũ
 
 const DEFAULT_AVATAR = "assets/default_avatar.svg";
 const DEFAULT_TRUST_SCORE = 100;
@@ -22,17 +23,17 @@ const ROLE_LABELS = {
 };
 
 /* Helpers */
-const $  = (s, r = document) => r.querySelector(s);
+const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const TRUST_STATES = [
   { min: 80, label: "An toàn", note: "Điểm ổn định, bạn đang sử dụng đầy đủ tính năng." },
   { min: 50, label: "Cần chú ý", note: "Điểm đang giảm, hãy tuân thủ quy định để tránh bị trừ thêm." },
-  { min: 0,  label: "Nguy hiểm", note: "Điểm quá thấp, tài khoản có thể bị hạn chế hoặc khóa tính năng." },
+  { min: 0, label: "Nguy hiểm", note: "Điểm quá thấp, tài khoản có thể bị hạn chế hoặc khóa tính năng." },
 ];
 let lastAuthUser = null;
 let lastProfileData = null;
 
-/* Hash ? Tab */
+/* Hash -> Tab */
 function getTabFromHash() {
   const m = location.hash.match(/#tab=([a-z0-9_-]+)/i);
   return m ? m[1] : "profile";
@@ -42,7 +43,7 @@ function setHash(tab) {
   if (location.hash !== h) history.replaceState(null, "", h);
 }
 
-/* K�ch ho?t UI theo tab */
+/* Kích hoạt UI theo tab */
 function activateNav(tab) {
   $$(".dash__nav .nav-item[data-tab]").forEach((a) => {
     a.classList.toggle("is-active", a.dataset.tab === tab);
@@ -200,16 +201,15 @@ function renderTrustSummary(score) {
   const progressEl = $("#trustProgress");
   if (progressEl) progressEl.style.width = bounded + "%";
   const progressText = $("#trustProgressText");
-  if (progressText) progressText.textContent = `${bounded}% di?m c�n l?i`;
+  if (progressText) progressText.textContent = `${bounded}% điểm còn lại`;
 }
-
 
 function normalizeTrustHistoryEntry(entry) {
   if (!entry || typeof entry !== "object") return null;
   const delta = Number(entry.delta ?? entry.amount ?? entry.value ?? 0);
   const ts = entry.ts ?? entry.timestamp ?? entry.date ?? Date.now();
   const reason = entry.reason || entry.note || entry.message || entry.description || "";
-  const source = entry.source || entry.type || "Ho?t d?ng";
+  const source = entry.source || entry.type || "Hoạt động";
   const status = entry.status || entry.state || "";
   return { delta, ts, reason, source, status };
 }
@@ -224,7 +224,7 @@ function renderTrustHistory(historyList) {
     .slice(0, 5);
 
   if (!normalized.length) {
-    wrap.innerHTML = '<p class="history-empty">Chua c� ghi nh?n m?i.</p>';
+    wrap.innerHTML = '<p class="history-empty">Chưa có ghi nhận mới.</p>';
     return;
   }
 
@@ -235,22 +235,22 @@ function renderTrustHistory(historyList) {
       const amount = formatPoints(Math.abs(item.delta));
       const dateText = new Date(item.ts).toLocaleString("vi-VN");
       const status = item.status
-        ? '<span class="trust__history-status">' + item.status + '</span>'
-        : '<span></span>';
-      const note = item.reason ? '<div class="trust__history-note">' + item.reason + '</div>' : '';
+        ? '<span class="trust__history-status">' + item.status + "</span>"
+        : "<span></span>";
+      const note = item.reason ? '<div class="trust__history-note">' + item.reason + "</div>" : "";
       return (
         '<article class="trust__history-item">' +
         '<div class="trust__history-row">' +
-        '<span class="trust__history-type">' + item.source + '</span>' +
+        '<span class="trust__history-type">' + item.source + "</span>" +
         '<span class="trust__history-amount ' + (isPositive ? "is-plus" : "is-minus") + '">' +
         sign + amount +
-        '</span></div>' +
+        "</span></div>" +
         '<div class="trust__history-row trust__history-row--sub">' +
-        '<span>' + dateText + '</span>' +
+        "<span>" + dateText + "</span>" +
         status +
-        '</div>' +
+        "</div>" +
         note +
-        '</article>'
+        "</article>"
       );
     })
     .join("");
@@ -310,18 +310,16 @@ async function handleDashboardUser(user) {
   }
 }
 
-
-
-/* Watch user (tuong th�ch nhi?u c�ch) */
+/* Watch user (tương thích nhiều cách) */
 function watchUser(callback) {
-  // Fill ngay n?u header d� c� user
+  // Fill ngay nếu header đã có user
   if (window.__TAEDU_LAST_USER) {
     try { callback(window.__TAEDU_LAST_USER); } catch (_) {}
   }
-  // Nghe s? ki?n do header ph�t
+  // Nghe sự kiện do header phát
   window.addEventListener("taedu:user-ready", (e) => callback(e.detail?.user));
 
-  // Fallback: n?u c� Firebase global
+  // Fallback: nếu có Firebase global
   try {
     if (window.auth && typeof window.auth.onAuthStateChanged === "function") {
       return window.auth.onAuthStateChanged(callback);
@@ -339,10 +337,10 @@ function highlightHeaderForDashboard() {
   const avatar = $("img#userPhoto.header-avatar") || $("#userPhoto");
   if (avatar) avatar.classList.add("is-current");
   const homeCandidates = [
-    'a[href$=\"index.html\"].active',
-    'a[href=\"/\"].active',
-    '#navHome.active',
-    '.nav-home.active',
+    'a[href$="index.html"].active',
+    'a[href="/"].active',
+    "#navHome.active",
+    ".nav-home.active",
   ];
   for (const sel of homeCandidates) {
     const el = document.querySelector(sel);
@@ -350,7 +348,7 @@ function highlightHeaderForDashboard() {
   }
 }
 
-/* Logout trong Dashboard (n?u c� n�t) */
+/* Logout trong Dashboard (nếu có nút) */
 function bindLogout() {
   const btn = $("#dashLogout");
   if (!btn) return;
@@ -361,14 +359,10 @@ function bindLogout() {
         await window.doLogoutAndRedirect("index.html");
         return;
       }
-      if (window.auth?.signOut) {
-        await window.auth.signOut();
-      } else if (window.firebase?.auth) {
-        await window.firebase.auth().signOut();
-      }
+      await signOut(auth);
     } catch (err) {
       console.error(err);
-      alert("Dang xu?t th?t b?i, vui l�ng th? l?i.");
+      alert("Đăng xuất thất bại, vui lòng thử lại.");
     } finally {
       location.href = "index.html";
     }
@@ -384,13 +378,3 @@ document.addEventListener("DOMContentLoaded", () => {
 
   watchUser(handleDashboardUser);
 });
-
-
-
-
-
-
-
-
-
-
