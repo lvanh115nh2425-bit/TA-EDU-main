@@ -16,13 +16,15 @@ if (hasValidKey) {
 }
 
 const genAI = hasValidKey ? new GoogleGenerativeAI(geminiKey) : null;
+const GEMINI_MODEL = (process.env.GEMINI_MODEL || "gemini-2.5-flash").trim();
+
 const generateModel = genAI ? genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+  model: GEMINI_MODEL,
   systemInstruction: EXAM_SYSTEM_PROMPT,
   generationConfig: { temperature: 0.7, maxOutputTokens: 4096, topP: 0.9 },
 }) : null;
 const gradeModel = genAI ? genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+  model: GEMINI_MODEL,
   systemInstruction: GRADE_ESSAY_SYSTEM_PROMPT,
   generationConfig: { temperature: 0.3, maxOutputTokens: 2048, topP: 0.8 },
 }) : null;
@@ -298,7 +300,29 @@ function parseExamJSON(text) {
     }
   }
 
-  return JSON.parse(sanitized);
+  try {
+    return JSON.parse(sanitized);
+  } catch (e) {
+    console.warn("[parseExamJSON] JSON.parse failed:", e.message, "| head:", sanitized.substring(0, 480));
+    return null;
+  }
+}
+
+/** Chuẩn hóa output Gemini khi lệch tên field (vd. multiple_choice thay vì mcq). */
+function normalizeExerciseGeminiOutput(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const mcq = Array.isArray(raw.mcq)
+    ? raw.mcq
+    : Array.isArray(raw.multiple_choice)
+      ? raw.multiple_choice
+      : null;
+  const essay = Array.isArray(raw.essay)
+    ? raw.essay
+    : Array.isArray(raw.Essay)
+      ? raw.Essay
+      : null;
+  if (mcq === null && essay === null) return raw;
+  return { ...raw, mcq: mcq || raw.mcq || [], essay: essay || raw.essay || [] };
 }
 
 // ── Validate exam structure ──────────────────────────────────────────
@@ -398,9 +422,14 @@ function generateMockExam(config) {
 
 // ── Exercise generation model ────────────────────────────────────────
 const exerciseModel = genAI ? genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+  model: GEMINI_MODEL,
   systemInstruction: EXERCISE_SYSTEM_PROMPT,
-  generationConfig: { temperature: 0.7, maxOutputTokens: 8192, topP: 0.9 },
+  generationConfig: {
+    temperature: 0.7,
+    maxOutputTokens: 8192,
+    topP: 0.9,
+    responseMimeType: "application/json",
+  },
 }) : null;
 
 // ── GET /api/exam/lessons ────────────────────────────────────────────
@@ -479,9 +508,8 @@ router.post("/exercise/generate", async (req, res) => {
       contextText = "Không tìm thấy tài liệu KTPL cho bài học này trong cơ sở dữ liệu.";
     }
 
-    // 4. Build prompt and call Gemini
+    const baseContext = contextText;
     const config = { grade: String(grade), lesson_name, difficulty: difficulty || "medium", mcqCount, essayCount };
-    const userPrompt = buildExerciseGeneratePrompt(config, contextText);
 
     let exercises = null;
     let usedLLM = false;
@@ -495,17 +523,27 @@ router.post("/exercise/generate", async (req, res) => {
 
     if (exerciseModel) {
       let lastRawText = null;
+      const retryMaxCtx = parseInt(process.env.EXERCISE_CONTEXT_RETRY_CHARS || "8000", 10);
       for (let attempt = 1; attempt <= 2; attempt++) {
         try {
-          console.log(`[Exam] Calling Gemini for exercise generation (attempt ${attempt})...`);
+          const ctxForAi =
+            attempt === 2 && baseContext.length > retryMaxCtx
+              ? `${baseContext.slice(0, retryMaxCtx)}\n\n[...rút gọn tài liệu — thử gọi AI lại]`
+              : baseContext;
+          const userPrompt = buildExerciseGeneratePrompt(config, ctxForAi);
+          console.log(
+            `[Exam] Calling Gemini for exercise generation (attempt ${attempt}), model=${GEMINI_MODEL}, promptChars=${userPrompt.length}`
+          );
           const result = await exerciseModel.generateContent(userPrompt);
           const response = await result.response;
           const text = response.text();
           lastRawText = text;
-          exercises = parseExamJSON(text);
+          exercises = normalizeExerciseGeminiOutput(parseExamJSON(text));
 
-          if (!exercises || (!Array.isArray(exercises.mcq) && !Array.isArray(exercises.essay))) {
-            console.warn("[Exam] Invalid exercise structure, retrying...", JSON.stringify(exercises).substring(0, 300));
+          const okMcq = Array.isArray(exercises?.mcq) && exercises.mcq.length > 0;
+          const okEssay = Array.isArray(exercises?.essay) && exercises.essay.length > 0;
+          if (!exercises || (!okMcq && !okEssay)) {
+            console.warn("[Exam] Invalid or empty exercise JSON, retrying...", JSON.stringify(exercises).substring(0, 320));
             exercises = null;
             if (attempt < 2) continue;
           } else {
@@ -525,8 +563,13 @@ router.post("/exercise/generate", async (req, res) => {
           if (lastRawText) {
             console.error(`[Exam] Raw Gemini response (first 500 chars):`, lastRawText.substring(0, 500));
           }
-          if (attempt < 2 && /429|500|503|RESOURCE_EXHAUSTED|UNAVAILABLE/i.test(msg)) {
-            await new Promise(r => setTimeout(r, 2000));
+          const retryable =
+            attempt < 2 &&
+            (/429|500|503|RESOURCE_EXHAUSTED|UNAVAILABLE/i.test(msg) ||
+              /JSON|SyntaxError|Unexpected token|parse/i.test(msg) ||
+              /block|BLOCK|candidat|safety|empty response|No content/i.test(msg));
+          if (retryable) {
+            await new Promise((r) => setTimeout(r, 2000));
             continue;
           }
         }
