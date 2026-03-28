@@ -13,7 +13,7 @@
       <img src="/assets/Logo.png" alt="TA-Edu" class="brand-logo">
       <div>
         <p class="brand-label">TA-Edu Admin</p>
-        <small>Quản lý cộng đồng học tập</small>
+        <small>Quản trị tố cáo cộng đồng</small>
       </div>
     </div>
     <div class="header-right">
@@ -29,8 +29,8 @@
         <button class="nav-item is-active" data-tab="kyc">
           <span>📋</span>
           <div>
-            <strong>Duyệt KYC</strong>
-            <small>Kiểm duyệt hồ sơ</small>
+            <strong>Duyệt tố cáo</strong>
+            <small>Xem báo cáo vi phạm</small>
           </div>
         </button>
         <button class="nav-item" disabled>
@@ -58,8 +58,8 @@
     <main class="admin-content">
       <div class="admin-shell">
         <section class="admin-card" id="loginView">
-          <h1>Đăng nhập quản trị</h1>
-          <p>Truy cập khu vực duyệt KYC riêng, không dùng chung giao diện học sinh.</p>
+          <h1>Đăng nhập quản trị tố cáo</h1>
+          <p>Truy cập khu vực xét duyệt tố cáo riêng, chỉ dành cho quản trị viên.</p>
           <form class="login-form" id="adminLoginForm">
             <label for="adminUsername">Tên đăng nhập</label>
             <input id="adminUsername" name="username" placeholder="admin" autocomplete="username">
@@ -74,18 +74,18 @@
           <div class="dashboard-head">
             <div>
               <p class="eyebrow">Smart Moderation</p>
-              <h2>Trung tâm duyệt KYC</h2>
+              <h2>Trung tâm xét duyệt tố cáo</h2>
               <p id="adminWelcome" class="muted"></p>
             </div>
             <div class="filter-controls">
               <select id="statusFilter">
                 <option value="all">Tất cả trạng thái</option>
-                <option value="submitted">Chờ duyệt</option>
-                <option value="approved">Đã duyệt</option>
-                <option value="rejected">Từ chối</option>
-                <option value="unverified">Chưa gửi</option>
+                <option value="submitted">Mới nhận</option>
+                <option value="reviewing">Đang xem</option>
+                <option value="resolved">Đã xử lý</option>
+                <option value="rejected">Bác bỏ</option>
               </select>
-              <input type="search" id="searchInput" placeholder="Tìm theo email, tên...">
+              <input type="search" id="searchInput" placeholder="Tìm theo người tố cáo, người bị tố cáo...">
               <select id="pageSizeSelect">
                 <option value="25">25 / trang</option>
                 <option value="50">50 / trang</option>
@@ -98,24 +98,24 @@
 
           <div class="dashboard-summary">
             <div class="metric-card">
-              <p>Chờ duyệt</p>
+              <p>Mới nhận</p>
               <strong id="metricPending">0</strong>
-              <small>Hồ sơ cần xử lý</small>
+              <small>Tố cáo cần xem xét</small>
             </div>
             <div class="metric-card">
-              <p>Đã duyệt</p>
+              <p>Đã xử lý</p>
               <strong id="metricApproved">0</strong>
-              <small>Hồ sơ hợp lệ</small>
+              <small>Đã có kết luận</small>
             </div>
             <div class="metric-card">
-              <p>Từ chối</p>
+              <p>Bác bỏ</p>
               <strong id="metricRejected">0</strong>
-              <small>Cần cập nhật thêm</small>
+              <small>Tố cáo không hợp lệ</small>
             </div>
             <div class="metric-card">
               <p>Tổng cộng</p>
               <strong id="metricTotal">0</strong>
-              <small>Toàn bộ hệ thống</small>
+              <small>Tất cả tố cáo</small>
             </div>
           </div>
 
@@ -124,9 +124,9 @@
             <table class="kyc-table">
               <thead>
                 <tr>
-                  <th>Hồ sơ</th>
+                  <th>Tố cáo</th>
                   <th>Trạng thái</th>
-                  <th>Thông tin thêm</th>
+                  <th>Nội dung</th>
                   <th>Hành động</th>
                 </tr>
               </thead>
@@ -151,7 +151,7 @@
   <dialog id="historyDialog" class="history-dialog">
     <div class="history-dialog__surface">
       <header>
-        <h3>Lịch sử xử lý</h3>
+        <h3>Lịch sử xử lý tố cáo</h3>
         <p id="historyDialogSubtitle"></p>
       </header>
       <div id="historyTimeline" class="history-timeline"></div>

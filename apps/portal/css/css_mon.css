@@ -19,6 +19,14 @@
   --code-text: #e5e7eb;
 }
 
+body,
+.hero-band__text,
+.subject-card,
+.lesson-content,
+.lesson-content :is(h1, h2, h3, h4, p, li, th, td, a, button, span, strong, em) {
+  font-family: "Baloo 2", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
 /* Reset nhỏ cho tính nhất quán */
 * { box-sizing: border-box; }
 img { max-width: 100%; height: auto; }

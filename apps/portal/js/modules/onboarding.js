@@ -1,9 +1,10 @@
 import { auth, firebaseConfig } from "../core/firebase.js";
-import { getProfile, updateProfile } from "../utils/api.js";
+import { getProfile, updateProfile } from "../utils/api.js?v=20260326b";
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const toast = (message) => alert(message);
 const LAST_EMAIL_KEY = "taedu:last-auth-email";
+const PROFILE_CACHE_KEY = (uid) => `taedu:profile:${uid}`;
 
 let currentUser = null;
 
@@ -31,18 +32,20 @@ function resolveUserEmail(profile = {}, user = null) {
   const authCurrentEmail = auth?.currentUser?.email || "";
   const windowCachedEmail = window.__TAEDU_LAST_USER?.email || "";
   let cachedEmail = "";
+
   try {
     cachedEmail = localStorage.getItem(LAST_EMAIL_KEY) || "";
   } catch (_) {}
+
   return String(
     profile?.email ||
-    user?.email ||
-    providerEmail ||
-    reloadInfoEmail ||
-    authCurrentEmail ||
-    windowCachedEmail ||
-    cachedEmail ||
-    ""
+      user?.email ||
+      providerEmail ||
+      reloadInfoEmail ||
+      authCurrentEmail ||
+      windowCachedEmail ||
+      cachedEmail ||
+      ""
   ).trim();
 }
 
@@ -90,11 +93,12 @@ function isProfileComplete(profile = {}, user = null) {
   const email = resolveUserEmail(profile, user);
   return Boolean(
     (profile.role || "").trim() &&
-    (profile.display_name || "").trim() &&
-    (profile.full_name || "").trim() &&
-    (profile.student_grade || "").trim() &&
-    (profile.student_phone || "").trim() &&
-    email
+      (profile.display_name || "").trim() &&
+      (profile.full_name || "").trim() &&
+      (profile.gender || "").trim() &&
+      (profile.student_grade || "").trim() &&
+      (profile.student_phone || "").trim() &&
+      email
   );
 }
 
@@ -143,7 +147,8 @@ function initGradePicker(form) {
 
   const syncGradePicker = () => {
     const value = nativeSelect.value || "";
-    const activeOption = optionButtons.find((button) => button.dataset.gradeOption === value) || optionButtons[0];
+    const activeOption =
+      optionButtons.find((button) => button.dataset.gradeOption === value) || optionButtons[0];
     label.textContent = activeOption.textContent.trim();
     picker.classList.toggle("has-value", Boolean(value));
     optionButtons.forEach((button) => {
@@ -191,12 +196,14 @@ function initGradePicker(form) {
 }
 
 function fillForm(profile = {}, user = null) {
+  profile = profile || {};
   const form = $("#profileForm");
   if (!form) return;
 
   const displayName = form.querySelector('[name="display_name"]');
   const fullName = form.querySelector('[name="full_name"]');
   const roleInputs = form.querySelectorAll('[name="role"]');
+  const gender = form.querySelector('[name="gender"]');
   const grade = form.querySelector('[name="student_grade"]');
   const email = form.querySelector('[name="email"]');
   const phone = form.querySelector('[name="student_phone"]');
@@ -211,6 +218,9 @@ function fillForm(profile = {}, user = null) {
   }
   if (fullName) {
     fullName.value = profile.full_name || user?.displayName || "";
+  }
+  if (gender) {
+    gender.value = profile.gender || "";
   }
   if (grade) {
     grade.value = profile.student_grade || "";
@@ -227,70 +237,51 @@ function fillForm(profile = {}, user = null) {
   }
 }
 
-function fillEmailField(profile = {}, user = null) {
-  const form = $("#profileForm");
-  const emailInput = form?.querySelector('[name="email"]');
-  const debugNote = $("#emailDebugNote");
-  if (!emailInput) return;
-  const resolved = resolveUserEmail(profile, user);
-  if (resolved) {
-    emailInput.value = resolved;
-    if (debugNote) debugNote.textContent = `Đã lấy email: ${resolved}`;
-  } else if (debugNote) {
-    const authEmail = auth?.currentUser?.email || "";
-    const providerEmail = Array.isArray(user?.providerData)
-      ? user.providerData.map((item) => item?.email || "").find(Boolean)
-      : "";
-    const cached = (() => {
-      try {
-        return localStorage.getItem(LAST_EMAIL_KEY) || "";
-      } catch (_) {
-        return "";
-      }
-    })();
-    debugNote.textContent =
-      `Chưa lấy được email. auth=${authEmail || "rỗng"}, provider=${providerEmail || "rỗng"}, cache=${cached || "rỗng"}`;
-  }
-}
-
 async function ensureEmailVisible(profile = {}, user = null) {
-  fillEmailField(profile, user);
+  profile = profile || {};
   const form = $("#profileForm");
   const emailInput = form?.querySelector('[name="email"]');
+  if (!emailInput) return;
+
+  const syncEmail = resolveUserEmail(profile, user);
+  if (syncEmail) {
+    emailInput.value = syncEmail;
+  }
+
   const asyncEmail = await resolveUserEmailAsync(profile, user);
-  if (asyncEmail && emailInput) {
+  if (asyncEmail) {
     emailInput.value = asyncEmail;
     try {
       localStorage.setItem(LAST_EMAIL_KEY, asyncEmail);
     } catch (_) {}
-    const debugNote = $("#emailDebugNote");
-    if (debugNote) debugNote.textContent = `Đã lấy email async: ${asyncEmail}`;
   }
-  if (!emailInput?.value && user?.reload) {
+
+  if (!emailInput.value && user?.reload) {
     try {
       await user.reload();
     } catch (_) {}
     const refreshedUser = auth.currentUser || user;
     const refreshedEmail = await resolveUserEmailAsync(profile, refreshedUser);
-    if (emailInput && refreshedEmail) {
+    if (refreshedEmail) {
       emailInput.value = refreshedEmail;
       try {
         localStorage.setItem(LAST_EMAIL_KEY, refreshedEmail);
       } catch (_) {}
-      const debugNote = $("#emailDebugNote");
-      if (debugNote) debugNote.textContent = `Đã lấy email sau reload: ${refreshedEmail}`;
-    } else {
-      fillEmailField(profile, refreshedUser);
     }
   }
 
-  if (emailInput?.value) return;
+  if (emailInput.value) return;
 
   let attempts = 0;
   const timer = setInterval(() => {
     attempts += 1;
-    fillEmailField(profile, auth.currentUser || user || window.__TAEDU_LAST_USER || null);
-    if (emailInput?.value || attempts >= 8) {
+    const value = resolveUserEmail(profile, auth.currentUser || user || window.__TAEDU_LAST_USER || null);
+    if (value) {
+      emailInput.value = value;
+      clearInterval(timer);
+      return;
+    }
+    if (attempts >= 8) {
       clearInterval(timer);
     }
   }, 300);
@@ -300,6 +291,11 @@ async function loadExistingProfile(user) {
   try {
     const token = await user.getIdToken();
     const response = await getProfile(token);
+    try {
+      if (response?.profile && user?.uid) {
+        localStorage.setItem(PROFILE_CACHE_KEY(user.uid), JSON.stringify(response.profile));
+      }
+    } catch (_) {}
     return response?.profile || null;
   } catch (error) {
     console.warn("loadExistingProfile failed", error);
@@ -332,19 +328,27 @@ async function saveProfile(form) {
 
   try {
     const formData = new FormData(form);
-    const selectedRole = (formData.get("role") || "").toString().trim();
     const payload = {
       display_name: (formData.get("display_name") || "").toString().trim(),
       full_name: (formData.get("full_name") || "").toString().trim(),
+      gender: (formData.get("gender") || "").toString().trim(),
       student_grade: (formData.get("student_grade") || "").toString().trim(),
       email: resolveUserEmail({}, currentUser) || (formData.get("email") || "").toString().trim(),
       student_phone: (formData.get("student_phone") || "").toString().trim(),
-      role: selectedRole,
+      role: (formData.get("role") || "").toString().trim(),
       verify_status: "approved",
       verify_note: null,
     };
 
-    if (!payload.role || !payload.display_name || !payload.full_name || !payload.student_grade || !payload.email || !payload.student_phone) {
+    if (
+      !payload.role ||
+      !payload.display_name ||
+      !payload.full_name ||
+      !payload.gender ||
+      !payload.student_grade ||
+      !payload.email ||
+      !payload.student_phone
+    ) {
       toast("Vui lòng chọn vai trò và nhập đầy đủ Biệt danh, Họ và tên, Lớp, Email và Số điện thoại.");
       return;
     }
@@ -362,11 +366,17 @@ async function saveProfile(form) {
     }
 
     const token = await currentUser.getIdToken();
-    await updateProfile(token, payload);
+    const response = await updateProfile(token, payload);
+    const savedProfile = {
+      ...payload,
+      ...(response?.profile || {}),
+      email: emailValidation.value,
+    };
 
     try {
       localStorage.setItem(`taedu:role:${currentUser.uid}`, payload.role);
       localStorage.setItem(`taedu:profile-complete:${currentUser.uid}`, "1");
+      localStorage.setItem(PROFILE_CACHE_KEY(currentUser.uid), JSON.stringify(savedProfile));
     } catch (_) {}
 
     setStep("success");
@@ -390,7 +400,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initGradePicker(form);
 
   const user = await initUser();
-  const profile = await loadExistingProfile(user);
+  const profile = (await loadExistingProfile(user)) || {};
   fillForm(profile, user);
   await ensureEmailVisible(profile, user);
 

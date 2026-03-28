@@ -7,8 +7,9 @@ const {
   moderateTextFields,
   sanitizeTagList,
   sanitizeImageData,
+  sanitizeImageDataList,
   isAdminProfile,
-  moderateWithOpenAI,
+  moderateWithGemini,
 } = require("../lib/communityModeration");
 const {
   enforceTrustAction,
@@ -18,45 +19,153 @@ const {
 } = require("../lib/trustScore");
 
 const PAGE_LIMIT = 30;
+const DAILY_IMAGE_LIMIT = 10;
+const DAILY_IMAGE_TIMEZONE = "Asia/Saigon";
 
 async function fetchUserProfile(uid) {
   if (!uid) return null;
   const result = await query(
-    "SELECT display_name, photo_url, role, trust_points, trust_history FROM user_profiles WHERE uid = $1",
+    "SELECT display_name, photo_url, role, gender, trust_points, trust_history FROM user_profiles WHERE uid = $1",
     [uid]
   );
   return result.rowCount ? result.rows[0] : null;
 }
 
-function mapPostRow(row, commentsMap, likeMap, likedSet) {
+async function fetchProfilesByUids(uids = []) {
+  const clean = Array.from(new Set((uids || []).filter(Boolean)));
+  if (!clean.length) return new Map();
+  const result = await query(
+    "SELECT uid, display_name, photo_url, role, gender FROM user_profiles WHERE uid = ANY($1::text[])",
+    [clean]
+  );
+  const profileMap = new Map();
+  result.rows.forEach((row) => profileMap.set(row.uid, row));
+  return profileMap;
+}
+
+function mapPostRow(row, commentsMap, likeMap, likedSet, profileMap = new Map()) {
+  const liveProfile = profileMap.get(row.user_uid);
+  const imageUrls =
+    (Array.isArray(row.image_urls) && row.image_urls.filter(Boolean)) ||
+    (row.image_url ? [row.image_url] : []);
   return {
     id: row.id,
     title: row.title,
     body: row.body,
     tags: row.tags || [],
-    image_url: row.image_url,
+    image_url: imageUrls[0] || row.image_url || null,
+    image_urls: imageUrls,
     likes: Number(likeMap.get(row.id) || 0),
     liked: likedSet ? likedSet.has(row.id) : false,
     created_at: row.created_at,
     author: {
-      name: row.author_name,
-      avatar: row.author_avatar,
-      role: row.author_role,
+      uid: row.user_uid,
+      name: liveProfile?.display_name || row.author_name,
+      avatar: liveProfile?.photo_url || row.author_avatar,
+      role: liveProfile?.role || row.author_role,
+      gender: liveProfile?.gender || null,
     },
     comments: commentsMap.get(row.id) || [],
   };
 }
 
-function mapCommentRow(row) {
+function mapCommentRow(row, profileMap = new Map()) {
+  const liveProfile = profileMap.get(row.user_uid);
+  const imageUrls =
+    (Array.isArray(row.image_urls) && row.image_urls.filter(Boolean)) ||
+    (row.image_url ? [row.image_url] : []);
   return {
     id: row.id,
+    post_id: row.post_id,
+    parent_comment_id: row.parent_comment_id,
     content: row.content,
+    image_url: imageUrls[0] || row.image_url || null,
+    image_urls: imageUrls,
     created_at: row.created_at,
     author: {
-      name: row.author_name,
-      avatar: row.author_avatar,
-      role: row.author_role,
+      uid: row.user_uid,
+      name: liveProfile?.display_name || row.author_name,
+      avatar: liveProfile?.photo_url || row.author_avatar,
+      role: liveProfile?.role || row.author_role,
+      gender: liveProfile?.gender || null,
     },
+    replies: [],
+  };
+}
+
+function buildCommentTree(rows, profileMap = new Map()) {
+  const commentsById = new Map();
+  const roots = [];
+
+  rows.forEach((row) => {
+    const mapped = mapCommentRow(row, profileMap);
+    commentsById.set(mapped.id, mapped);
+  });
+
+  rows.forEach((row) => {
+    const mapped = commentsById.get(row.id);
+    const parentId = row.parent_comment_id;
+    if (parentId && commentsById.has(parentId)) {
+      commentsById.get(parentId).replies.push(mapped);
+    } else {
+      roots.push(mapped);
+    }
+  });
+
+  return roots;
+}
+
+function normalizeImageInputs(body = {}) {
+  const fromList = Array.isArray(body.imageDataList) ? body.imageDataList : [];
+  const fallback = body.imageData ? [body.imageData] : [];
+  const merged = [...fromList, ...fallback].filter(Boolean);
+  return Array.from(new Set(merged));
+}
+
+async function getTodayImageUsage(uid) {
+  if (!uid) return 0;
+  const sql = `
+    WITH usage_rows AS (
+      SELECT COALESCE(array_length(image_urls, 1), CASE WHEN image_url IS NOT NULL THEN 1 ELSE 0 END, 0) AS total
+      FROM qa_posts
+      WHERE user_uid = $1
+        AND (created_at AT TIME ZONE '${DAILY_IMAGE_TIMEZONE}')::date = (NOW() AT TIME ZONE '${DAILY_IMAGE_TIMEZONE}')::date
+      UNION ALL
+      SELECT COALESCE(array_length(image_urls, 1), CASE WHEN image_url IS NOT NULL THEN 1 ELSE 0 END, 0) AS total
+      FROM qa_comments
+      WHERE user_uid = $1
+        AND (created_at AT TIME ZONE '${DAILY_IMAGE_TIMEZONE}')::date = (NOW() AT TIME ZONE '${DAILY_IMAGE_TIMEZONE}')::date
+    )
+    SELECT COALESCE(SUM(total), 0) AS total FROM usage_rows
+  `;
+  const result = await query(sql, [uid]);
+  return Number(result.rows?.[0]?.total || 0);
+}
+
+async function enforceDailyImageQuota(uid, requestedCount) {
+  const count = Number(requestedCount || 0);
+  if (!count) {
+    return { ok: true, used: await getTodayImageUsage(uid), remaining: DAILY_IMAGE_LIMIT };
+  }
+  const used = await getTodayImageUsage(uid);
+  const nextTotal = used + count;
+  if (nextTotal > DAILY_IMAGE_LIMIT) {
+    return {
+      ok: false,
+      code: "daily_image_limit_reached",
+      message: `Mỗi ngày bạn chỉ được đăng tối đa ${DAILY_IMAGE_LIMIT} ảnh cho cả bài viết và bình luận.`,
+      used,
+      requested: count,
+      remaining: Math.max(0, DAILY_IMAGE_LIMIT - used),
+      limit: DAILY_IMAGE_LIMIT,
+    };
+  }
+  return {
+    ok: true,
+    used,
+    requested: count,
+    remaining: Math.max(0, DAILY_IMAGE_LIMIT - nextTotal),
+    limit: DAILY_IMAGE_LIMIT,
   };
 }
 
@@ -73,13 +182,22 @@ router.get("/", async (req, res) => {
     let likedSet = null;
 
     if (ids.length) {
+      const profileUids = posts.rows.map((row) => row.user_uid).filter(Boolean);
       const comments = await query(
         "SELECT * FROM qa_comments WHERE post_id = ANY($1::int[]) ORDER BY created_at ASC",
         [ids]
       );
       comments.rows.forEach((row) => {
-        if (!commentsMap.has(row.post_id)) commentsMap.set(row.post_id, []);
-        commentsMap.get(row.post_id).push(mapCommentRow(row));
+        if (row.user_uid) profileUids.push(row.user_uid);
+      });
+      const profileMap = await fetchProfilesByUids(profileUids);
+      const commentsByPost = new Map();
+      comments.rows.forEach((row) => {
+        if (!commentsByPost.has(row.post_id)) commentsByPost.set(row.post_id, []);
+        commentsByPost.get(row.post_id).push(row);
+      });
+      commentsByPost.forEach((rows, postIdValue) => {
+        commentsMap.set(postIdValue, buildCommentTree(rows, profileMap));
       });
 
       const likes = await query(
@@ -96,6 +214,10 @@ router.get("/", async (req, res) => {
         );
         likedRows.rows.forEach((row) => likedSet.add(row.post_id));
       }
+
+      return res.json({
+        posts: posts.rows.map((row) => mapPostRow(row, commentsMap, likesMap, likedSet, profileMap)),
+      });
     }
 
     res.json({ posts: posts.rows.map((row) => mapPostRow(row, commentsMap, likesMap, likedSet)) });
@@ -106,7 +228,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", requireUser, async (req, res) => {
-  const { title, body, tags, imageData } = req.body || {};
+  const { title, body, tags } = req.body || {};
+  const imageDataList = normalizeImageInputs(req.body || {});
   if (!title || !body) {
     return res.status(400).json({ error: "missing_title_body", message: "Thieu tieu de hoac noi dung." });
   }
@@ -114,7 +237,7 @@ router.post("/", requireUser, async (req, res) => {
   try {
     const trustGate = await enforceTrustAction(req.user.uid, {
       action: "post",
-      withImage: Boolean(imageData),
+      withImage: imageDataList.length > 0,
     });
     if (!trustGate.ok) {
       return res.status(403).json({
@@ -139,21 +262,32 @@ router.post("/", requireUser, async (req, res) => {
       });
     }
 
-    const imageResult = imageData ? sanitizeImageData(imageData) : { ok: true, value: null };
-    if (!imageResult.ok) {
-      return res.status(400).json({ error: imageResult.code, message: imageResult.message });
+    const imageListResult = sanitizeImageDataList(imageDataList);
+    if (!imageListResult.ok) {
+      return res.status(400).json({ error: imageListResult.code, message: imageListResult.message });
     }
 
-    const aiModeration = await moderateWithOpenAI({
+    const dailyQuota = await enforceDailyImageQuota(req.user.uid, imageListResult.value.length);
+    if (!dailyQuota.ok) {
+      return res.status(400).json({
+        error: dailyQuota.code,
+        message: dailyQuota.message,
+        used: dailyQuota.used,
+        remaining: dailyQuota.remaining,
+        limit: dailyQuota.limit,
+      });
+    }
+
+    const aiModeration = await moderateWithGemini({
       texts: [title, body, ...(Array.isArray(tags) ? tags : [])],
-      imageData: imageResult.value,
+      imageDataList: imageListResult.value,
     });
-    if (!aiModeration.ok) {
+    if (!aiModeration.ok && aiModeration.code !== "moderation_service_error") {
       let trust = trustGate.trust;
       if (aiModeration.code === "moderated_by_ai") {
         const trustProfile = await applyTrustPenalty(
           req.user.uid,
-          imageResult.value ? "sensitive_image" : "profanity",
+          imageListResult.value.length ? "sensitive_image" : "profanity",
           { action: "post" }
         );
         trust = trustProfile?.trust_points ?? trust;
@@ -165,14 +299,17 @@ router.post("/", requireUser, async (req, res) => {
         trust,
       });
     }
+    if (!aiModeration.ok && aiModeration.code === "moderation_service_error") {
+      console.warn("qa POST moderation soft-failed", aiModeration.message);
+    }
 
     const profile = await fetchUserProfile(req.user.uid);
     const authorName = profile?.display_name || req.user.name || req.user.email || "Nguoi dung";
     const authorAvatar = profile?.photo_url || req.user.picture || null;
     const authorRole = profile?.role || req.user.role || null;
     const result = await query(
-      `INSERT INTO qa_posts (user_uid, title, body, tags, author_name, author_avatar, author_role, image_url)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      `INSERT INTO qa_posts (user_uid, title, body, tags, author_name, author_avatar, author_role, image_url, image_urls)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         req.user.uid,
         String(title).trim(),
@@ -181,7 +318,8 @@ router.post("/", requireUser, async (req, res) => {
         authorName,
         authorAvatar,
         authorRole,
-        imageResult.value,
+        imageListResult.value[0] || null,
+        imageListResult.value.length ? imageListResult.value : null,
       ]
     );
     const trustProfile = await rewardCleanContribution(req.user.uid, "post");
@@ -204,15 +342,17 @@ router.post("/:id/comments", requireUser, async (req, res) => {
     return res.status(400).json({ error: "invalid_post_id", message: "ID bai dang khong hop le." });
   }
 
-  const { content } = req.body || {};
-  if (!content || !String(content).trim()) {
-    return res.status(400).json({ error: "missing_content", message: "Noi dung binh luan dang trong." });
+  const { content, parentCommentId } = req.body || {};
+  const imageDataList = normalizeImageInputs(req.body || {});
+  const commentText = String(content || "").trim();
+  if (!commentText && !imageDataList.length) {
+    return res.status(400).json({ error: "missing_content", message: "Binh luan can co noi dung hoac hinh anh." });
   }
 
   try {
     const trustGate = await enforceTrustAction(req.user.uid, {
       action: "comment",
-      withImage: false,
+      withImage: imageDataList.length > 0,
     });
     if (!trustGate.ok) {
       return res.status(403).json({
@@ -223,21 +363,46 @@ router.post("/:id/comments", requireUser, async (req, res) => {
       });
     }
 
-    const moderation = moderateTextFields([{ label: "binh luan", value: content }]);
-    if (!moderation.ok) {
-      const trustProfile = await applyTrustPenalty(req.user.uid, "profanity", { action: "comment" });
+    if (commentText) {
+      const moderation = moderateTextFields([{ label: "binh luan", value: commentText }]);
+      if (!moderation.ok) {
+        const trustProfile = await applyTrustPenalty(req.user.uid, "profanity", { action: "comment" });
+        return res.status(400).json({
+          error: moderation.code,
+          message: moderation.message,
+          trust: trustProfile?.trust_points ?? trustGate.trust,
+        });
+      }
+    }
+
+    const imageListResult = sanitizeImageDataList(imageDataList);
+    if (!imageListResult.ok) {
+      return res.status(400).json({ error: imageListResult.code, message: imageListResult.message });
+    }
+
+    const dailyQuota = await enforceDailyImageQuota(req.user.uid, imageListResult.value.length);
+    if (!dailyQuota.ok) {
       return res.status(400).json({
-        error: moderation.code,
-        message: moderation.message,
-        trust: trustProfile?.trust_points ?? trustGate.trust,
+        error: dailyQuota.code,
+        message: dailyQuota.message,
+        used: dailyQuota.used,
+        remaining: dailyQuota.remaining,
+        limit: dailyQuota.limit,
       });
     }
 
-    const aiModeration = await moderateWithOpenAI({ texts: [content] });
-    if (!aiModeration.ok) {
+    const aiModeration = await moderateWithGemini({
+      texts: commentText ? [commentText] : [],
+      imageDataList: imageListResult.value,
+    });
+    if (!aiModeration.ok && aiModeration.code !== "moderation_service_error") {
       let trust = trustGate.trust;
       if (aiModeration.code === "moderated_by_ai") {
-        const trustProfile = await applyTrustPenalty(req.user.uid, "profanity", { action: "comment" });
+        const trustProfile = await applyTrustPenalty(
+          req.user.uid,
+          imageListResult.value.length ? "sensitive_image" : "profanity",
+          { action: "comment" }
+        );
         trust = trustProfile?.trust_points ?? trust;
       }
       const status = aiModeration.code === "moderation_service_error" ? 503 : 400;
@@ -246,6 +411,9 @@ router.post("/:id/comments", requireUser, async (req, res) => {
         message: aiModeration.message,
         trust,
       });
+    }
+    if (!aiModeration.ok && aiModeration.code === "moderation_service_error") {
+      console.warn("qa comment moderation soft-failed", aiModeration.message);
     }
 
     const profile = await fetchUserProfile(req.user.uid);
@@ -257,10 +425,35 @@ router.post("/:id/comments", requireUser, async (req, res) => {
       return res.status(404).json({ error: "post_not_found", message: "Khong tim thay bai dang." });
     }
 
+    let parentId = null;
+    if (parentCommentId != null && parentCommentId !== "") {
+      parentId = Number(parentCommentId);
+      if (!parentId) {
+        return res.status(400).json({ error: "invalid_parent_comment_id", message: "ID binh luan goc khong hop le." });
+      }
+      const parentCheck = await query(
+        "SELECT id FROM qa_comments WHERE id = $1 AND post_id = $2",
+        [parentId, postId]
+      );
+      if (!parentCheck.rowCount) {
+        return res.status(404).json({ error: "parent_comment_not_found", message: "Khong tim thay binh luan can tra loi." });
+      }
+    }
+
     const result = await query(
-      `INSERT INTO qa_comments (post_id, user_uid, content, author_name, author_avatar, author_role)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [postId, req.user.uid, String(content).trim(), authorName, authorAvatar, authorRole]
+      `INSERT INTO qa_comments (post_id, parent_comment_id, user_uid, content, image_url, image_urls, author_name, author_avatar, author_role)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [
+        postId,
+        parentId,
+        req.user.uid,
+        commentText,
+        imageListResult.value[0] || null,
+        imageListResult.value.length ? imageListResult.value : null,
+        authorName,
+        authorAvatar,
+        authorRole,
+      ]
     );
     const trustProfile = await rewardCleanContribution(req.user.uid, "comment");
     const trust = trustProfile?.trust_points ?? trustGate.trust;
@@ -317,13 +510,13 @@ router.delete("/:id", requireUser, async (req, res) => {
 
   try {
     const profile = await fetchUserProfile(req.user.uid);
-    if (!isAdminProfile(req.user, profile)) {
-      return res.status(403).json({ error: "forbidden", message: "Chi admin moi co quyen xoa bai dang." });
-    }
-
-    const existing = await query("SELECT id FROM qa_posts WHERE id = $1", [postId]);
+    const existing = await query("SELECT id, user_uid FROM qa_posts WHERE id = $1", [postId]);
     if (!existing.rowCount) {
       return res.status(404).json({ error: "post_not_found", message: "Khong tim thay bai dang." });
+    }
+    const canDelete = isAdminProfile(req.user, profile) || existing.rows[0].user_uid === req.user.uid;
+    if (!canDelete) {
+      return res.status(403).json({ error: "forbidden", message: "Ban khong co quyen xoa bai dang nay." });
     }
 
     await query("DELETE FROM qa_posts WHERE id = $1", [postId]);
@@ -343,16 +536,23 @@ router.delete("/:postId/comments/:commentId", requireUser, async (req, res) => {
 
   try {
     const profile = await fetchUserProfile(req.user.uid);
-    if (!isAdminProfile(req.user, profile)) {
-      return res.status(403).json({ error: "forbidden", message: "Chi admin moi co quyen xoa binh luan." });
-    }
-
     const existing = await query(
-      "SELECT id FROM qa_comments WHERE id = $1 AND post_id = $2",
+      `SELECT c.id, c.user_uid, p.user_uid AS post_owner_uid
+       FROM qa_comments c
+       JOIN qa_posts p ON p.id = c.post_id
+       WHERE c.id = $1 AND c.post_id = $2`,
       [commentId, postId]
     );
     if (!existing.rowCount) {
       return res.status(404).json({ error: "comment_not_found", message: "Khong tim thay binh luan." });
+    }
+    const row = existing.rows[0];
+    const canDelete =
+      isAdminProfile(req.user, profile) ||
+      row.user_uid === req.user.uid ||
+      row.post_owner_uid === req.user.uid;
+    if (!canDelete) {
+      return res.status(403).json({ error: "forbidden", message: "Ban khong co quyen xoa binh luan nay." });
     }
 
     await query("DELETE FROM qa_comments WHERE id = $1", [commentId]);

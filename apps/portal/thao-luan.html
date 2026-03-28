@@ -2,14 +2,194 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta http-equiv="refresh" content="0; url=/hoi-dap.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Đang chuyển hướng...</title>
-  <script>
-    window.location.replace("/hoi-dap.html");
-  </script>
+  <title>TA-Edu • Thảo luận</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/taedu_global.css" />
+  <link rel="stylesheet" href="css/css_menu.css" />
+  <link rel="stylesheet" href="css/thao-luan.css?v=20260327f" />
 </head>
 <body>
-  <p>Dang chuyen sang trang cong dong...</p>
+  <div id="ta-header"></div>
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script type="module" src="/js/core/boot_header.js"></script>
+  <script type="module" src="/js/core/menu_toggle.js"></script>
+
+  <main class="discussion-shell">
+    <header class="discussion-header">
+      <h1><i class="fa-solid fa-comments"></i> Cộng đồng thảo luận</h1>
+    </header>
+
+    <div class="discussion-grid">
+      <section class="discussion-main">
+        <section class="discussion-card">
+          <div class="quick-composer">
+            <div class="composer-row">
+              <img id="composerAvatar" src="/assets/default_avatar.svg" alt="Avatar người dùng">
+              <button type="button" class="composer-input" data-post-action="open">Đặt câu hỏi, chia sẻ mẹo học, hoặc mở chủ đề mới</button>
+            </div>
+            <div class="auth-guard" id="postAuthGuard">
+              <p>Vui lòng <button class="btn--text" type="button" data-auth-action="login">đăng nhập</button> để đăng bài.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="discussion-feed" id="discussionFeed"></section>
+      </section>
+
+      <aside class="discussion-aside">
+        <section class="discussion-card suggestions-card">
+          <h3>Nổi bật trong cộng đồng</h3>
+          <ul id="discussionSuggestions" class="suggestion-list">
+            <li>Đang tải gợi ý...</li>
+          </ul>
+        </section>
+
+        <section class="discussion-card tips-card">
+          <h3>Quy tắc đăng bài</h3>
+          <ul>
+            <li>Đặt tiêu đề rõ ràng, đi thẳng vào vấn đề hoặc chủ đề trao đổi.</li>
+            <li>Không dùng từ ngữ tục tĩu, công kích, hoặc nội dung phản cảm.</li>
+            <li>Ảnh đính kèm sẽ được kiểm tra trước khi bài được đăng.</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div id="postModalBackdrop" class="tt-modal-backdrop" hidden></div>
+  <div id="postModal" class="tt-modal" hidden>
+    <form id="postForm" class="tt-modal-card post-modal-card">
+      <header>
+        <div>
+          <h3>Tạo bài đăng thảo luận</h3>
+          <p>Đặt câu hỏi, chia sẻ tài liệu, hoặc mở chủ đề để mọi người cùng trao đổi.</p>
+        </div>
+        <button type="button" class="modal-close-btn" data-post-modal="close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </header>
+
+      <label class="field-block">
+        <span>Tiêu đề</span>
+        <input type="text" id="postTitle" placeholder="Nhập tiêu đề bài viết..." required />
+      </label>
+
+      <div class="post-form-grid">
+        <label class="field-block">
+          <span>Môn</span>
+          <select id="postSubject" required>
+            <option value="">Chọn môn</option>
+            <option value="Toán">Toán</option>
+            <option value="Ngữ văn">Ngữ văn</option>
+            <option value="Tiếng Anh">Tiếng Anh</option>
+            <option value="Vật lý">Vật lý</option>
+            <option value="Hóa học">Hóa học</option>
+            <option value="Sinh học">Sinh học</option>
+            <option value="Lịch sử">Lịch sử</option>
+            <option value="Địa lý">Địa lý</option>
+            <option value="GDCD">GDCD</option>
+            <option value="KTPL">KTPL</option>
+            <option value="Tin học">Tin học</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </label>
+
+        <label class="field-block">
+          <span>Lớp</span>
+          <select id="postGrade" required>
+            <option value="">Chọn lớp</option>
+            <option value="10">Lớp 10</option>
+            <option value="11">Lớp 11</option>
+            <option value="12">Lớp 12</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field-block">
+        <span>Nội dung</span>
+        <textarea id="postBody" placeholder="Nhập nội dung bài đăng..." required></textarea>
+      </label>
+
+      <label class="field-block">
+        <span>Từ khóa</span>
+        <input type="text" id="postTags" placeholder="Ví dụ: ôn thi, đề minh họa, mẹo học..." />
+      </label>
+
+      <label class="file-input">
+        <i class="fa-solid fa-image"></i>
+        <input type="file" id="postImage" accept="image/png,image/jpeg,image/webp" multiple hidden />
+        <span id="fileName">Thêm hình ảnh</span>
+      </label>
+
+      <p class="hint">Chỉ hỗ trợ JPG, PNG, WebP. Có thể chọn nhiều ảnh một lần. Mỗi tài khoản tối đa 10 ảnh/ngày cho cả bài viết và bình luận.</p>
+
+      <div id="imagePreviewContainer" class="image-preview-container" hidden></div>
+
+      <div class="post-form__footer">
+        <button type="submit" class="btn btn-primary">Đăng bài</button>
+      </div>
+    </form>
+  </div>
+
+  <div id="confirmModalBackdrop" class="tt-modal-backdrop" hidden></div>
+  <div id="confirmModal" class="tt-modal confirm-modal" hidden>
+      <div class="tt-modal-card confirm-modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+        <header>
+          <div>
+            <h3 id="confirmModalTitle">Xác nhận thao tác</h3>
+            <p id="confirmModalMessage">Bạn có chắc chắn muốn tiếp tục?</p>
+          </div>
+          <button type="button" class="modal-close-btn" data-confirm-close>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </header>
+        <div id="reportFields" class="confirm-modal__fields" hidden>
+          <label class="field-block">
+            <span>Lý do tố cáo</span>
+            <input type="text" id="reportReasonInput" placeholder="Ví dụ: ngôn từ phản cảm..." />
+          </label>
+          <label class="field-block">
+            <span>Mô tả thêm (tùy chọn)</span>
+            <textarea id="reportDetailInput" rows="3" placeholder="Mô tả chi tiết hơn..."></textarea>
+          </label>
+        </div>
+        <div class="confirm-modal__actions">
+          <button type="button" class="btn btn-ghost" data-confirm-cancel>Hủy</button>
+          <button type="button" class="btn btn-danger" id="confirmModalAccept">Xóa</button>
+        </div>
+      </div>
+  </div>
+
+  <div id="imageLightboxBackdrop" class="tt-modal-backdrop image-lightbox-backdrop" hidden></div>
+  <div id="imageLightbox" class="tt-modal image-lightbox" hidden>
+    <div class="image-lightbox__card" role="dialog" aria-modal="true" aria-label="Xem ảnh bài viết">
+      <div class="image-lightbox__actions image-lightbox__toolbar">
+        <button type="button" class="btn btn-ghost btn-mini" id="imageLightboxZoomOut">
+          <i class="fa-solid fa-magnifying-glass-minus"></i>
+          Thu nhỏ
+        </button>
+        <button type="button" class="btn btn-ghost btn-mini" id="imageLightboxZoomIn">
+          <i class="fa-solid fa-magnifying-glass-plus"></i>
+          Phóng to
+        </button>
+        <a id="imageLightboxDownload" class="btn btn-ghost btn-mini" href="#" download="ta-edu-image.jpg">
+          <i class="fa-solid fa-download"></i>
+          Tải ảnh
+        </a>
+        <button type="button" class="btn btn-primary btn-mini" data-lightbox-close>
+          <i class="fa-solid fa-xmark"></i>
+          Đóng
+        </button>
+      </div>
+      <div id="imageLightboxViewport" class="image-lightbox__viewport">
+        <img id="imageLightboxImg" src="" alt="Ảnh bài viết phóng to">
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="discussionToast" role="status" aria-live="polite"></div>
+  <script type="module" src="/js/modules/thao-luan.js?v=20260327d"></script>
 </body>
 </html>

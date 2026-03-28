@@ -21,7 +21,6 @@ const BLOCKED_WORDS = [
   "đéo",
   "deo",
   "đĩ",
-  "di~",
   "đĩ điếm",
   "cho chet",
   "óc chó",
@@ -31,13 +30,13 @@ const BLOCKED_WORDS = [
   "ngu lol",
   "ngu lon",
   "súc vật",
-  "suc vat"
+  "suc vat",
 ];
 
 const ALLOWED_IMAGE_PREFIXES = [
   "data:image/jpeg;base64,",
   "data:image/png;base64,",
-  "data:image/webp;base64,"
+  "data:image/webp;base64,",
 ];
 
 function normalizeText(text = "") {
@@ -92,65 +91,147 @@ function sanitizeImageData(raw) {
   return { ok: true, value: trimmed };
 }
 
-async function moderateWithOpenAI({ texts = [], imageData = null } = {}) {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) return { ok: true, provider: "local-only", skipped: true };
-
-  const input = [];
-  texts
-    .map((text) => String(text || "").trim())
-    .filter(Boolean)
-    .forEach((text) => {
-      input.push({ type: "text", text });
-    });
-
-  if (imageData) {
-    input.push({
-      type: "image_url",
-      image_url: { url: imageData },
-    });
+function sanitizeImageDataList(rawList) {
+  if (!Array.isArray(rawList)) return { ok: true, value: [] };
+  const clean = [];
+  for (const item of rawList) {
+    const result = sanitizeImageData(item);
+    if (!result) {
+      return { ok: false, code: "invalid_image_type", message: "Ảnh phải là JPG, PNG hoặc WebP." };
+    }
+    if (!result.ok) return result;
+    if (result.value) clean.push(result.value);
   }
+  return { ok: true, value: clean };
+}
 
-  if (!input.length) return { ok: true, provider: "openai", skipped: true };
+function parseDataUrl(dataUrl = "") {
+  const match = String(dataUrl || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!match) return null;
+  return {
+    mimeType: match[1],
+    data: match[2],
+  };
+}
+
+function extractJsonObject(text = "") {
+  const raw = String(text || "").trim();
+  if (!raw) return null;
 
   try {
-    const response = await fetch("https://api.openai.com/v1/moderations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+    return JSON.parse(raw);
+  } catch (_) {}
+
+  const fenced = raw.match(/```json\s*([\s\S]*?)```/i) || raw.match(/```\s*([\s\S]*?)```/i);
+  if (fenced?.[1]) {
+    try {
+      return JSON.parse(fenced[1].trim());
+    } catch (_) {}
+  }
+
+  const start = raw.indexOf("{");
+  const end = raw.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    try {
+      return JSON.parse(raw.slice(start, end + 1));
+    } catch (_) {}
+  }
+
+  return null;
+}
+
+async function moderateWithGemini({ texts = [], imageData = null, imageDataList = null } = {}) {
+  const apiKey = (process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY || "").trim();
+  if (!apiKey) return { ok: true, provider: "local-only", skipped: true };
+
+  const cleanTexts = texts.map((text) => String(text || "").trim()).filter(Boolean);
+  const rawImages = Array.isArray(imageDataList) && imageDataList.length
+    ? imageDataList
+    : (imageData ? [imageData] : []);
+  const imageParts = rawImages.map((item) => parseDataUrl(item)).filter(Boolean);
+  if (!cleanTexts.length && !imageParts.length) {
+    return { ok: true, provider: "gemini", skipped: true };
+  }
+
+  const instruction = [
+    "You are a strict safety moderator for a Vietnamese education platform.",
+    "Review the provided text and image if present.",
+    "Flag sexual, pornographic, nude, gore, hateful, abusive, harassing, or otherwise unsafe content.",
+    "Return ONLY valid JSON with keys flagged (boolean), reason (string), categories (array of strings).",
+    "If content is safe, return flagged false and empty categories.",
+  ].join(" ");
+
+  const parts = [{ text: instruction }];
+  cleanTexts.forEach((text, index) => {
+    parts.push({ text: `TEXT_${index + 1}: ${text}` });
+  });
+  imageParts.forEach((imagePart, index) => {
+    parts.push({ text: `IMAGE_${index + 1}` });
+    parts.push({
+      inline_data: {
+        mime_type: imagePart.mimeType,
+        data: imagePart.data,
       },
-      body: JSON.stringify({
-        model: "omni-moderation-latest",
-        input,
-      }),
     });
+  });
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts }],
+          generationConfig: {
+            temperature: 0,
+            responseMimeType: "application/json",
+          },
+        }),
+      }
+    );
 
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
       return {
         ok: false,
         code: "moderation_service_error",
-        message: payload?.error?.message || "Dịch vụ kiểm duyệt AI đang tạm lỗi.",
+        message: payload?.error?.message || "Dịch vụ kiểm duyệt Gemini đang tạm lỗi.",
       };
     }
 
-    const result = Array.isArray(payload?.results) ? payload.results[0] : null;
-    if (result?.flagged) {
+    const text =
+      payload?.candidates?.[0]?.content?.parts
+        ?.map((part) => part?.text || "")
+        .join("\n") || "";
+    const parsed = extractJsonObject(text);
+    if (!parsed) {
+      return {
+        ok: false,
+        code: "moderation_service_error",
+        message: "Gemini trả về kết quả kiểm duyệt không hợp lệ.",
+      };
+    }
+
+    if (parsed.flagged) {
       return {
         ok: false,
         code: "moderated_by_ai",
-        message: "Nội dung hoặc hình ảnh bị hệ thống AI đánh dấu là không phù hợp.",
-        categories: result.categories || {},
+        message: parsed.reason || "Nội dung hoặc hình ảnh bị Gemini đánh dấu là không phù hợp.",
+        categories: Array.isArray(parsed.categories) ? parsed.categories : [],
       };
     }
 
-    return { ok: true, provider: "openai", categories: result?.categories || {} };
+    return {
+      ok: true,
+      provider: "gemini",
+      categories: Array.isArray(parsed.categories) ? parsed.categories : [],
+    };
   } catch (error) {
     return {
       ok: false,
       code: "moderation_service_error",
-      message: "Không thể kết nối dịch vụ kiểm duyệt AI.",
+      message: "Không thể kết nối dịch vụ kiểm duyệt Gemini.",
       detail: error?.message || String(error),
     };
   }
@@ -171,6 +252,8 @@ module.exports = {
   moderateTextFields,
   sanitizeTagList,
   sanitizeImageData,
+  sanitizeImageDataList,
   isAdminProfile,
-  moderateWithOpenAI,
+  moderateWithGemini,
+  moderateWithOpenAI: moderateWithGemini,
 };

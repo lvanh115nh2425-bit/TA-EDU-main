@@ -1,258 +1,241 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TA-Edu â€¢ Dashboard</title>
+  <title>TA-Edu • Dashboard</title>
 
-  <!-- Font & icon -->
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet"/>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="css/taedu_global.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
   <link rel="stylesheet" href="./css/css_menu.css">
 </head>
 <body>
-  <!-- Header sáº½ Ä‘Æ°á»£c boot_header.js chÃ¨n vÃ o -->
+  <!-- Header sẽ được boot_header.js chèn vào -->
 
   <main class="dash container">
-    <!-- Sidebar -->
-    <aside class="dash__sidebar" id="dashSidebar" aria-label="Thanh Ä‘iá»u hÆ°á»›ng Dashboard">
+    <aside class="dash__sidebar" id="dashSidebar" aria-label="Thanh điều hướng Dashboard">
       <div class="user-card">
         <img id="dashAvatar" class="user-card__avatar" src="assets/default_avatar.svg" alt="Avatar">
         <div class="user-card__meta">
-          <div id="dashName" class="user-card__name">NgÆ°á»i dÃ¹ng</div>
-          <div id="dashRole" class="user-card__role badge">Há»c sinh</div>
+          <div id="dashName" class="user-card__name">Người dùng</div>
+          <div id="dashRole" class="user-card__role badge">Học sinh</div>
           <div id="dashEmail" class="user-card__email">email@example.com</div>
         </div>
       </div>
 
-      <nav class="dash__nav" role="tablist" aria-label="Má»¥c chÃ­nh">
-        <a href="#tab=profile" class="nav-item" data-tab="profile"><i class="fa-regular fa-id-card"></i> <span>Há»“ sÆ¡</span></a>
-        <a href="#tab=courses" class="nav-item" data-tab="courses"><i class="fa-solid fa-book"></i> <span>KhoÃ¡ há»c</span></a>
-        <a href="#tab=progress" class="nav-item" data-tab="progress"><i class="fa-solid fa-chart-line"></i> <span>Tiáº¿n Ä‘á»™</span></a>
-        <a href="#tab=trust" class="nav-item" data-tab="trust"><i class="fa-solid fa-shield-heart"></i> <span>Äiá»ƒm uy tÃ­n</span></a>
-        <a href="#tab=settings" class="nav-item" data-tab="settings"><i class="fa-solid fa-gear"></i> <span>CÃ i Ä‘áº·t</span></a>
+      <nav class="dash__nav" role="tablist" aria-label="Mục chính">
+        <a href="#tab=profile" class="nav-item" data-tab="profile"><i class="fa-regular fa-id-card"></i> <span>Hồ sơ</span></a>
+        <a href="#tab=trust" class="nav-item" data-tab="trust"><i class="fa-solid fa-shield-heart"></i> <span>Điểm uy tín</span></a>
       </nav>
 
-      <button id="dashLogout" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> ÄÄƒng xuáº¥t</button>
+      <button id="dashLogout" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</button>
     </aside>
 
-    <!-- Content -->
     <section class="dash__content" id="dashContent">
-      <!-- PROFILE -->
       <article id="tab-profile" class="panel is-active" role="tabpanel" aria-labelledby="tab-profile" tabindex="0">
         <header class="panel__head">
-          <h2>Há»“ sÆ¡</h2>
-          <!-- KYC/Role status banner -->
+          <h2>Hồ sơ</h2>
           <div id="verifyBanner" class="notice" role="status" aria-live="polite" hidden>
-            <div class="notice__icon">ðŸ›¡ï¸</div>
+            <div class="notice__icon">🛡️</div>
             <div class="notice__body">
-              <h3 class="notice__title">Tráº¡ng thÃ¡i tÃ i khoáº£n</h3>
-              <p class="notice__text" id="verifyText">Äang táº£iâ€¦</p>
+              <h3 class="notice__title">Trạng thái tài khoản</h3>
+              <p class="notice__text" id="verifyText">Đang tải...</p>
               <div class="notice__actions">
-                <a id="verifyPrimary" class="btn btn--primary" href="#" hidden>Báº¯t Ä‘áº§u</a>
-                <button id="verifyDismiss" class="btn btn--ghost" type="button" hidden>áº¨n</button>
+                <a id="verifyPrimary" class="btn btn--primary" href="#" hidden>Bắt đầu</a>
+                <button id="verifyDismiss" class="btn btn--ghost" type="button" hidden>Ẩn</button>
               </div>
             </div>
           </div>
-
         </header>
         <div class="profile__wrap">
-          <img id="profileAvatar" class="profile__avatar" src="assets/default_avatar.svg" alt="Avatar">
-          <div class="profile__info">
-            <p><strong>TÃªn: </strong><span id="profileName">NgÆ°á»i dÃ¹ng</span></p>
-            <p><strong>Email: </strong><span id="profileEmail">email@example.com</span></p>
-            <p><strong>Vai trÃ²: </strong><span id="profileRole">Há»c sinh</span></p>
+          <div class="profile__avatar-col">
+            <img id="profileAvatar" class="profile__avatar" src="assets/default_avatar.svg" alt="Avatar">
+            <input id="profileAvatarInput" type="file" accept="image/*" hidden>
+            <button id="profileAvatarButton" type="button" class="profile__avatar-btn">Đổi ảnh đại diện</button>
+          </div>
+          <div class="profile__info profile__info-grid">
+            <div class="profile__field">
+              <span class="profile__label">Biệt danh</span>
+              <strong id="profileNickname">Người dùng</strong>
+            </div>
+            <div class="profile__field">
+              <span class="profile__label">Họ và tên</span>
+              <strong id="profileFullName">Chưa cập nhật</strong>
+            </div>
+            <div class="profile__field">
+              <span class="profile__label">Email</span>
+              <strong id="profileEmail">email@example.com</strong>
+            </div>
+            <div class="profile__field">
+              <span class="profile__label">Số điện thoại</span>
+              <strong id="profilePhone">Chưa cập nhật</strong>
+            </div>
+            <div class="profile__field">
+              <span class="profile__label">Lớp</span>
+              <strong id="profileGrade">Chưa cập nhật</strong>
+            </div>
+            <div class="profile__field">
+              <span class="profile__label">Vai trò</span>
+              <strong id="profileRole">Học sinh</strong>
+            </div>
           </div>
         </div>
       </article>
 
-      <!-- COURSES -->
-      <article id="tab-courses" class="panel" role="tabpanel" aria-labelledby="tab-courses" tabindex="0">
-        <header class="panel__head">
-          <h2>KhoÃ¡ há»c</h2>
-        </header>
-        <p>Danh sÃ¡ch khoÃ¡ há»c cá»§a báº¡n sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ã¢y.</p>
-        <div class="empty">
-          <i class="fa-solid fa-book-open"></i>
-          <p>ChÆ°a cÃ³ khoÃ¡ há»c nÃ o. <a href="mon/KTPL/ktpl_chonlop.html">Báº¯t Ä‘áº§u há»c lÃ½ thuyáº¿t</a></p>
-        </div>
-      </article>
-
-      <!-- PROGRESS -->
-      <article id="tab-progress" class="panel" role="tabpanel" aria-labelledby="tab-progress" tabindex="0">
-        <header class="panel__head">
-          <h2>Tiáº¿n Ä‘á»™</h2>
-        </header>
-        <div class="progress__card">
-          <div class="progress__row">
-            <span>Váº­t lÃ½</span>
-            <div class="bar"><div id="barPhysics" class="bar__fill" style="width:40%"></div></div>
-            <span id="pctPhysics" class="pct">40%</span>
-          </div>
-          <div class="progress__row">
-            <span>HoÃ¡ há»c</span>
-            <div class="bar"><div id="barChem" class="bar__fill" style="width:20%"></div></div>
-            <span id="pctChem" class="pct">20%</span>
-          </div>
-          <div class="progress__row">
-            <span>ToÃ¡n</span>
-            <div class="bar"><div id="barMath" class="bar__fill" style="width:65%"></div></div>
-            <span id="pctMath" class="pct">65%</span>
-          </div>
-        </div>
-      </article>
-
-      <!-- TRUST -->
       <article id="tab-trust" class="panel" role="tabpanel" aria-labelledby="tab-trust" tabindex="0">
         <header class="panel__head">
-          <h2>Äiá»ƒm uy tÃ­n</h2>
-          <p class="panel__sub">Káº¿t ná»‘i hÃ nh vi há»c táº­p, Ä‘Ã³ng gÃ³p cá»™ng Ä‘á»“ng vÃ  pháº£n há»“i tá»« giÃ¡o viÃªn Ä‘á»ƒ cháº¥m Ä‘iá»ƒm uy tÃ­n.</p>
+          <h2>Điểm uy tín</h2>
+          <p class="panel__sub">Kết nối hành vi học tập, đóng góp cộng đồng và phản hồi từ giáo viên để chấm điểm uy tín.</p>
         </header>
 
         <div class="panel__body trust">
           <section class="trust__summary card">
             <div class="trust__summary-row">
               <div>
-                <div class="trust__summary-label">Äiá»ƒm cÃ²n láº¡i</div>
+                <div class="trust__summary-label">Điểm còn lại</div>
                 <div class="trust__summary-amount" id="trustScore">100</div>
               </div>
               <div class="trust__status">
-                <span class="badge badge--level" id="trustState">An toÃ n</span>
-                <span class="trust__status-note" id="trustWarning">Äiá»ƒm á»•n Ä‘á»‹nh, báº¡n Ä‘ang dÃ¹ng Ä‘áº§y Ä‘á»§ tÃ­nh nÄƒng.</span>
+                <span class="badge badge--level" id="trustState">An toàn</span>
+                <span class="trust__status-note" id="trustWarning">Điểm ổn định, bạn đang dùng đầy đủ tính năng.</span>
               </div>
             </div>
-            <div class="trust__progress" role="img" aria-label="Äiá»ƒm cÃ²n láº¡i">
+            <div class="trust__progress" role="img" aria-label="Điểm còn lại">
               <div class="trust__progress-track">
                 <div class="trust__progress-fill" id="trustProgress" style="width:100%"></div>
               </div>
-              <span class="trust__progress-text" id="trustProgressText">100% Ä‘iá»ƒm cÃ²n láº¡i</span>
+              <span class="trust__progress-text" id="trustProgressText">100% điểm còn lại</span>
             </div>
-            <p class="trust__summary-note">Má»—i tÃ i khoáº£n báº¯t Ä‘áº§u vá»›i 100 Ä‘iá»ƒm uy tÃ­n. Äiá»ƒm chá»‰ bá»‹ trá»« khi vi pháº¡m quy Ä‘á»‹nh. DÆ°á»›i 50 Ä‘iá»ƒm: há»‡ thá»‘ng cÃ³ thá»ƒ khoÃ¡ cÃ¡c tÃ­nh nÄƒng nÃ¢ng cao.</p>
+            <p class="trust__summary-note">Mỗi tài khoản bắt đầu với 100 điểm uy tín. Điểm chỉ bị trừ khi vi phạm quy định. Dưới 50 điểm, hệ thống có thể khóa các tính năng nâng cao.</p>
           </section>
 
           <section class="trust__grid">
             <article class="trust__card card">
-              <h3><i class="fa-solid fa-shield-halved"></i> Quy táº¯c váº­n hÃ nh</h3>
+              <h3><i class="fa-solid fa-shield-halved"></i> Quy tắc vận hành</h3>
               <ul class="trust__bullets">
-                <li>Äiá»ƒm uy tÃ­n lÃ  quá»¹ báº£o vá»‡ tÃ i khoáº£n, chá»‰ bá»‹ trá»«, khÃ´ng cá»™ng thÃªm.</li>
-                <li>0 Ä‘iá»ƒm: tÃ i khoáº£n bá»‹ khoÃ¡ hÃ nh chÃ­nh.</li>
-                <li>50 Ä‘iá»ƒm: bá»‹ giá»›i háº¡n ná»™p bÃ i nhÃ³m, há»i tutor, bÃ¬nh luáº­n.</li>
-                <li>80+ Ä‘iá»ƒm: Ä‘Æ°á»£c xem lÃ  an toÃ n, váº«n dÃ¹ng toÃ n bá»™ tÃ­nh nÄƒng.</li>
+                <li>Điểm uy tín là quỹ bảo vệ tài khoản, chỉ bị trừ chứ không cộng thêm.</li>
+                <li>0 điểm: tài khoản bị khoá hành chính.</li>
+                <li>50 điểm: bị giới hạn nộp bài nhóm, hỏi tutor và bình luận.</li>
+                <li>80+ điểm: được xem là an toàn, vẫn dùng toàn bộ tính năng.</li>
               </ul>
             </article>
             <article class="trust__card card">
-              <h3><i class="fa-solid fa-triangle-exclamation"></i> Háº­u quáº£ khi Ä‘iá»ƒm tháº¥p</h3>
+              <h3><i class="fa-solid fa-triangle-exclamation"></i> Hậu quả khi điểm thấp</h3>
               <ul class="trust__bullets">
-                <li>70 Ä‘iá»ƒm: há»‡ thá»‘ng gá»­i cáº£nh bÃ¡o nháº¯c chá»‰nh sá»­a hÃ nh vi.</li>
-                <li>50 Ä‘iá»ƒm: khoÃ¡ táº¡m cÃ¡c tÃ­nh nÄƒng nÃ¢ng cao vÃ  Æ°u tiÃªn tutor.</li>
-                <li>30 Ä‘iá»ƒm: yÃªu cáº§u lÃ m cam káº¿t há»c táº­p vÃ  xÃ¡c minh thá»§ cÃ´ng.</li>
-                <li>0â€“20 Ä‘iá»ƒm: khoÃ¡ tÃ i khoáº£n, pháº£i liÃªn há»‡ há»— trá»£ Ä‘á»ƒ khÃ´i phá»¥c.</li>
+                <li>70 điểm: hệ thống gửi cảnh báo nhắc chỉnh sửa hành vi.</li>
+                <li>50 điểm: khoá tạm các tính năng nâng cao và ưu tiên tutor.</li>
+                <li>30 điểm: yêu cầu làm cam kết học tập và xác minh thủ công.</li>
+                <li>0-20 điểm: khoá tài khoản, phải liên hệ hỗ trợ để khôi phục.</li>
               </ul>
             </article>
           </section>
 
           <section class="trust__details">
             <article class="trust__card card">
-              <h3>Äiá»ƒm Uy TÃ­n lÃ  gÃ¬?</h3>
-              <p>Äiá»ƒm Uy TÃ­n lÃ  chá»‰ sá»‘ Ä‘Ã¡nh giÃ¡ má»©c Ä‘á»™ nghiÃªm tÃºc, tÃ­ch cá»±c vÃ  tin cáº­y cá»§a ngÆ°á»i há»c trong quÃ¡ trÃ¬nh tham gia há»‡ thá»‘ng. Chá»‰ sá»‘ nÃ y pháº£n Ã¡nh thÃ¡i Ä‘á»™ há»c táº­p, cháº¥t lÆ°á»£ng Ä‘Ã³ng gÃ³p vÃ  má»©c Ä‘á»™ tuÃ¢n thá»§ quy Ä‘á»‹nh.</p>
+              <h3>Điểm Uy Tín là gì?</h3>
+              <p>Điểm Uy Tín là chỉ số đánh giá mức độ nghiêm túc, tích cực và tin cậy của người học trong quá trình tham gia hệ thống. Chỉ số này phản ánh thái độ học tập, chất lượng đóng góp và mức độ tuân thủ quy định.</p>
             </article>
 
             <article class="trust__card card">
-              <h3>Äiá»ƒm Uy TÃ­n dÃ¹ng Ä‘á»ƒ lÃ m gÃ¬?</h3>
+              <h3>Điểm Uy Tín dùng để làm gì?</h3>
               <ul class="trust__bullets">
-                <li>XÃ¡c Ä‘á»‹nh má»©c Ä‘á»™ nghiÃªm tÃºc cá»§a há»c viÃªn.</li>
-                <li>Má»Ÿ khoÃ¡ cÃ¡c tÃ­nh nÄƒng nÃ¢ng cao (ná»™p bÃ i premium, lá»›p nÃ¢ng cao, há»i tutor nhanh hÆ¡n...).</li>
-                <li>Táº¡o Ä‘á»™ng lá»±c há»c táº­p, giÃºp giáº£m hÃ nh vi gian láº­n hoáº·c há»c cho cÃ³.</li>
+                <li>Xác định mức độ nghiêm túc của học viên.</li>
+                <li>Mở khoá các tính năng nâng cao như nộp bài premium, lớp nâng cao và hỏi tutor nhanh hơn.</li>
+                <li>Tạo động lực học tập, giúp giảm hành vi gian lận hoặc học cho có.</li>
               </ul>
             </article>
 
             <article class="trust__card card">
-              <h3>Khi nÃ o ngÆ°á»i dÃ¹ng bá»‹ trá»« Ä‘iá»ƒm?</h3>
+              <h3>Khi nào người dùng bị trừ điểm?</h3>
               <ul class="trust__bullets">
-                <li>Ná»™p bÃ i trá»… nhiá»u láº§n, bá» lá»›p thÆ°á»ng xuyÃªn.</li>
-                <li>Sao chÃ©p bÃ i, gian láº­n thi cá»­ hoáº·c bá»‹ bÃ¡o cÃ¡o vi pháº¡m há»c thuáº­t.</li>
-                <li>Spam cÃ¢u há»i/cÃ¢u tráº£ lá»i cháº¥t lÆ°á»£ng tháº¥p.</li>
-                <li>Viáº¿t bÃ¬nh luáº­n thiáº¿u lá»‹ch sá»±, khÃ´ng tÃ´n trá»ng báº¡n há»c.</li>
+                <li>Nộp bài trễ nhiều lần, bỏ lớp thường xuyên.</li>
+                <li>Sao chép bài, gian lận thi cử hoặc bị báo cáo vi phạm học thuật.</li>
+                <li>Spam câu hỏi hoặc câu trả lời chất lượng thấp.</li>
+                <li>Viết bình luận thiếu lịch sự, không tôn trọng bạn học.</li>
               </ul>
             </article>
 
             <article class="trust__card card">
-              <h3>CÃ¡ch báº£o vá»‡ Ä‘iá»ƒm uy tÃ­n</h3>
+              <h3>Cách bảo vệ điểm uy tín</h3>
               <ul class="trust__bullets">
-                <li>TuÃ¢n thá»§ háº¡n ná»™p bÃ i, bÃ¡o nghá»‰ trÆ°á»›c khi váº¯ng máº·t.</li>
-                <li>Tá»± lÃ m bÃ i, tÃ´n trá»ng báº£n quyá»n, khÃ´ng sao chÃ©p.</li>
-                <li>Giá»¯ vÄƒn hÃ³a trao Ä‘á»•i: lá»‹ch sá»±, rÃµ rÃ ng, trÃ¡nh spam.</li>
-                <li>HoÃ n táº¥t xÃ¡c minh tÃ i khoáº£n Ä‘á»ƒ trÃ¡nh bá»‹ khoÃ¡ oan.</li>
+                <li>Tuân thủ hạn nộp bài, báo nghỉ trước khi vắng mặt.</li>
+                <li>Tự làm bài, tôn trọng bản quyền, không sao chép.</li>
+                <li>Giữ văn hoá trao đổi: lịch sự, rõ ràng, tránh spam.</li>
+                <li>Hoàn tất xác minh tài khoản để tránh bị khoá oan.</li>
               </ul>
             </article>
 
             <article class="trust__card card">
-              <h3>Thang Äiá»ƒm Uy TÃ­n (gá»£i Ã½)</h3>
+              <h3>Thang Điểm Uy Tín</h3>
               <ul class="trust__bullets">
-                <li><strong>0â€“49</strong>: Ráº¥t tháº¥p, háº¡n cháº¿ bÃ¬nh luáº­n, khÃ´ng Ä‘Æ°á»£c há»i tutor, khÃ´ng Ä‘Æ°á»£c ná»™p bÃ i nhÃ³m.</li>
-                <li><strong>50â€“79</strong>: Trung bÃ¬nh, chá»‰ dÃ¹ng tÃ­nh nÄƒng cÆ¡ báº£n.</li>
-                <li><strong>80â€“89</strong>: Tá»‘t, Ä‘Æ°á»£c Æ°u tiÃªn hiá»ƒn thá»‹ cÃ¡c bÃ i cháº¥t lÆ°á»£ng.</li>
-                <li><strong>90â€“100</strong>: Xuáº¥t sáº¯c, má»Ÿ táº¥t cáº£ tÃ­nh nÄƒng nÃ¢ng cao, Æ°u tiÃªn há»— trá»£.</li>
+                <li><strong>0-49</strong>: Rất thấp, hạn chế bình luận, không được hỏi tutor, không được nộp bài nhóm.</li>
+                <li><strong>50-79</strong>: Trung bình, chỉ dùng tính năng cơ bản.</li>
+                <li><strong>80-89</strong>: Tốt, được ưu tiên hiển thị các bài chất lượng.</li>
+                <li><strong>90-100</strong>: Xuất sắc, mở tất cả tính năng nâng cao, ưu tiên hỗ trợ.</li>
               </ul>
             </article>
 
             <article class="trust__card card">
-              <h3>Lá»£i Ã­ch cá»§a há»‡ thá»‘ng Äiá»ƒm Uy TÃ­n</h3>
+              <h3>Lợi ích của hệ thống Điểm Uy Tín</h3>
               <ul class="trust__bullets">
-                <li>Khuyáº¿n khÃ­ch há»c nghiÃªm tÃºc, giáº£m spam vÃ  gian láº­n.</li>
-                <li>Táº¡o mÃ´i trÆ°á»ng há»c tÃ­ch cá»±c, vÄƒn minh; giÃºp giÃ¡o viÃªn/tutor dá»… Ä‘Ã¡nh giÃ¡ thÃ¡i Ä‘á»™.</li>
-                <li>TÄƒng cháº¥t lÆ°á»£ng cÃ¢u há»i - cÃ¢u tráº£ lá»i vÃ  táº¡o cáº£m giÃ¡c â€œthÄƒng tiáº¿nâ€ giá»‘ng game.</li>
+                <li>Khuyến khích học nghiêm túc, giảm spam và gian lận.</li>
+                <li>Tạo môi trường học tích cực, văn minh; giúp giáo viên và tutor dễ đánh giá thái độ.</li>
+                <li>Tăng chất lượng câu hỏi, câu trả lời và tạo cảm giác thăng tiến giống game.</li>
               </ul>
             </article>
           </section>
 
           <section class="trust__history card">
             <div class="trust__history-head">
-              <h3><i class="fa-solid fa-clock-rotate-left"></i> Lá»‹ch sá»­ gáº§n Ä‘Ã¢y</h3>
+              <h3><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử gần đây</h3>
             </div>
             <div id="trustHistory" class="trust__history-list" aria-live="polite">
-              <p class="history-empty">ChÆ°a cÃ³ ghi nháº­n má»›i.</p>
+              <p class="history-empty">Chưa có ghi nhận mới.</p>
             </div>
           </section>
-        </div>
-      </article>
-
-      <!-- SETTINGS -->
-      <article id="tab-settings" class="panel" role="tabpanel" aria-labelledby="tab-settings" tabindex="0">
-        <header class="panel__head">
-          <h2>CÃ i Ä‘áº·t</h2>
-        </header>
-        <div class="settings__grid">
-          <label class="switch">
-            <input id="toggleDark" type="checkbox">
-            <span class="slider"></span>
-            <span>Cháº¿ Ä‘á»™ tá»‘i</span>
-          </label>
-          <label class="switch">
-            <input id="toggleTutor" type="checkbox" checked>
-            <span class="slider"></span>
-            <span>Bat tro ly phap luat</span>
-          </label>
         </div>
       </article>
     </section>
   </main>
 
-  <!-- Legal Assistant FAB -->
-  <a href="smarttutor.html" class="fab" id="fabTutor" aria-label="Mo tro ly phap luat">
-    <i class="fa-solid fa-robot"></i>
-  </a>
+  <div class="avatar-cropper" id="avatarCropper" hidden>
+    <div class="avatar-cropper__backdrop" data-avatar-crop="close"></div>
+    <div class="avatar-cropper__dialog" role="dialog" aria-modal="true" aria-labelledby="avatarCropTitle">
+      <button type="button" class="avatar-cropper__close" data-avatar-crop="close" aria-label="Đóng">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="avatar-cropper__head">
+        <p class="avatar-cropper__eyebrow">Ảnh đại diện</p>
+        <h3 id="avatarCropTitle">Cắt ảnh trước khi lưu</h3>
+        <p class="avatar-cropper__hint">Kéo ảnh để căn mặt vào khung tròn, sau đó bấm lưu.</p>
+      </div>
 
-  <!-- Scripts -->
+      <div class="avatar-cropper__stage" id="avatarCropStage">
+        <div class="avatar-cropper__viewport">
+          <img id="avatarCropImage" alt="Ảnh cần cắt">
+          <div class="avatar-cropper__mask"></div>
+        </div>
+      </div>
+
+      <label class="avatar-cropper__zoom">
+        <span>Thu phóng</span>
+        <input id="avatarCropZoom" type="range" min="0.55" max="3.4" step="0.01" value="1">
+      </label>
+
+      <div class="avatar-cropper__actions">
+        <button type="button" class="btn ghost" data-avatar-crop="close">Hủy</button>
+        <button type="button" class="btn primary" id="avatarCropApply">Lưu ảnh</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="js/core/firebase.js"></script>
-  <script type="module" src="js/core/boot_header.js"></script>
-  <script type="module" src="js/core/menu_toggle.js"></script>
-  <script type="module" src="js/modules/dashboard.js"></script>
-  <script defer type="module" src="js/modules/user_status.js"></script>
-
+  <script type="module" src="js/utils/api.js?v=20260326b"></script>
+  <script defer src="js/core/boot_header.js?v=20260326e"></script>
+  <script type="module" src="js/modules/user_status.js"></script>
+  <script type="module" src="js/modules/dashboard.js?v=20260326j"></script>
 </body>
 </html>

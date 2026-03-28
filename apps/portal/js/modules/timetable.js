@@ -33,8 +33,10 @@ const TIMETABLE_API_BASE =
   window.__TAEDU_TIMETABLE_API__ ||
   window.__TAEDU_API__ ||
   window.__TAEDU_ADMIN_API__ ||
-  "http://localhost:4001";
-const API_TIMETABLE = `${TIMETABLE_API_BASE.replace(/\/$/, "")}/api/timetable`;
+  ((location.hostname === "localhost" || location.hostname === "127.0.0.1")
+    ? "http://localhost:4001"
+    : "/api");
+const API_TIMETABLE = `${TIMETABLE_API_BASE.replace(/\/$/, "")}/timetable`;
 const API_SLOT = `${API_TIMETABLE}/slot`;
 const API_SHARE = `${API_TIMETABLE}/share`;
 const API_SHARED = `${API_TIMETABLE}/shared`;

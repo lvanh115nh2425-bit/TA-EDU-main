@@ -2,6 +2,8 @@ import { auth } from "../core/firebase.js";
 import { getProfile } from "../utils/api.js";
 
 const $ = (selector, root = document) => root.querySelector(selector);
+const PROFILE_CACHE_KEY = (uid) => `taedu:profile:${uid}`;
+const PROFILE_COMPLETE_KEY = (uid) => `taedu:profile-complete:${uid}`;
 
 function showBanner({ level, text, primaryHref, primaryLabel, canDismiss }) {
   const box = $("#verifyBanner");
@@ -41,12 +43,44 @@ function dispatchStatus(payload) {
   window.dispatchEvent(new CustomEvent("taedu:verify-status", { detail: payload }));
 }
 
+function getCachedProfile(uid) {
+  if (!uid) return null;
+  try {
+    const raw = localStorage.getItem(PROFILE_CACHE_KEY(uid));
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function getCachedProfileComplete(uid) {
+  if (!uid) return false;
+  try {
+    return localStorage.getItem(PROFILE_COMPLETE_KEY(uid)) === "1";
+  } catch (_) {
+    return false;
+  }
+}
+
+function mergeProfile(profile, cachedProfile) {
+  if (!profile && !cachedProfile) return null;
+  const merged = { ...(cachedProfile || {}) };
+  for (const [key, value] of Object.entries(profile || {})) {
+    if (value === null || value === undefined) continue;
+    if (typeof value === "string" && !value.trim()) continue;
+    merged[key] = value;
+  }
+  return merged;
+}
+
 function isProfileComplete(profile = {}, user = null) {
+  profile = profile || {};
   const email = (profile.email || user?.email || "").trim();
   return Boolean(
     (profile.role || "").trim() &&
     (profile.display_name || "").trim() &&
     (profile.full_name || "").trim() &&
+    (profile.gender || "").trim() &&
     (profile.student_grade || "").trim() &&
     (profile.student_phone || "").trim() &&
     email
@@ -54,24 +88,25 @@ function isProfileComplete(profile = {}, user = null) {
 }
 
 async function fetchProfile(user) {
+  const cachedProfile = getCachedProfile(user?.uid);
   try {
     const token = await user.getIdToken();
     const result = await getProfile(token);
-    return result?.profile || null;
+    return mergeProfile(result?.profile || null, cachedProfile);
   } catch (error) {
     console.warn("getProfile failed", error);
-    return null;
+    return cachedProfile;
   }
 }
 
 async function getStatus(user) {
   const profile = await fetchProfile(user);
-  const completed = isProfileComplete(profile, user);
+  const completed = isProfileComplete(profile, user) || getCachedProfileComplete(user?.uid);
 
   if (!completed) {
     return {
       level: "warn",
-      text: "Ban chua hoan tat thong tin tai khoan. Hay chon vai tro va bo sung Biet danh, Ho ten, Lop, Email, So dien thoai de dung day du he thong.",
+      text: "Ban chua hoan tat thong tin tai khoan. Hay chon vai tro va bo sung Biet danh, Ho ten, Gioi tinh, Lop, Email, So dien thoai de dung day du he thong.",
       primaryHref: "/role.html",
       primaryLabel: "Cap nhat thong tin",
       canDismiss: false,

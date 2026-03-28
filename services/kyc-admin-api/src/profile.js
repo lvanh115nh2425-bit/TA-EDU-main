@@ -3,6 +3,7 @@ const router = express.Router();
 const { query } = require("./db");
 const { upsertProfile } = require("./store/userProfiles");
 const requireUser = require("./middleware/requireUser");
+const { sanitizeImageData, moderateWithGemini } = require("./lib/communityModeration");
 
 router.use(requireUser);
 
@@ -50,7 +51,32 @@ router.put("/me", async (req, res) => {
   const uid = req.user?.uid;
   if (!uid) return res.status(401).json({ error: "invalid_user" });
   try {
-    const profile = await upsertProfile(uid, req.body || {});
+    const payload = { ...(req.body || {}) };
+
+    if (Object.prototype.hasOwnProperty.call(payload, "photo_url")) {
+      const sanitized = sanitizeImageData(payload.photo_url);
+      if (!sanitized?.ok) {
+        return res.status(400).json({
+          error: sanitized?.code || "invalid_image",
+          message: sanitized?.message || "Ảnh đại diện không hợp lệ.",
+        });
+      }
+
+      const moderation = await moderateWithGemini({ imageData: sanitized.value });
+      const isSoftModerationFailure =
+        moderation?.code === "moderation_service_error" ||
+        moderation?.skipped === true;
+      if (!moderation?.ok && !isSoftModerationFailure) {
+        return res.status(400).json({
+          error: moderation?.code || "avatar_blocked",
+          message: moderation?.message || "Ảnh đại diện không phù hợp.",
+        });
+      }
+
+      payload.photo_url = sanitized.value;
+    }
+
+    const profile = await upsertProfile(uid, payload);
     res.json({ profile });
   } catch (err) {
     console.error("update profile error", err);

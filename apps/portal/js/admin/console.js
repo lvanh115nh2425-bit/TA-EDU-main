@@ -35,6 +35,13 @@ const historyDialogSubtitle = document.getElementById("historyDialogSubtitle");
 const btnCloseHistory = document.getElementById("btnCloseHistory");
 const btnExportHistory = document.getElementById("btnExportHistory");
 
+const STATUS_LABELS = {
+  submitted: "Mới nhận",
+  reviewing: "Đang xem",
+  resolved: "Đã xử lý",
+  rejected: "Bác bỏ",
+};
+
 const state = {
   token: localStorage.getItem(tokenKey) || "",
   requests: [],
@@ -46,7 +53,7 @@ const state = {
   pageCount: 0,
   hasNext: false,
   hasPrev: false,
-  stats: { total: 0, submitted: 0, approved: 0, rejected: 0 },
+  stats: { total: 0, submitted: 0, reviewing: 0, resolved: 0, rejected: 0 },
   historyCache: new Map(),
   historyDialogRequestId: null,
 };
@@ -66,7 +73,7 @@ function setHeaderStatus(online) {
 function updateMetrics() {
   const counts = state.stats || {};
   if (metricPending) metricPending.textContent = counts.submitted ?? 0;
-  if (metricApproved) metricApproved.textContent = counts.approved ?? 0;
+  if (metricApproved) metricApproved.textContent = counts.resolved ?? 0;
   if (metricRejected) metricRejected.textContent = counts.rejected ?? 0;
   if (metricTotal) metricTotal.textContent = counts.total ?? state.total ?? 0;
 }
@@ -167,10 +174,36 @@ function updateWelcomeFromToken() {
   }
 }
 
+function normalizeReportField(value, fallback = "") {
+  if (value === undefined || value === null || value === "") return fallback;
+  return value;
+}
+
+function mapReportView(req = {}) {
+  const payload = req.payload || {};
+  return {
+    id: req.id,
+    reporterName: normalizeReportField(req.reporterName, payload.reporterName),
+    reporterEmail: normalizeReportField(req.reporterEmail, payload.reporterEmail),
+    reporterId: normalizeReportField(req.reporterId, payload.reporterId),
+    reportedName: normalizeReportField(req.reportedName, payload.reportedName),
+    reportedEmail: normalizeReportField(req.reportedEmail, payload.reportedEmail),
+    reportedId: normalizeReportField(req.reportedId, payload.reportedId),
+    category: normalizeReportField(req.category, payload.category),
+    reason: normalizeReportField(req.reason, payload.reason),
+    content: normalizeReportField(req.content, payload.content),
+    evidenceUrls: req.evidenceUrls || payload.evidenceUrls || [],
+    status: req.status,
+    note: req.note || "",
+    createdAt: req.createdAt,
+    updatedAt: req.updatedAt,
+  };
+}
+
 async function fetchRequests() {
   try {
-    const data = await api(`/api/kyc${buildFilterQuery(true)}`);
-    state.requests = data.requests || [];
+    const data = await api(`/api/reports${buildFilterQuery(true)}`);
+    state.requests = data.reports || [];
     const meta = data.meta || {};
     state.total = meta.total ?? state.requests.length;
     state.page = meta.page ?? state.page;
@@ -202,57 +235,131 @@ function renderTable() {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
     td.colSpan = 4;
-    td.textContent = "Chưa có hồ sơ phù hợp.";
+    td.textContent = "Chưa có tố cáo phù hợp.";
     tr.appendChild(td);
     tableBody.appendChild(tr);
     return;
   }
 
   state.requests.forEach((req) => {
+    const report = mapReportView(req);
     const tr = document.createElement("tr");
 
     const infoTd = document.createElement("td");
-    infoTd.innerHTML = `<strong>${req.fullName || "(Không tên)"}</strong><br>${
-      req.email || "Chưa có email"
-    }<br><small>${req.role || "Chưa rõ vai trò"}</small>`;
+    const reporterLabel =
+      report.reporterName || report.reporterEmail || report.reporterId || "(Chưa rõ)";
+    const reportedLabel =
+      report.reportedName || report.reportedEmail || report.reportedId || "(Chưa rõ)";
+    const title = document.createElement("strong");
+    title.textContent = `${reporterLabel} → ${reportedLabel}`;
+    infoTd.appendChild(title);
+    infoTd.appendChild(document.createElement("br"));
+    const reporterMeta = document.createElement("small");
+    reporterMeta.className = "report-meta";
+    reporterMeta.textContent = `Người tố cáo: ${report.reporterEmail || report.reporterId || "-"}`;
+    infoTd.appendChild(reporterMeta);
+    infoTd.appendChild(document.createElement("br"));
+    const reportedMeta = document.createElement("small");
+    reportedMeta.className = "report-meta";
+    reportedMeta.textContent = `Người bị tố cáo: ${report.reportedEmail || report.reportedId || "-"}`;
+    infoTd.appendChild(reportedMeta);
+    infoTd.appendChild(document.createElement("br"));
+    const categoryMeta = document.createElement("small");
+    categoryMeta.className = "report-meta";
+    categoryMeta.textContent = `Danh mục: ${report.category || "Không rõ"}`;
+    infoTd.appendChild(categoryMeta);
 
     const statusTd = document.createElement("td");
     const pill = document.createElement("span");
-    pill.className = `status-pill ${req.status}`;
-    pill.textContent = req.status;
+    pill.className = `status-pill ${report.status || "submitted"}`;
+    pill.textContent = STATUS_LABELS[report.status] || report.status || "Mới nhận";
     statusTd.appendChild(pill);
 
     const noteTd = document.createElement("td");
+    const reasonSection = document.createElement("div");
+    reasonSection.className = "report-section";
+    const reasonLabel = document.createElement("strong");
+    reasonLabel.textContent = "Lý do tố cáo";
+    const reasonText = document.createElement("p");
+    reasonText.textContent = report.reason || "Chưa có nội dung tố cáo.";
+    reasonSection.append(reasonLabel, reasonText);
+    noteTd.appendChild(reasonSection);
+
+    if (report.content) {
+      const contentSection = document.createElement("div");
+      contentSection.className = "report-section";
+      const contentLabel = document.createElement("strong");
+      contentLabel.textContent = "Mô tả chi tiết";
+      const contentText = document.createElement("p");
+      contentText.textContent = report.content;
+      contentSection.append(contentLabel, contentText);
+      noteTd.appendChild(contentSection);
+    }
+
+    if (report.evidenceUrls && report.evidenceUrls.length) {
+      const evidenceSection = document.createElement("div");
+      evidenceSection.className = "report-section";
+      const evidenceLabel = document.createElement("strong");
+      evidenceLabel.textContent = "Minh chứng";
+      const evidenceWrap = document.createElement("div");
+      evidenceWrap.className = "report-evidence";
+      report.evidenceUrls.forEach((url) => {
+        if (!url) return;
+        const link = document.createElement("a");
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "Tệp đính kèm";
+        evidenceWrap.appendChild(link);
+      });
+      evidenceSection.append(evidenceLabel, evidenceWrap);
+      noteTd.appendChild(evidenceSection);
+    }
+
+    const noteSection = document.createElement("div");
+    noteSection.className = "report-section";
+    const noteLabel = document.createElement("strong");
+    noteLabel.textContent = "Ghi chú nội bộ";
     const note = document.createElement("textarea");
     note.className = "note-box";
-    note.value = req.note || "";
-    note.dataset.id = req.id;
-    noteTd.appendChild(note);
+    note.value = report.note || "";
+    note.dataset.id = report.id;
+    noteSection.append(noteLabel, note);
+    noteTd.appendChild(noteSection);
 
     const actionTd = document.createElement("td");
     actionTd.className = "kyc-actions";
 
-    const approveBtn = document.createElement("button");
-    approveBtn.className = "action-btn approve";
-    approveBtn.textContent = "Duyệt";
-    approveBtn.addEventListener("click", () => updateRequest(req.id, "approved", note.value));
+    const reviewingBtn = document.createElement("button");
+    reviewingBtn.className = "action-btn review";
+    reviewingBtn.textContent = "Đang xem";
+    reviewingBtn.addEventListener("click", () =>
+      updateRequest(report.id, "reviewing", note.value)
+    );
+
+    const resolveBtn = document.createElement("button");
+    resolveBtn.className = "action-btn approve";
+    resolveBtn.textContent = "Đã xử lý";
+    resolveBtn.addEventListener("click", () =>
+      updateRequest(report.id, "resolved", note.value)
+    );
 
     const rejectBtn = document.createElement("button");
     rejectBtn.className = "action-btn reject";
-    rejectBtn.textContent = "Từ chối";
-    rejectBtn.addEventListener("click", () => updateRequest(req.id, "rejected", note.value));
+    rejectBtn.textContent = "Bác bỏ";
+    rejectBtn.addEventListener("click", () => updateRequest(report.id, "rejected", note.value));
 
     const saveBtn = document.createElement("button");
     saveBtn.className = "action-btn save";
     saveBtn.textContent = "Lưu ghi chú";
-    saveBtn.addEventListener("click", () => updateRequest(req.id, null, note.value));
+    saveBtn.addEventListener("click", () => updateRequest(report.id, null, note.value));
 
     const historyBtn = document.createElement("button");
     historyBtn.className = "action-btn history";
     historyBtn.textContent = "Lịch sử";
-    historyBtn.addEventListener("click", () => showHistory(req.id));
+    historyBtn.addEventListener("click", () => showHistory(report.id));
 
-    actionTd.append(approveBtn, rejectBtn, saveBtn, historyBtn);
+    actionTd.append(reviewingBtn, resolveBtn, rejectBtn, saveBtn, historyBtn);
 
     tr.append(infoTd, statusTd, noteTd, actionTd);
     tableBody.appendChild(tr);
@@ -277,7 +384,7 @@ function updatePagination() {
 
 async function updateRequest(id, status, note) {
   try {
-    await api(`/api/kyc/${id}`, {
+    await api(`/api/reports/${id}`, {
       method: "PUT",
       body: JSON.stringify({ status, note }),
     });
@@ -285,15 +392,15 @@ async function updateRequest(id, status, note) {
     await fetchRequests();
   } catch (err) {
     dashboardMessage.hidden = false;
-    dashboardMessage.textContent = err.message || "Không cập nhật được hồ sơ.";
+    dashboardMessage.textContent = err.message || "Không cập nhật được tố cáo.";
   }
 }
 
 async function exportRequestsCsv() {
   try {
-    const res = await apiRaw(`/api/kyc/export${buildFilterQuery(false)}`);
+    const res = await apiRaw(`/api/reports/export${buildFilterQuery(false)}`);
     const blob = await res.blob();
-    downloadBlob(blob, `kyc-requests-${Date.now()}.csv`);
+    downloadBlob(blob, `user-reports-${Date.now()}.csv`);
   } catch (err) {
     dashboardMessage.hidden = false;
     dashboardMessage.textContent = err.message || "Không xuất được CSV.";
@@ -303,7 +410,7 @@ async function exportRequestsCsv() {
 async function showHistory(id) {
   try {
     const cached = state.historyCache.get(id);
-    const payload = cached || (await api(`/api/kyc/${id}/history`));
+    const payload = cached || (await api(`/api/reports/${id}/history`));
     if (!cached) state.historyCache.set(id, payload);
     if (!historyDialog || typeof historyDialog.showModal !== "function") {
       const lines = (payload.history || []).map(
@@ -312,7 +419,7 @@ async function showHistory(id) {
             evt.note || ""
           }`
       );
-      alert(lines.join("\n") || "Chưa có lịch sử cho hồ sơ này.");
+      alert(lines.join("\n") || "Chưa có lịch sử cho tố cáo này.");
       return;
     }
     renderHistoryDialog(payload);
@@ -325,10 +432,10 @@ async function showHistory(id) {
 function renderHistoryDialog(data) {
   if (!historyTimeline) return;
   historyTimeline.innerHTML = "";
-  state.historyDialogRequestId = data.request?.id || null;
+  state.historyDialogRequestId = data.report?.id || null;
   if (historyDialogSubtitle) {
-    const label = data.request
-      ? `${data.request.fullName || data.request.email || data.request.userId || ""}`
+    const label = data.report
+      ? `${data.report.reporterName || data.report.reporterEmail || data.report.reporterId || ""}`
       : "";
     historyDialogSubtitle.textContent = label;
   }
@@ -369,9 +476,9 @@ async function exportHistoryCsv() {
   const requestId = state.historyDialogRequestId;
   if (!requestId) return;
   try {
-    const res = await apiRaw(`/api/kyc/${requestId}/history?format=csv`);
+    const res = await apiRaw(`/api/reports/${requestId}/history?format=csv`);
     const blob = await res.blob();
-    downloadBlob(blob, `kyc-history-${requestId}.csv`);
+    downloadBlob(blob, `report-history-${requestId}.csv`);
   } catch (err) {
     dashboardMessage.hidden = false;
     dashboardMessage.textContent = err.message || "Không tải được lịch sử.";

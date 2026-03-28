@@ -3,8 +3,8 @@
   const on = (el, ev, cb) => el && el.addEventListener(ev, cb);
 
   const ADMIN_ROLE = "admin";
-  const ADMIN_EMAIL_FALLBACK = ["khkt.anhtu@gmail.com", "lvanh.115nh2425@gmail.com"];
   const FALLBACK_AVATAR = "assets/default_avatar.svg";
+  const HEADER_LOGO_FALLBACK = "/assets/Logo.png";
   const HEADER_URL = "/partials/header.html";
   const MOBILE_QUERY = window.matchMedia("(max-width: 992px)");
   const THEME_STORAGE_KEY = "taedu:smarttutor:theme";
@@ -59,31 +59,97 @@
     document.head.appendChild(tag);
   }
 
+  function ensureFontAwesomeLoaded() {
+    const hasFontAwesome = Array.from(document.styleSheets || []).some((sheet) => {
+      const href = sheet?.href || "";
+      return href.includes("font-awesome") || href.includes("fontawesome");
+    });
+    if (hasFontAwesome) return;
+
+    const existing = Array.from(document.querySelectorAll("link[rel='stylesheet']")).some((link) => {
+      const href = link.getAttribute("href") || "";
+      return href.includes("font-awesome") || href.includes("fontawesome");
+    });
+    if (existing) return;
+
+    const faLink = document.createElement("link");
+    faLink.rel = "stylesheet";
+    faLink.href =
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css";
+    faLink.crossOrigin = "anonymous";
+    document.head.appendChild(faLink);
+  }
+
   async function loadProfileApi() {
     if (!apiModulePromise) {
-      apiModulePromise = import("../utils/api.js");
+      apiModulePromise = import("../utils/api.js?v=20260326b");
     }
     return apiModulePromise;
   }
 
   const DEFAULT_TRUST_POINTS = 100;
   const LAST_EMAIL_KEY = "taedu:last-auth-email";
+  const PROFILE_COMPLETE_KEY = (uid) => `taedu:profile-complete:${uid}`;
+  const PROFILE_CACHE_KEY = (uid) => `taedu:profile:${uid}`;
   const isProfileComplete = (profile, user) => {
     const email = (profile?.email || user?.email || "").trim();
     return Boolean(
       (profile?.role || "").trim() &&
       (profile?.display_name || "").trim() &&
       (profile?.full_name || "").trim() &&
+      (profile?.gender || "").trim() &&
       (profile?.student_grade || "").trim() &&
       (profile?.student_phone || "").trim() &&
       email
     );
   };
 
+  function getCachedProfileComplete(uid) {
+    if (!uid) return false;
+    try {
+      return localStorage.getItem(PROFILE_COMPLETE_KEY(uid)) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function getCachedProfile(uid) {
+    if (!uid) return null;
+    try {
+      const raw = localStorage.getItem(PROFILE_CACHE_KEY(uid));
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function pickFirstFilled(...values) {
+    for (const value of values) {
+      const text = String(value || "").trim();
+      if (text) return text;
+    }
+    return "";
+  }
+
+  function getPreferredIdentity(user, profile = null) {
+    const cachedProfile = profile || getCachedProfile(user?.uid);
+    const email = pickFirstFilled(cachedProfile?.email, user?.email);
+    const name = pickFirstFilled(
+      cachedProfile?.display_name,
+      cachedProfile?.full_name,
+      user?.displayName,
+      email ? email.split("@")[0] : "",
+      "Người dùng"
+    );
+    const photo = pickFirstFilled(cachedProfile?.photo_url, user?.photoURL, FALLBACK_AVATAR);
+    return { name, email, photo };
+  }
+
   let btnLogin,
     btnLogout,
     userInfo,
     userPhoto,
+    menuAvatar,
     userMenu,
     menuName,
     menuTrust,
@@ -123,6 +189,7 @@
     btnLogout = $("#btnLogout");
     userInfo = $("#userInfo");
     userPhoto = $("#userPhoto");
+    menuAvatar = $("#menuAvatar");
     userMenu = $("#userMenu");
     menuName = $("#menuName");
     menuTrust = $("#menuTrust");
@@ -134,10 +201,11 @@
   function syncAuthFromCache() {
     const cachedUser = window.__TAEDU_LAST_USER || null;
     if (cachedUser) {
+      const identity = getPreferredIdentity(cachedUser);
       setAuthUI(true);
-      updateAvatar(cachedUser.photoURL || FALLBACK_AVATAR);
+      updateAvatar(identity.photo || FALLBACK_AVATAR);
       if (menuName) {
-        menuName.textContent = cachedUser.displayName || cachedUser.email || "Người dùng";
+        menuName.textContent = identity.name || "Người dùng";
       }
       if (dashboardLink) dashboardLink.style.display = "";
     } else {
@@ -149,6 +217,7 @@
 
   async function mountHeader() {
     try {
+      ensureFontAwesomeLoaded();
       const res = await fetch(HEADER_URL, { cache: "no-cache" });
       if (!res.ok) throw new Error("Cannot load header.html");
       const html = await res.text();
@@ -157,6 +226,7 @@
       wrap.innerHTML = html;
       document.body.insertAdjacentElement("afterbegin", wrap);
       bindHeaderRefs();
+      normalizeHeaderLogo(wrap);
       bindHeaderUIBasics();
       syncAuthFromCache();
       document.dispatchEvent(
@@ -190,7 +260,9 @@
   }
 
   const updateAvatar = (src) => {
-    if (userPhoto) userPhoto.src = src || FALLBACK_AVATAR;
+    const avatar = src || FALLBACK_AVATAR;
+    if (userPhoto) userPhoto.src = avatar;
+    if (menuAvatar) menuAvatar.src = avatar;
   };
 
   function setAdminMenuVisible(isAdmin) {
@@ -309,14 +381,27 @@
     let role = null;
     let profileData = null;
     let isAdmin = false;
+    let profileFetchFailed = false;
 
     try {
       const { getProfile } = await loadProfileApi();
       const token = await user.getIdToken();
       const res = await getProfile(token);
       profileData = res?.profile || null;
+      if (profileData && user?.uid) {
+        try {
+          localStorage.setItem(PROFILE_CACHE_KEY(user.uid), JSON.stringify(profileData));
+        } catch (_) {}
+      }
     } catch (err) {
+      profileFetchFailed = true;
       console.warn("Fetch profile failed:", err);
+    }
+
+    const identity = getPreferredIdentity(user, profileData);
+    updateAvatar(identity.photo || FALLBACK_AVATAR);
+    if (menuName) {
+      menuName.textContent = identity.name || "Người dùng";
     }
 
     if (profileData) {
@@ -328,10 +413,21 @@
     }
 
     if (!isAdmin) {
+      try {
+        const tokenResult = await user.getIdTokenResult();
+        if (tokenResult?.claims?.role === ADMIN_ROLE) {
+          isAdmin = true;
+        }
+      } catch (err) {
+        console.warn("getIdTokenResult failed:", err);
+      }
+    }
+
+    if (!isAdmin) {
       const adminEmailsRaw =
         typeof window.__TAEDU_ADMIN_EMAILS === "string" && window.__TAEDU_ADMIN_EMAILS.trim().length
           ? window.__TAEDU_ADMIN_EMAILS
-          : ADMIN_EMAIL_FALLBACK.join(",");
+          : "";
       const adminEmails = adminEmailsRaw
         .split(",")
         .map((s) => s.trim().toLowerCase())
@@ -355,7 +451,11 @@
       role = localStorage.getItem(`taedu:role:${user.uid}`) || null;
     }
 
-    const completed = isProfileComplete(profileData, user);
+    const completed = isProfileComplete(profileData, user) || getCachedProfileComplete(user.uid);
+
+    if (profileFetchFailed && !profileData) {
+      return true;
+    }
 
     if (!completed) {
       if (!shouldSkipGate) {
@@ -366,7 +466,7 @@
 
     try {
       localStorage.setItem(`taedu:role:${user.uid}`, role || "student");
-      localStorage.setItem(`taedu:profile-complete:${user.uid}`, "1");
+      localStorage.setItem(PROFILE_COMPLETE_KEY(user.uid), "1");
     } catch (_) {}
 
     if (!role && profileData) {
@@ -374,6 +474,40 @@
     }
 
     return true;
+  }
+
+  async function cacheRoleFromClaims(user) {
+    if (!user?.uid || typeof user.getIdTokenResult !== "function") return;
+    try {
+      const tokenResult = await user.getIdTokenResult();
+      const role = tokenResult?.claims?.role;
+      if (role) {
+        localStorage.setItem(`taedu:role:${user.uid}`, String(role));
+      }
+    } catch (err) {
+      console.warn("getIdTokenResult failed:", err);
+    }
+  }
+
+  function normalizeHeaderLogo(root = document) {
+    const logoCandidates = Array.from(root.querySelectorAll("img.logo, .logo-area img, .brand-logo"));
+    logoCandidates.forEach((img) => {
+      if (!img) return;
+      const current = (img.getAttribute("src") || "").trim();
+      if (!current || /logo(\.(svg|webp))?$/i.test(current) || /logo$/i.test(current)) {
+        img.setAttribute("src", HEADER_LOGO_FALLBACK);
+      }
+      img.setAttribute("alt", "TA-Edu");
+      img.addEventListener(
+        "error",
+        () => {
+          if (img.getAttribute("src") !== HEADER_LOGO_FALLBACK) {
+            img.setAttribute("src", HEADER_LOGO_FALLBACK);
+          }
+        },
+        { once: true }
+      );
+    });
   }
 
   function rememberAuthEmail(email) {
@@ -705,9 +839,11 @@
         rememberAuthEmail(user.email);
         fillRolePageEmail(user);
         closeAuthModal();
-        updateAvatar(user.photoURL || FALLBACK_AVATAR);
+        cacheRoleFromClaims(user);
+        const identity = getPreferredIdentity(user);
+        updateAvatar(identity.photo || FALLBACK_AVATAR);
         if (menuName) {
-          menuName.textContent = user.displayName || user.email || "Người dùng";
+          menuName.textContent = identity.name || "Người dùng";
         }
         setTrustBadgeLoading();
         if (dashboardLink) dashboardLink.style.display = "";

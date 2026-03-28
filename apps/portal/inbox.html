@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TA-Edu • Inbox</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/taedu_global.css" />
+  <link rel="stylesheet" href="css/css_menu.css" />
+  <link rel="stylesheet" href="css/inbox.css?v=20260327a" />
+</head>
+<body>
+  <div id="ta-header"></div>
+  <script type="module" src="/js/core/firebase.js"></script>
+  <script type="module" src="/js/core/boot_header.js?v=20260327a"></script>
+  <script type="module" src="/js/core/menu_toggle.js"></script>
+
+  <main class="inbox-page container">
+    <section class="inbox-shell" aria-label="Hộp thư">
+      <aside class="inbox-sidebar">
+        <div class="inbox-sidebar__head">
+          <p class="inbox-eyebrow">Nhắn tin riêng</p>
+          <h1>Inbox TA-Edu</h1>
+          <p class="inbox-copy">Nhắn tin với bạn học, giáo viên hoặc admin. Bạn có thể ghim hội thoại quan trọng để luôn nằm trên đầu danh sách.</p>
+        </div>
+
+        <section class="inbox-admin card">
+          <div class="inbox-section__head">
+            <h2>Liên hệ admin</h2>
+          </div>
+          <p class="inbox-admin__copy">Cần hỗ trợ khẩn, báo lỗi hoặc hỏi về tài khoản? Hãy nhắn trực tiếp cho admin.</p>
+          <div id="inboxAdminList" class="inbox-admin__list"></div>
+        </section>
+
+        <section class="inbox-search card">
+          <label class="inbox-search__label" for="inboxUserSearch">Tạo cuộc trò chuyện mới</label>
+          <div class="inbox-search__input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="inboxUserSearch" type="search" placeholder="Tìm theo biệt danh, họ tên hoặc email..." autocomplete="off">
+          </div>
+          <div id="inboxSearchHint" class="inbox-search__hint">Nhập ít nhất 1 ký tự để tìm người dùng.</div>
+          <div id="inboxSearchResults" class="inbox-search__results"></div>
+        </section>
+
+        <section class="inbox-conversations card">
+          <div class="inbox-section__head">
+            <h2>Cuộc trò chuyện</h2>
+            <button id="refreshInboxButton" type="button" class="inbox-refresh" aria-label="Tải lại">
+              <i class="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+          <div id="inboxConversationList" class="inbox-conversation-list"></div>
+        </section>
+      </aside>
+
+      <section class="inbox-main card">
+        <div id="inboxGuestState" class="inbox-guest" hidden>
+          <h2>Đăng nhập để mở inbox</h2>
+          <p>Bạn cần đăng nhập tài khoản TA-Edu để xem và gửi tin nhắn.</p>
+          <button id="inboxLoginButton" type="button" class="btn btn-primary">Đăng nhập ngay</button>
+        </div>
+
+        <div id="inboxContent" hidden>
+          <header class="inbox-thread__head">
+            <div class="inbox-thread__peer">
+              <img id="inboxPeerAvatar" src="assets/default_avatar.svg" alt="Avatar người nhận">
+              <div>
+                <h2 id="inboxPeerName">Chưa chọn cuộc trò chuyện</h2>
+                <p id="inboxPeerMeta">Chọn một hội thoại ở cột bên trái để bắt đầu.</p>
+              </div>
+            </div>
+            <button id="inboxPinButton" type="button" class="inbox-pin-button" hidden>
+              <i class="fa-solid fa-thumbtack"></i>
+              <span>Ghim</span>
+            </button>
+          </header>
+
+          <div id="inboxMessages" class="inbox-messages"></div>
+
+          <form id="inboxComposer" class="inbox-composer">
+            <textarea id="inboxMessageInput" rows="2" placeholder="Nhập tin nhắn..." disabled></textarea>
+            <button id="inboxSendButton" type="submit" class="btn btn-primary" disabled>
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Gửi</span>
+            </button>
+          </form>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="/js/modules/inbox.js?v=20260327a"></script>
+</body>
+</html>

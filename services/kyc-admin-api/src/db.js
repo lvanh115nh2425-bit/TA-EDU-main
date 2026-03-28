@@ -17,6 +17,7 @@ async function ensureSchema() {
       email VARCHAR(255),
       display_name VARCHAR(255),
       full_name VARCHAR(255),
+      gender VARCHAR(16),
       photo_url TEXT,
       role VARCHAR(32),
       trust_points INTEGER NOT NULL DEFAULT 100,
@@ -50,6 +51,11 @@ async function ensureSchema() {
   await query(`
     ALTER TABLE user_profiles
     ADD COLUMN IF NOT EXISTS full_name VARCHAR(255);
+  `);
+
+  await query(`
+    ALTER TABLE user_profiles
+    ADD COLUMN IF NOT EXISTS gender VARCHAR(16);
   `);
 
   await query(`
@@ -92,6 +98,27 @@ async function ensureSchema() {
   `);
 
   await query(`
+    CREATE TABLE IF NOT EXISTS user_reports (
+      id SERIAL PRIMARY KEY,
+      reporter_id VARCHAR(128),
+      reporter_name VARCHAR(255),
+      reporter_email VARCHAR(255),
+      reported_id VARCHAR(128),
+      reported_name VARCHAR(255),
+      reported_email VARCHAR(255),
+      category VARCHAR(64),
+      reason TEXT,
+      content TEXT,
+      evidence_urls TEXT[],
+      status VARCHAR(32) DEFAULT 'submitted',
+      note TEXT,
+      payload JSONB,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+
+  await query(`
     DO $$
     BEGIN
       IF NOT EXISTS (
@@ -115,23 +142,57 @@ async function ensureSchema() {
       author_avatar TEXT,
       author_role VARCHAR(128),
       image_url TEXT,
+      image_urls TEXT[],
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
   `);
 
   await query(`ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS image_url TEXT;`);
+  await query(`ALTER TABLE qa_posts ADD COLUMN IF NOT EXISTS image_urls TEXT[];`);
 
   await query(`
     CREATE TABLE IF NOT EXISTS qa_comments (
       id SERIAL PRIMARY KEY,
       post_id INTEGER REFERENCES qa_posts(id) ON DELETE CASCADE,
+      parent_comment_id INTEGER REFERENCES qa_comments(id) ON DELETE CASCADE,
       user_uid VARCHAR(128),
       content TEXT NOT NULL,
+      image_url TEXT,
+      image_urls TEXT[],
       author_name VARCHAR(255),
       author_avatar TEXT,
       author_role VARCHAR(128),
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
+  `);
+
+  await query(`
+    ALTER TABLE qa_comments
+    ADD COLUMN IF NOT EXISTS parent_comment_id INTEGER REFERENCES qa_comments(id) ON DELETE CASCADE;
+  `);
+
+  await query(`
+    ALTER TABLE qa_comments
+    ADD COLUMN IF NOT EXISTS image_url TEXT;
+  `);
+
+  await query(`
+    ALTER TABLE qa_comments
+    ADD COLUMN IF NOT EXISTS image_urls TEXT[];
+  `);
+
+  await query(`
+    UPDATE qa_posts
+    SET image_urls = ARRAY[image_url]
+    WHERE image_url IS NOT NULL
+      AND (image_urls IS NULL OR array_length(image_urls, 1) IS NULL);
+  `);
+
+  await query(`
+    UPDATE qa_comments
+    SET image_urls = ARRAY[image_url]
+    WHERE image_url IS NOT NULL
+      AND (image_urls IS NULL OR array_length(image_urls, 1) IS NULL);
   `);
 
   await query(`
@@ -142,6 +203,70 @@ async function ensureSchema() {
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
       UNIQUE (post_id, user_uid)
     );
+  `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS inbox_conversations (
+      id SERIAL PRIMARY KEY,
+      user_a_uid VARCHAR(128) NOT NULL,
+      user_b_uid VARCHAR(128) NOT NULL,
+      last_message_preview TEXT,
+      pinned_by_a BOOLEAN NOT NULL DEFAULT FALSE,
+      pinned_by_b BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      CHECK (user_a_uid <> user_b_uid)
+    );
+  `);
+
+  await query(`
+    ALTER TABLE inbox_conversations
+    ADD COLUMN IF NOT EXISTS last_message_preview TEXT;
+  `);
+
+  await query(`
+    ALTER TABLE inbox_conversations
+    ADD COLUMN IF NOT EXISTS pinned_by_a BOOLEAN NOT NULL DEFAULT FALSE;
+  `);
+
+  await query(`
+    ALTER TABLE inbox_conversations
+    ADD COLUMN IF NOT EXISTS pinned_by_b BOOLEAN NOT NULL DEFAULT FALSE;
+  `);
+
+  await query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_inbox_conversations_pair
+    ON inbox_conversations (
+      LEAST(user_a_uid, user_b_uid),
+      GREATEST(user_a_uid, user_b_uid)
+    );
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_inbox_conversations_updated_at
+    ON inbox_conversations(updated_at DESC);
+  `);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS inbox_messages (
+      id SERIAL PRIMARY KEY,
+      conversation_id INTEGER REFERENCES inbox_conversations(id) ON DELETE CASCADE,
+      sender_uid VARCHAR(128) NOT NULL,
+      content TEXT NOT NULL,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+      read_at TIMESTAMP WITH TIME ZONE
+    );
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_inbox_messages_conversation_created
+    ON inbox_messages(conversation_id, created_at ASC);
+  `);
+
+  await query(`
+    CREATE INDEX IF NOT EXISTS idx_inbox_messages_unread
+    ON inbox_messages(conversation_id, read_at)
+    WHERE read_at IS NULL;
   `);
 
   await query(`
@@ -159,6 +284,22 @@ async function ensureSchema() {
   `);
 
   await query(`CREATE INDEX IF NOT EXISTS idx_kyc_audit_request_id ON kyc_audit_logs(request_id);`);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS report_audit_logs (
+      id SERIAL PRIMARY KEY,
+      report_id INTEGER REFERENCES user_reports(id) ON DELETE CASCADE,
+      admin_id INTEGER,
+      admin_username VARCHAR(128),
+      action VARCHAR(64),
+      previous_status VARCHAR(32),
+      next_status VARCHAR(32),
+      note TEXT,
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+
+  await query(`CREATE INDEX IF NOT EXISTS idx_report_audit_report_id ON report_audit_logs(report_id);`);
 
   await query(`
     CREATE TABLE IF NOT EXISTS timetables (
@@ -349,10 +490,33 @@ function mapKycRow(row) {
   };
 }
 
+function mapReportRow(row) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    reporterId: row.reporter_id,
+    reporterName: row.reporter_name,
+    reporterEmail: row.reporter_email,
+    reportedId: row.reported_id,
+    reportedName: row.reported_name,
+    reportedEmail: row.reported_email,
+    category: row.category,
+    reason: row.reason,
+    content: row.content,
+    evidenceUrls: row.evidence_urls || [],
+    status: row.status,
+    note: row.note,
+    payload: row.payload,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 module.exports = {
   pool,
   query,
   ensureSchema,
   ensureDefaultAdmin,
   mapKycRow,
+  mapReportRow,
 };

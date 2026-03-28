@@ -1,140 +1,62 @@
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
-<header class="main-header">
-  <div class="container">
-    <a href="/index.html" class="logo-area">
-      <img src="/assets/logo.png" alt="TA-Edu Logo" class="logo" />
-      <h1 class="site-name">TA-Edu</h1>
+<header class="main-header ta-header">
+  <div class="container header-container">
+    <a class="logo-area" href="/index.html" aria-label="TA-Edu">
+      <img class="logo" src="/assets/Logo.png" alt="TA-Edu">
+      <span class="site-name">TA-Edu</span>
     </a>
 
-    <button class="menu-toggle" id="menuToggle" aria-label="Mở menu" aria-controls="mainNav" aria-expanded="false">
-      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    <button id="menuToggle" class="menu-toggle" aria-label="Mở menu" aria-expanded="false">
+      <i class="fa-solid fa-bars"></i>
     </button>
 
-    <nav class="main-nav" id="mainNav">
+    <nav id="mainNav" class="main-nav" data-menu>
       <ul>
         <li><a href="/index.html"><i class="fa-solid fa-house"></i> Trang chủ</a></li>
-        <li><a href="/mon/KTPL/ktpl_chonlop.html" data-active-scope="/mon/"><i class="fa-solid fa-book"></i> Học lý thuyết</a></li>
+        <li><a href="/hoc-ly-thuyet.html"><i class="fa-solid fa-book-open"></i> Học lý thuyết</a></li>
         <li><a href="/mindmap.html"><i class="fa-solid fa-diagram-project"></i> Mind Map</a></li>
         <li><a href="/tu-van-luat.html"><i class="fa-solid fa-scale-balanced"></i> Tư vấn luật</a></li>
-        <li><a href="/thoi-gian-bieu.html"><i class="fa-solid fa-calendar-check"></i> Thời gian biểu</a></li>
+        <li><a href="/thoi-gian-bieu.html"><i class="fa-regular fa-calendar"></i> Thời gian biểu</a></li>
         <li><a href="/thao-luan.html"><i class="fa-solid fa-comments"></i> Thảo luận</a></li>
-        <li><a href="/ktpl-exercise.html"><i class="fa-solid fa-file-pen"></i> Tạo bài tập</a></li>
-        <li><a href="/hoi-dap.html"><i class="fa-solid fa-circle-question"></i> Hỏi đáp</a></li>
-
-        <li class="nav-auth-item">
-          <button id="btnLogin" class="btn-login" type="button">
-            <span class="btn-login__primary">Đăng nhập</span>
-            <span class="btn-login__secondary">Đăng ký</span>
-          </button>
-
-          <div id="userInfo" hidden>
-            <img id="userPhoto" class="header-avatar" src="/assets/default_avatar.svg" alt="User Avatar">
-            <div id="userMenu" role="menu" aria-labelledby="userPhoto">
-              <div class="um-head">
-                <div class="um-name" id="menuName">Anh Lê</div>
-                <div class="um-balance">
-                  <div class="trust-pill__icon">
-                    <i class="fa-solid fa-shield-heart"></i>
-                  </div>
-                  <div class="trust-pill__content">
-                    <p class="trust-pill__label">Điểm uy tín</p>
-                    <p class="trust-pill__value" id="menuTrust">100</p>
-                    <p class="trust-pill__hint" id="menuTrustHint">Giữ trên 50 điểm để tránh bị hạn chế.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="header-theme-toggle" role="group" aria-label="Chọn kiểu nền TA-Edu">
-                <p class="header-theme-toggle__label">Kiểu nền TA-Edu</p>
-                <div class="header-theme-slider" data-theme-slider data-theme-current="neon">
-                  <div class="header-theme-slider__track">
-                    <div class="header-theme-slider__pill"></div>
-                    <button type="button" data-theme-option="home" aria-label="Dùng nền sáng">Sáng</button>
-                    <button type="button" data-theme-option="neon" aria-label="Dùng nền neon">Neon</button>
-                  </div>
-                </div>
-              </div>
-
-              <nav class="um-list" aria-label="Tác vụ nhanh">
-                <a href="/dashboard.html" id="dashboardLink" class="um-item is-primary">
-                  <i class="fa-solid fa-gauge-high"></i>
-                  <span>Dashboard</span>
-                </a>
-                <a href="/admin/index.html" id="menuAdminKyc" class="um-item" hidden>
-                  <i class="fa-solid fa-shield-halved"></i>
-                  <span>Quản trị KYC</span>
-                </a>
-              </nav>
-
-              <button id="btnLogout" type="button" class="um-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
-              </button>
-            </div>
-          </div>
-        </li>
+        <li><a href="/tao-bai-tap.html"><i class="fa-solid fa-pen-to-square"></i> Tạo bài tập</a></li>
       </ul>
     </nav>
-  </div>
 
-  <div class="menu-overlay" id="menuOverlay" hidden></div>
-
-  <div class="auth-modal" id="authModal" hidden>
-    <div class="auth-modal__backdrop" data-auth-modal="close"></div>
-    <div class="auth-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-      <button class="auth-modal__close" type="button" data-auth-modal="close" aria-label="Đóng">
-        <i class="fa-solid fa-xmark"></i>
+    <div class="nav__auth">
+      <button id="btnLogin" class="btn-login">
+        <span class="btn-login__primary">Đăng nhập</span>
+        <span class="btn-login__secondary">Đăng ký</span>
       </button>
 
-      <div class="auth-modal__head">
-        <h2 id="authModalTitle">Tài khoản TA-Edu</h2>
-        <p>Đăng nhập nhanh bằng Google hoặc dùng email và mật khẩu.</p>
-      </div>
-
-      <div class="auth-modal__tabs">
-        <button type="button" class="auth-tab is-active" data-auth-mode="login">Đăng nhập</button>
-        <button type="button" class="auth-tab" data-auth-mode="register">Đăng ký</button>
-      </div>
-
-      <form id="authEmailForm" class="auth-form">
-        <label class="auth-field">
-          <span>Email</span>
-          <input type="email" name="email" autocomplete="email" placeholder="tenban@gmail.com" required>
-        </label>
-        <label class="auth-field">
-          <span>Mật khẩu</span>
-          <div class="auth-password-wrap">
-            <input type="password" name="password" autocomplete="current-password" placeholder="Nhập mật khẩu" required>
-            <button type="button" class="auth-password-toggle" data-password-toggle="password" aria-label="Hiện mật khẩu">
-              <i class="fa-regular fa-eye"></i>
-            </button>
+      <div id="userInfo" hidden>
+        <img id="userPhoto" class="header-avatar" src="/assets/default_avatar.svg" alt="Ảnh đại diện">
+        <div id="userMenu">
+          <div class="um-head">
+            <img id="menuAvatar" class="um-avatar" src="/assets/default_avatar.svg" alt="Ảnh đại diện">
+            <div class="um-name" id="menuName">Người dùng</div>
+            <div class="um-balance">
+              <span class="trust-pill__icon"><i class="fa-solid fa-shield-heart"></i></span>
+              <span class="trust-pill__content"><span id="menuTrust">100</span></span>
+            </div>
           </div>
-        </label>
-        <div class="auth-password-strength" id="authPasswordStrength" hidden>
-          <div class="auth-password-strength__bar">
-            <span id="authPasswordStrengthFill"></span>
+
+          <div class="um-list">
+            <a id="dashboardLink" class="um-item is-primary" href="/dashboard.html">
+              <i class="fa-solid fa-gauge"></i>
+              Dashboard
+            </a>
+            <a class="um-item" href="/inbox.html">
+              <i class="fa-regular fa-envelope"></i>
+              Inbox
+            </a>
+            <a id="menuAdminKyc" class="um-item" href="/admin/" hidden>
+              <i class="fa-solid fa-shield"></i>
+              Quản trị KYC
+            </a>
           </div>
-          <p class="auth-password-strength__text" id="authPasswordStrengthText">Độ mạnh mật khẩu</p>
+
+          <button id="btnLogout" class="um-logout">Đăng xuất</button>
         </div>
-        <label class="auth-field auth-field--confirm" hidden>
-          <span>Nhập lại mật khẩu</span>
-          <div class="auth-password-wrap">
-            <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Nhập lại mật khẩu">
-            <button type="button" class="auth-password-toggle" data-password-toggle="confirmPassword" aria-label="Hiện mật khẩu">
-              <i class="fa-regular fa-eye"></i>
-            </button>
-          </div>
-        </label>
-        <p class="auth-modal__hint" id="authModeHint">Dùng email và mật khẩu để đăng nhập vào tài khoản đã có.</p>
-        <p class="auth-modal__error" id="authModalError" hidden></p>
-        <button type="submit" class="auth-submit" id="authSubmitBtn">Đăng nhập</button>
-      </form>
-
-      <div class="auth-divider"><span>hoặc</span></div>
-
-      <button type="button" class="auth-google" id="authGoogleBtn">
-        <img src="/assets/Google_logo.png" alt="Google" class="google-icon" />
-        Tiếp tục với Google
-      </button>
+      </div>
     </div>
   </div>
 </header>

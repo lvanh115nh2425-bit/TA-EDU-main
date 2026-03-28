@@ -10,11 +10,11 @@
   <link rel="stylesheet" href="css/css_onboarding.css">
   <link rel="stylesheet" href="css/css_menu.css">
   <script>
-    window.__TAEDU_ADMIN_API__ = window.__TAEDU_ADMIN_API__ || "http://localhost:4001";
+    window.__TAEDU_ADMIN_API__ = window.__TAEDU_ADMIN_API__ || "/api";
   </script>
   <script defer type="module" src="js/core/firebase.js"></script>
-  <script defer src="/js/core/boot_header.js?v=20260330"></script>
-  <script defer type="module" src="js/modules/onboarding.js?v=20260329"></script>
+  <script defer src="/js/core/boot_header.js?v=20260327a"></script>
+  <script defer type="module" src="js/modules/onboarding.js?v=20260327a"></script>
 </head>
 <body>
   <main class="ob">
@@ -53,6 +53,15 @@
             Họ và tên
             <input required name="full_name" placeholder="Nhập họ và tên đầy đủ">
           </label>
+          <label>
+            Giới tính
+            <select required name="gender">
+              <option value="">Chọn giới tính</option>
+              <option value="male">Nam</option>
+              <option value="female">Nữ</option>
+              <option value="other">Khác</option>
+            </select>
+          </label>
         </div>
 
         <div class="row">
@@ -83,7 +92,7 @@
           </label>
           <label>
             Số điện thoại
-            <input required type="tel" name="student_phone" inputmode="tel" pattern="^[0-9 +()-]{8,15}$" placeholder="Nhập số điện thoại">
+            <input required type="tel" name="student_phone" inputmode="tel" pattern="^[0-9 +()\\-]{8,15}$" placeholder="Nhập số điện thoại">
           </label>
         </div>
 

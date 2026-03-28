@@ -6,11 +6,14 @@ const morgan = require("morgan");
 const { ensureSchema, ensureDefaultAdmin } = require("./db");
 const authRouter = require("./routes/auth");
 const kycRouter = require("./routes/kyc");
+const reportsRouter = require("./routes/reports");
 const profileRouter = require("./profile");
 const qaRouter = require("./routes/qa");
+const inboxRouter = require("./routes/inbox");
 const timetableRouter = require("./routes/timetable");
 const legalRouter = require("./routes/legal");
 const examRouter = require("./routes/exam");
+const mindmapRouter = require("./routes/mindmap");
 
 const app = express();
 const PORT = process.env.PORT || 4001;
@@ -36,11 +39,14 @@ app.get("/health", (req, res) => {
 
 app.use("/api", authRouter);
 app.use("/api/kyc", kycRouter);
+app.use("/api/reports", reportsRouter);
 app.use("/api/profile", profileRouter);
 app.use("/api/qa", qaRouter);
+app.use("/api/inbox", inboxRouter);
 app.use("/api/timetable", timetableRouter);
 app.use("/api/legal", legalRouter);
 app.use("/api/exam", examRouter);
+app.use("/api/mindmap-ai", mindmapRouter);
 
 app.use((err, req, res, next) => {
   console.error("Unhandled error", err);

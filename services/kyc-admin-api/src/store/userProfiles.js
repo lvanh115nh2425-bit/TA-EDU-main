@@ -2,7 +2,7 @@ const { query } = require("../db");
 
 async function upsertProfile(uid, data = {}) {
   const fields = [
-    "email","display_name","full_name","photo_url","role","trust_points","trust_history","last_trust_recovery_at","verify_status","verify_note",
+    "email","display_name","full_name","gender","photo_url","role","trust_points","trust_history","last_trust_recovery_at","verify_status","verify_note",
     "submitted_at","reviewed_at",
     "student_grade","student_dob","student_phone","student_address",
     "parent_name","parent_email","parent_phone",
