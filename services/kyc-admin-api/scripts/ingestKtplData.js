@@ -953,7 +953,7 @@ async function ingestDeThiFiles() {
  * Ensure exam_knowledge and exam_templates tables exist.
  */
 async function ensureExamSchema() {
-  const EMBEDDING_DIM = parseInt(process.env.EMBEDDING_DIM, 10) || 768;
+  const EMBEDDING_DIM = parseInt(process.env.EMBEDDING_DIM, 10) || 384;
 
   await query(`CREATE EXTENSION IF NOT EXISTS vector;`);
 

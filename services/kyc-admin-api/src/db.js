@@ -1,6 +1,7 @@
 const { Pool } = require("pg");
 const bcrypt = require("bcryptjs");
-const EMBEDDING_DIM = parseInt(process.env.EMBEDDING_DIM, 10) || 768;
+// Xenova paraphrase-multilingual-MiniLM-L12-v2 → 384 dims (see src/lib/embeddings.js)
+const EMBEDDING_DIM = parseInt(process.env.EMBEDDING_DIM, 10) || 384;
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
