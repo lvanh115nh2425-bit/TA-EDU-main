@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const $ = (s, r = document) => r.querySelector(s);
   const on = (el, ev, cb) => el && el.addEventListener(ev, cb);
 
@@ -9,7 +9,6 @@
   const MOBILE_QUERY = window.matchMedia("(max-width: 992px)");
   const THEME_STORAGE_KEY = "taedu:smarttutor:theme";
   const SUPPORTED_THEMES = new Set(["neon", "home"]);
-  const GATE_SKIP_FILES = new Set(["smarttutor.html", "role.html", "role"]);
   let apiModulePromise = null;
 
   let themeButtons = [];
@@ -372,12 +371,6 @@
   }
 
   async function taeduGateAfterLogin(user) {
-    const path = (location.pathname || "").toLowerCase();
-    const file = (path.split("/").pop() || "index.html").toLowerCase();
-    const isAdminRoute = path.includes("/admin/");
-    const isGateExemptPage = GATE_SKIP_FILES.has(file);
-    const shouldSkipGate = isGateExemptPage || isAdminRoute;
-
     let role = null;
     let profileData = null;
     let isAdmin = false;
@@ -451,22 +444,17 @@
       role = localStorage.getItem(`taedu:role:${user.uid}`) || null;
     }
 
-    const completed = isProfileComplete(profileData, user) || getCachedProfileComplete(user.uid);
-
     if (profileFetchFailed && !profileData) {
       return true;
     }
 
-    if (!completed) {
-      if (!shouldSkipGate) {
-        location.replace("/role.html");
-      }
-      return shouldSkipGate;
-    }
-
+    // Đã đăng nhập là dùng được — không ép chuyển role.html / form onboarding.
+    const completed = isProfileComplete(profileData, user) || getCachedProfileComplete(user.uid);
     try {
       localStorage.setItem(`taedu:role:${user.uid}`, role || "student");
-      localStorage.setItem(PROFILE_COMPLETE_KEY(user.uid), "1");
+      if (completed) {
+        localStorage.setItem(PROFILE_COMPLETE_KEY(user.uid), "1");
+      }
     } catch (_) {}
 
     if (!role && profileData) {

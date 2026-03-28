@@ -60,3 +60,54 @@
     </div>
   </div>
 </header>
+
+<!-- Modal đăng nhập / đăng ký (boot_header.js) — phải có trên mọi trang dùng header -->
+<div id="authModal" class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" hidden>
+  <div class="auth-modal__backdrop" data-auth-modal="close"></div>
+  <div class="auth-modal__dialog">
+    <button type="button" class="auth-modal__close" data-auth-modal="close" aria-label="Đóng">&times;</button>
+    <div class="auth-modal__head">
+      <h2 id="authModalTitle">TA-Edu</h2>
+      <p id="authModeHint">Dùng email và mật khẩu để đăng nhập vào tài khoản đã có.</p>
+    </div>
+    <div class="auth-modal__tabs">
+      <button type="button" class="auth-tab is-active" data-auth-mode="login">Đăng nhập</button>
+      <button type="button" class="auth-tab" data-auth-mode="register">Đăng ký</button>
+    </div>
+    <p id="authModalError" class="auth-modal__error" hidden></p>
+    <form id="authEmailForm" class="auth-form" novalidate>
+      <label class="auth-field">
+        <span>Email</span>
+        <input type="email" name="email" autocomplete="email" required>
+      </label>
+      <label class="auth-field">
+        <span>Mật khẩu</span>
+        <div class="auth-password-wrap">
+          <input type="password" name="password" autocomplete="current-password" required>
+          <button type="button" class="auth-password-toggle" data-password-toggle="password" aria-label="Hiện mật khẩu">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </label>
+      <label class="auth-field auth-field--confirm" hidden>
+        <span>Nhập lại mật khẩu</span>
+        <div class="auth-password-wrap">
+          <input type="password" name="confirmPassword" autocomplete="new-password">
+          <button type="button" class="auth-password-toggle" data-password-toggle="confirmPassword" aria-label="Hiện mật khẩu">
+            <i class="fa-regular fa-eye"></i>
+          </button>
+        </div>
+      </label>
+      <div id="authPasswordStrength" class="auth-password-strength" hidden>
+        <div class="auth-password-strength__bar"><span id="authPasswordStrengthFill"></span></div>
+        <p id="authPasswordStrengthText" class="auth-password-strength__text">Độ mạnh mật khẩu</p>
+      </div>
+      <button type="submit" id="authSubmitBtn" class="auth-submit">Đăng nhập</button>
+    </form>
+    <div class="auth-divider">hoặc</div>
+    <button type="button" id="authGoogleBtn" class="auth-google">
+      <i class="fa-brands fa-google"></i>
+      Tiếp tục với Google
+    </button>
+  </div>
+</div>

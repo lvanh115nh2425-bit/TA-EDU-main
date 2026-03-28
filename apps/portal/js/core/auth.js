@@ -31,18 +31,7 @@ async function handleLogin(event) {
   try {
     const cred = await signInWithEmailAndPassword(auth, email, password);
     await ensureUserProfile(cred.user);
-
-    // Kiểm tra role để điều hướng phù hợp
-    const ref = doc(db, "users", cred.user.uid);
-    const snap = await getDoc(ref);
-    const data = snap.data();
-
-    if (!data.role || data.role === "Học sinh") {
-      window.location.href = "/role.html";
-    } else {
-      window.location.href = "/dashboard.html";
-    }
-
+    window.location.href = "/dashboard.html";
   } catch (err) {
     console.error(err);
     alert("Đăng nhập thất bại.");
@@ -54,17 +43,7 @@ async function loginWithGoogle() {
   try {
     const cred = await signInWithPopup(auth, provider);
     await ensureUserProfile(cred.user);
-
-    // Kiểm tra role để điều hướng phù hợp
-    const ref = doc(db, "users", cred.user.uid);
-    const snap = await getDoc(ref);
-    const data = snap.data();
-
-    if (!data.role || data.role === "Học sinh") {
-      window.location.href = "/role.html";
-    } else {
-      window.location.href = "/dashboard.html";
-    }
+    window.location.href = "/dashboard.html";
 
   } catch (err) {
     console.error(err);

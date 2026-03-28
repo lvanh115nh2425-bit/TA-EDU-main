@@ -105,11 +105,11 @@ async function getStatus(user) {
 
   if (!completed) {
     return {
-      level: "warn",
-      text: "Ban chua hoan tat thong tin tai khoan. Hay chon vai tro va bo sung Biet danh, Ho ten, Gioi tinh, Lop, Email, So dien thoai de dung day du he thong.",
-      primaryHref: "/role.html",
-      primaryLabel: "Cap nhat thong tin",
-      canDismiss: false,
+      level: "ok",
+      text: "",
+      primaryHref: null,
+      primaryLabel: null,
+      canDismiss: true,
       profileComplete: false,
       profile,
     };
