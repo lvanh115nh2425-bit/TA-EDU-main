@@ -198,7 +198,9 @@ async function generateExercises() {
         refs.configStatus,
         meta?.reason === "missing_gemini_api_key"
           ? "Bản minh họa — server chưa có GEMINI_API_KEY (thêm vào .env & restart container)."
-          : "Bản minh họa — Gemini lỗi hoặc trả JSON không đúng. Xem log container kyc-admin-api."
+          : meta?.reason === "gemini_quota_exceeded"
+            ? "Bản minh họa — đã hết quota Gemini (free tier ~20 lượt/ngày/model). Đợi reset, bật billing, hoặc đổi GEMINI_MODEL."
+            : "Bản minh họa — Gemini lỗi hoặc trả JSON không đúng. Xem log container kyc-admin-api."
       );
     }
     updateEditStatus();

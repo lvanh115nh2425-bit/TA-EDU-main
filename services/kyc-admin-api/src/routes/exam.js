@@ -17,6 +17,8 @@ if (hasValidKey) {
 
 const genAI = hasValidKey ? new GoogleGenerativeAI(geminiKey) : null;
 const GEMINI_MODEL = (process.env.GEMINI_MODEL || "gemini-2.5-flash").trim();
+/** Model dự phòng cho Tạo bài tập — free tier tính quota theo từng model; 2.0 thường có ngân riêng với 2.5 */
+const GEMINI_MODEL_EXERCISE_FALLBACK = (process.env.GEMINI_MODEL_EXERCISE_FALLBACK || "gemini-2.0-flash").trim();
 
 const generateModel = genAI ? genAI.getGenerativeModel({
   model: GEMINI_MODEL,
@@ -420,17 +422,38 @@ function generateMockExam(config) {
   };
 }
 
-// ── Exercise generation model ────────────────────────────────────────
-const exerciseModel = genAI ? genAI.getGenerativeModel({
-  model: GEMINI_MODEL,
-  systemInstruction: EXERCISE_SYSTEM_PROMPT,
-  generationConfig: {
-    temperature: 0.7,
-    maxOutputTokens: 8192,
-    topP: 0.9,
-    responseMimeType: "application/json",
-  },
-}) : null;
+// ── Exercise generation models (primary + fallback quota) ───────────
+const exerciseGenerationConfig = {
+  temperature: 0.7,
+  maxOutputTokens: 8192,
+  topP: 0.9,
+  responseMimeType: "application/json",
+};
+
+const exerciseModel = genAI
+  ? genAI.getGenerativeModel({
+      model: GEMINI_MODEL,
+      systemInstruction: EXERCISE_SYSTEM_PROMPT,
+      generationConfig: exerciseGenerationConfig,
+    })
+  : null;
+
+const exerciseModelFallback =
+  genAI && GEMINI_MODEL_EXERCISE_FALLBACK && GEMINI_MODEL_EXERCISE_FALLBACK !== GEMINI_MODEL
+    ? genAI.getGenerativeModel({
+        model: GEMINI_MODEL_EXERCISE_FALLBACK,
+        systemInstruction: EXERCISE_SYSTEM_PROMPT,
+        generationConfig: exerciseGenerationConfig,
+      })
+    : null;
+
+function parseGeminiRetryDelayMs(message) {
+  const m = String(message || "").match(/retry in ([\d.]+)\s*s/i);
+  if (!m) return 0;
+  const sec = parseFloat(m[1], 10);
+  if (!Number.isFinite(sec) || sec < 0) return 0;
+  return Math.min(60000, Math.max(3000, Math.round(sec * 1000)));
+}
 
 // ── GET /api/exam/lessons ────────────────────────────────────────────
 router.get("/lessons", async (req, res) => {
@@ -521,6 +544,7 @@ router.post("/exercise/generate", async (req, res) => {
 
     console.log(`[Exam] exercise/generate: grade=${grade}, lesson="${lesson_name}", difficulty=${difficulty}, chunks=${contextResults.length}`);
 
+    let lastAiErrorMsg = "";
     if (exerciseModel) {
       let lastRawText = null;
       const retryMaxCtx = parseInt(process.env.EXERCISE_CONTEXT_RETRY_CHARS || "8000", 10);
@@ -531,10 +555,13 @@ router.post("/exercise/generate", async (req, res) => {
               ? `${baseContext.slice(0, retryMaxCtx)}\n\n[...rút gọn tài liệu — thử gọi AI lại]`
               : baseContext;
           const userPrompt = buildExerciseGeneratePrompt(config, ctxForAi);
+          const useAlt = attempt === 2 && exerciseModelFallback;
+          const activeModel = useAlt ? exerciseModelFallback : exerciseModel;
+          const activeName = useAlt ? GEMINI_MODEL_EXERCISE_FALLBACK : GEMINI_MODEL;
           console.log(
-            `[Exam] Calling Gemini for exercise generation (attempt ${attempt}), model=${GEMINI_MODEL}, promptChars=${userPrompt.length}`
+            `[Exam] Calling Gemini for exercise generation (attempt ${attempt}), model=${activeName}, promptChars=${userPrompt.length}`
           );
-          const result = await exerciseModel.generateContent(userPrompt);
+          const result = await activeModel.generateContent(userPrompt);
           const response = await result.response;
           const text = response.text();
           lastRawText = text;
@@ -559,6 +586,7 @@ router.post("/exercise/generate", async (req, res) => {
           }
         } catch (aiError) {
           const msg = aiError.message || String(aiError);
+          lastAiErrorMsg = msg;
           console.error(`[Exam] Exercise generation error (attempt ${attempt}):`, msg);
           if (lastRawText) {
             console.error(`[Exam] Raw Gemini response (first 500 chars):`, lastRawText.substring(0, 500));
@@ -569,7 +597,19 @@ router.post("/exercise/generate", async (req, res) => {
               /JSON|SyntaxError|Unexpected token|parse/i.test(msg) ||
               /block|BLOCK|candidat|safety|empty response|No content/i.test(msg));
           if (retryable) {
-            await new Promise((r) => setTimeout(r, 2000));
+            const fromHint = parseGeminiRetryDelayMs(msg);
+            const willSwitchModel = attempt === 1 && exerciseModelFallback;
+            // Hết quota model A: lần 2 đổi sang model B — không cần chờ 30s+ của Google
+            const waitMs =
+              willSwitchModel && /429|quota|Quota exceeded/i.test(msg)
+                ? 1000
+                : fromHint > 0
+                  ? fromHint
+                  : /429|quota|Quota exceeded|Too Many Requests/i.test(msg)
+                    ? 3500
+                    : 2000;
+            console.log(`[Exam] Waiting ${waitMs}ms before retry...`);
+            await new Promise((r) => setTimeout(r, waitMs));
             continue;
           }
         }
@@ -578,6 +618,9 @@ router.post("/exercise/generate", async (req, res) => {
 
     // 5. Mock fallback
     if (!exercises) {
+      if (lastAiErrorMsg && /429|quota|Quota exceeded|Too Many Requests|free_tier|rate.limit/i.test(lastAiErrorMsg)) {
+        generationMeta.reason = "gemini_quota_exceeded";
+      }
       console.warn("[Exam] Using mock exercise fallback");
       exercises = {
         mcq: Array.from({ length: mcqCount }).map((_, i) => ({

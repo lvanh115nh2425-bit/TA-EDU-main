@@ -136,6 +136,8 @@ PDF đặt tại `rule/KTPL/{10|11|12}/*.pdf` hoặc `rule/KTPL/GD-KTPL-10.pdf` 
 
 **Tạo bài tập bằng AI (Gemini):** trong `services/kyc-admin-api/.env` cần có `GEMINI_API_KEY` hợp lệ. Container đọc qua `env_file`; sau khi sửa `.env` chạy `docker compose up -d --force-recreate kyc-admin-api`. Nếu thiếu key, API vẫn trả 200 nhưng là **bản minh họa** (không gọi được Google AI). Trong Google Cloud / AI Studio, tránh khóa API key chỉ cho localhost — server cần gọi được outbound tới Google.
 
+**Quota free tier:** Google giới hạn theo **model** (ví dụ ~20 request/ngày cho `gemini-2.5-flash`). Code mặc định **lần 2** thử `gemini-2.0-flash` (`GEMINI_MODEL_EXERCISE_FALLBACK`). Nếu vẫn 429: bật billing, đợi reset ngày, hoặc đổi `GEMINI_MODEL` trong `.env`.
+
 ### Bước 5 – Khởi động Frontend
 
 ```bash
