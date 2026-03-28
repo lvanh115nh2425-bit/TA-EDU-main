@@ -113,14 +113,28 @@ Ingestion complete!
 
 ### Bước 4b – Nạp dữ liệu KTPL (Tạo bài tập / RAG đề)
 
-Trang **Tạo bài tập** đọc bảng `exam_knowledge` (khác với tư vấn luật). Cần chạy **một lần** (hoặc khi đổi PDF):
+Trang **Tạo bài tập** đọc bảng `exam_knowledge` (khác với tư vấn luật). PDF scan cần **OCR** (`pdftoppm`, `tesseract`) — image Docker `kyc-admin-api` đã có sẵn; máy Linux chỉ cài Node thì thường **chưa** có `pdftoppm`.
+
+**Trên VPS (khuyến nghị)** — chạy ingest **trong container** API (dùng DB nội bộ Docker và đủ công cụ OCR):
 
 ```bash
+cd /đường/dẫn/TA-EDU-main
+docker compose exec kyc-admin-api node scripts/ingestKtplData.js
+```
+
+**Trên máy dev** — hoặc cài Poppler + Tesseract rồi chạy npm:
+
+```bash
+# Ubuntu / Debian
+sudo apt-get install -y poppler-utils tesseract-ocr tesseract-ocr-vie
+
 cd services/kyc-admin-api
 npm run ingest:ktpl
 ```
 
-PDF đặt tại `rule/KTPL/{10|11|12}/*.pdf` hoặc `rule/KTPL/GD-KTPL-12.pdf` (khớp số lớp trong tên file). Repo mẫu hiện có PDF lớp **12**; nếu chọn **Lớp 10** mà chưa thêm PDF lớp 10 thì danh sách bài học sẽ trống.
+PDF đặt tại `rule/KTPL/{10|11|12}/*.pdf` hoặc `rule/KTPL/GD-KTPL-10.pdf` / `GD-KTPL-12.pdf` (số lớp trong tên file). Nếu chọn lớp mà chưa có PDF tương ứng thì danh sách bài học sẽ trống.
+
+**Tạo bài tập bằng AI (Gemini):** trong `services/kyc-admin-api/.env` cần có `GEMINI_API_KEY` hợp lệ. Container đọc qua `env_file`; sau khi sửa `.env` chạy `docker compose up -d --force-recreate kyc-admin-api`. Nếu thiếu key, API vẫn trả 200 nhưng là **bản minh họa** (không gọi được Google AI). Trong Google Cloud / AI Studio, tránh khóa API key chỉ cho localhost — server cần gọi được outbound tới Google.
 
 ### Bước 5 – Khởi động Frontend
 

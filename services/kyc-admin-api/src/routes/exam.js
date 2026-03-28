@@ -485,6 +485,11 @@ router.post("/exercise/generate", async (req, res) => {
 
     let exercises = null;
     let usedLLM = false;
+    /** @type {{ source: 'gemini'|'mock', reason: string|null }} */
+    let generationMeta = {
+      source: "mock",
+      reason: exerciseModel ? "gemini_error_or_invalid_json" : "missing_gemini_api_key",
+    };
 
     console.log(`[Exam] exercise/generate: grade=${grade}, lesson="${lesson_name}", difficulty=${difficulty}, chunks=${contextResults.length}`);
 
@@ -505,6 +510,7 @@ router.post("/exercise/generate", async (req, res) => {
             if (attempt < 2) continue;
           } else {
             usedLLM = true;
+            generationMeta = { source: "gemini", reason: null };
             const gotMcq = (exercises.mcq || []).length;
             const gotEssay = (exercises.essay || []).length;
             console.log(`[Exam] Exercise generated OK: ${gotMcq} MCQ, ${gotEssay} essay`);
@@ -575,7 +581,7 @@ router.post("/exercise/generate", async (req, res) => {
       console.error("[Exam] Failed to log exercise generation:", logErr.message);
     }
 
-    res.json(exercises);
+    res.json({ ...exercises, _meta: generationMeta });
   } catch (err) {
     console.error("[Exam] Exercise generate error:", err);
     res.status(500).json({ error: "exercise_generate_failed", message: "Không thể tạo bài tập. Vui lòng thử lại." });

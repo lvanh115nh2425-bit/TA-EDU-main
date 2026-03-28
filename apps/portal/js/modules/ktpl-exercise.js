@@ -180,6 +180,8 @@ async function generateExercises() {
 
     if (!res.ok) throw new Error(await res.text());
     const data = await res.json();
+    const meta = data._meta;
+    const fromGemini = meta?.source === "gemini";
 
     state.exercises.mcq = (data.mcq || []).map((q, i) => ({ ...q, _id: `mcq-${Date.now()}-${i}` }));
     state.exercises.essay = (data.essay || []).map((q, i) => ({ ...q, _id: `essay-${Date.now()}-${i}` }));
@@ -189,7 +191,16 @@ async function generateExercises() {
     renderPreview();
     refs.stepEdit.hidden = false;
     refs.stepExport.hidden = false;
-    setStatus(refs.configStatus, "Tạo thành công!");
+    if (fromGemini) {
+      setStatus(refs.configStatus, "Tạo thành công (AI).");
+    } else {
+      setStatus(
+        refs.configStatus,
+        meta?.reason === "missing_gemini_api_key"
+          ? "Bản minh họa — server chưa có GEMINI_API_KEY (thêm vào .env & restart container)."
+          : "Bản minh họa — Gemini lỗi hoặc trả JSON không đúng. Xem log container kyc-admin-api."
+      );
+    }
     updateEditStatus();
 
     refs.stepEdit.scrollIntoView({ behavior: "smooth", block: "start" });
