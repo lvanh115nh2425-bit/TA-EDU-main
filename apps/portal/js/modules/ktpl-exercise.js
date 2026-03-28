@@ -1,11 +1,15 @@
 import { auth } from "../core/firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
-// ── Backend URL ──────────────────────────────────────────────────────
-const KYC_API_ROOT = (() => {
+// ── Backend URL (giống tu-van-luat: ưu tiên __TAEDU_ADMIN_API__ khi deploy) ──
+function getKycApiRoot() {
+  const custom = typeof window.__TAEDU_ADMIN_API__ === "string" ? window.__TAEDU_ADMIN_API__.trim() : "";
+  if (custom) return custom.replace(/\/$/, "");
   const h = location.hostname;
-  return (h === "localhost" || h === "127.0.0.1") ? "http://localhost:4001" : "";
-})();
+  if (h === "localhost" || h === "127.0.0.1") return "http://localhost:4001";
+  return "";
+}
+const KYC_API_ROOT = getKycApiRoot();
 const LESSONS_URL = `${KYC_API_ROOT}/api/exam/lessons`;
 const EXERCISE_URL = `${KYC_API_ROOT}/api/exam/exercise/generate`;
 
@@ -104,9 +108,12 @@ async function fetchLessons(grade) {
     state.lessons = data.lessons || [];
 
     if (state.lessons.length === 0) {
-      refs.lessonSelect.innerHTML = `<option value="">Không tìm thấy bài học</option>`;
+      refs.lessonSelect.innerHTML = `<option value="">Chưa có dữ liệu cho lớp này</option>`;
       state.selectedLesson = null;
-      setStatus(refs.configStatus, "Không tìm thấy bài học");
+      setStatus(
+        refs.configStatus,
+        `Chưa có bài học lớp ${grade} trong CSDL. Thử lớp 12 nếu đã chạy ingest mặc định, hoặc chạy trên server: npm run ingest:ktpl (cần PDF trong rule/KTPL/).`
+      );
       return;
     }
 

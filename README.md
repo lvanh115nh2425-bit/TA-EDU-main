@@ -111,6 +111,17 @@ Found 10 legal files to ingest.
 Ingestion complete!
 ```
 
+### Bước 4b – Nạp dữ liệu KTPL (Tạo bài tập / RAG đề)
+
+Trang **Tạo bài tập** đọc bảng `exam_knowledge` (khác với tư vấn luật). Cần chạy **một lần** (hoặc khi đổi PDF):
+
+```bash
+cd services/kyc-admin-api
+npm run ingest:ktpl
+```
+
+PDF đặt tại `rule/KTPL/{10|11|12}/*.pdf` hoặc `rule/KTPL/GD-KTPL-12.pdf` (khớp số lớp trong tên file). Repo mẫu hiện có PDF lớp **12**; nếu chọn **Lớp 10** mà chưa thêm PDF lớp 10 thì danh sách bài học sẽ trống.
+
 ### Bước 5 – Khởi động Frontend
 
 ```bash
